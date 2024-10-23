@@ -1,0 +1,50 @@
+@use "/src/assets/global";
+
+.CoupDeCoeurDetail {
+  @include global.paddingInline();
+  @apply flex flex-col gap-8;
+  @apply sm:flex-row;
+
+  // .Gallery-container {
+  //   @apply flex-1 grid grid-cols-3 gap-4;
+  //   img {
+  //     @apply h-[20vh] object-cover w-full;
+  //   }
+  //   img:nth-child(1) {
+  //     @apply col-span-3 w-full h-[50vh] object-cover;
+  //   }
+  // }
+
+  .CoupDeCoeurInfo {
+    @apply flex-1 flex flex-col items-start gap-8;
+
+    h2 {
+      @apply text-5xl font-semibold;
+    }
+    .description {
+      @apply text-gray-600;
+    }
+    .price {
+      @apply flex flex-row items-center gap-4 text-xl;
+      span {
+        @apply text-3xl font-semibold;
+      }
+    }
+  }
+
+  p.colors {
+    @apply flex flex-row flex-wrap justify-center items-center gap-4;
+    span {
+      @apply w-5 h-5 lg:w-4 lg:h-4 rounded-full flex items-center justify-center cursor-pointer;
+      &.active {
+        @apply w-6 h-6;
+        &::before {
+          content: "";
+          @apply w-5 h-5 block border-[4px] border-white;
+          @apply rounded-full;
+          background: inherit;
+        }
+      }
+    }
+  }
+}

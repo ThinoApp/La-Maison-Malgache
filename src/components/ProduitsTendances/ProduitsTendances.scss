@@ -1,0 +1,45 @@
+@use "/src/assets/global";
+.ProduitsTendances {
+  @include global.paddingInline();
+  @apply flex flex-col items-center gap-4 relative;
+  button {
+    @apply flex items-center gap-4 bg-primary px-4 py-2 rounded-full text-white;
+    @apply lg:hidden;
+  }
+  .ProduitsTendances-menus {
+    @apply flex-col gap-4 hidden lg:flex;
+    h2 {
+      @apply text-primary text-2xl font-medium font-MB border-b-[1px] border-primary;
+    }
+    ul {
+      @apply flex flex-col gap-2 font-normal;
+      li {
+        @apply font-sans tracking-tight;
+        list-style-type: none;
+      }
+    }
+  }
+
+  .ProduitsTendances-menus-mobile {
+    @include global.paddingInline();
+    @apply flex flex-col gap-4 fixed left-0 top-0 bg-primary/75 w-full h-screen;
+    z-index: 999999999;
+    @apply lg:hidden;
+    backdrop-filter: blur(10px);
+
+    h2 {
+      @apply text-white text-2xl font-semibold;
+    }
+    ul {
+      @apply flex flex-col gap-2 font-medium;
+      li {
+        @apply font-sans tracking-tight text-white;
+        list-style-type: none;
+      }
+    }
+    .close-icon {
+      @apply absolute right-4 top-2 text-white;
+      stroke-width: 3px;
+    }
+  }
+}

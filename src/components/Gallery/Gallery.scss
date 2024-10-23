@@ -1,0 +1,9 @@
+.Gallery {
+  @apply flex-1 grid grid-cols-3 gap-4;
+  img {
+    @apply h-[20vh] object-cover w-full;
+  }
+  img:nth-child(1) {
+    @apply col-span-3 w-full h-[50vh] object-cover;
+  }
+}

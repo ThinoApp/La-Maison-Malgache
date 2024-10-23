@@ -1,0 +1,17 @@
+.SortBy {
+  @apply flex flex-col gap-2 items-center;
+  button {
+    @apply flex items-center gap-4 bg-primary px-4 py-2 rounded-full text-white;
+  }
+  ul {
+    @apply w-full flex flex-col gap-5;
+    @apply lg:flex-row;
+  }
+
+  .SortByItem {
+    @apply flex gap-1 flex-col;
+    &-input {
+      @apply flex items-center gap-2;
+    }
+  }
+}

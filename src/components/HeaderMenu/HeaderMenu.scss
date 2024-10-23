@@ -1,0 +1,28 @@
+.HeaderMenu {
+  @apply hidden lg:flex flex-wrap gap-y-4 justify-around;
+  .liste-item {
+    @apply flex items-center gap-4 px-4 py-2 z-50 cursor-pointer;
+    font-family: "MB Picture House One";
+    font-weight: bold;
+    font-size: 16px;
+    text-align: left;
+    color: #000;
+    &.active {
+      @apply border-[2px] border-[#6E5C43] text-[#6E5C43];
+    }
+  }
+}
+
+.Header-mobile {
+  .liste-item {
+    @apply flex items-center gap-4 px-4 py-2 z-50 cursor-pointer;
+    font-family: "MB Picture House One";
+    font-weight: bold;
+    font-size: 16px;
+    text-align: left;
+    color: #000;
+    &.active {
+      @apply border-[2px] border-[#6E5C43] text-[#6E5C43];
+    }
+  }
+}

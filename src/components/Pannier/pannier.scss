@@ -1,0 +1,23 @@
+.Pannier {
+  @apply flex flex-col items-center w-full;
+  .Pannier-quantity {
+    @apply flex items-center gap-8  justify-between py-2;
+    button {
+      @apply border-2 border-black h-[30px] w-[30px] flex items-center justify-center text-black duration-300;
+      &:hover {
+        @apply bg-black text-white;
+      }
+    }
+
+    .pannier-nb {
+      @apply text-2xl font-semibold;
+    }
+  }
+
+  .submit-pannier {
+    @apply border-2 border-black text-black w-full py-2 px-4 rounded-sm text-xl font-semibold duration-300;
+    &:hover {
+      @apply bg-black text-white;
+    }
+  }
+}

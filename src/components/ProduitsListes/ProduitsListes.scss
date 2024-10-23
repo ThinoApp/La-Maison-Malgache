@@ -1,0 +1,7 @@
+.ProduitsListes {
+  @apply flex flex-wrap gap-2 gap-y-8 w-full justify-center overflow-y-scroll;
+  @apply lg:grid lg:grid-cols-4 lg:grid-flow-row lg:gap-4 lg:justify-start lg:p-4 lg:gap-y-8;
+  &::-webkit-scrollbar {
+    @apply hidden opacity-0;
+  }
+}
