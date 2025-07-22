@@ -1,4 +1,173 @@
+/* Styles globaux pour l'application */
 .App {
+  width: 100%;
   min-height: 100vh;
-  padding-bottom: 4rem;
+  overflow-x: hidden;
+  background-color: #fff;
+  position: relative;
+}
+
+/* Styles pour la page d'accueil */
+.home-page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Section Hero */
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 50vh; /* Même hauteur que .Hero pour mobile */
+  z-index: 1;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .hero-section {
+    height: 80vh; /* Même hauteur que .Hero pour desktop */
+  }
+}
+
+/* Conteneur pour les sections de contenu */
+.content-sections {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+/* Style pour chaque section */
+.section-container {
+  position: relative;
+  width: 100%;
+  scroll-margin-top: 80px; /* Pour la navigation par ancre */
+}
+
+/* Styles pour les transitions de page */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 400ms, transform 400ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Styles pour les éléments de scroll */
+html {
+  scroll-behavior: smooth;
+  overflow-y: auto; /* Assurer que le scroll est autorisé */
+}
+
+body {
+  overflow-y: auto; /* Assurer que le scroll est autorisé */
+}
+
+/* Styles pour les liens d'ancrage */
+a.anchor-link {
+  display: inline-block;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.3s;
+}
+
+a.anchor-link::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #6e5c43;
+  transform: scaleX(0);
+  transform-origin: bottom right;
+  transition: transform 0.3s;
+}
+
+a.anchor-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Style pour les boutons */
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-family: "Lato", sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #6e5c43;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #5a4a36;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: #6e5c43;
+  border: 2px solid #6e5c43;
+}
+
+.btn-outline:hover {
+  background-color: #6e5c43;
+  color: white;
+}
+
+/* Styles pour les titres de section */
+.section-title {
+  font-family: "CaslonGraD ☞";
+  font-weight: normal;
+  font-size: 2rem;
+  color: #6e5c43;
+  position: relative;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  bottom: -0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: #6e5c43;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
 }

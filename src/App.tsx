@@ -6,6 +6,7 @@ import HeroContainer from "./containers/HeroContainer";
 import CoupDeCoeurDetailContainer from "./containers/CoupDeCoeurDetailContainer";
 import Produits from "./UI/Produits/Produits";
 import AppLayout from "./layout/AppLayout";
+import { AnimatePresence } from "framer-motion";
 
 const router = createBrowserRouter([
   {
@@ -15,13 +16,21 @@ const router = createBrowserRouter([
       {
         path: "",
         element: (
-          <>
-            <HeroContainer />
-            <div>
-              <CoupDeCoeurContainer />
-              <Cta />
-            </div>
-          </>
+          <AnimatePresence mode="wait">
+            <main className="home-page">
+              <section id="hero" className="hero-section">
+                <HeroContainer />
+              </section>
+              <div className="content-sections">
+                <section id="coups-de-coeur" className="section-container">
+                  <CoupDeCoeurContainer />
+                </section>
+                <section id="categories" className="section-container">
+                  <Cta />
+                </section>
+              </div>
+            </main>
+          </AnimatePresence>
         ),
       },
       {
