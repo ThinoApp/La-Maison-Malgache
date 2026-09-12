@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { generatedCraft } from "@/data/generated/craft";
 
 export function CraftStory() {
   return (
@@ -7,9 +8,10 @@ export function CraftStory() {
       <div className="site-shell grid min-h-[78svh] lg:grid-cols-[1.05fr_0.95fr]">
         <div className="relative min-h-[48svh] overflow-hidden lg:min-h-full">
           <Image
-            src="/assets/images/Cta-bg.png"
-            alt="Matière et artisanat dans l'univers de La Maison Malgache"
+            src={generatedCraft}
+            alt="Geste de tressage illustrant l'univers des savoir-faire"
             fill
+            unoptimized
             sizes="(max-width: 1023px) 100vw, 54vw"
             className="object-cover"
           />
