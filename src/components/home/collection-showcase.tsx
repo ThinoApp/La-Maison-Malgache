@@ -1,23 +1,29 @@
 import Image from "next/image";
 import Link from "next/link";
+import { generatedAccessories } from "@/data/generated/accessories";
+import { generatedHome } from "@/data/generated/home";
+import { generatedSelection } from "@/data/generated/selection";
 
 const collectionTiles = [
   {
     title: "Maison & décoration",
     href: "/boutique",
-    image: "/assets/images/CDC_3.png",
+    image: generatedHome,
+    alt: "Composition éditoriale autour de la maison et des objets",
     className: "lg:col-span-7 lg:row-span-2",
   },
   {
     title: "Mode & accessoires",
     href: "/boutique",
-    image: "/assets/images/CDC_4.png",
+    image: generatedAccessories,
+    alt: "Composition éditoriale autour des fibres, du chapeau et du sac",
     className: "lg:col-span-5",
   },
   {
     title: "Première sélection",
     href: "/collections/premiere-selection",
-    image: "/assets/images/CDC_1.png",
+    image: generatedSelection,
+    alt: "Nature morte éditoriale de matières et d'objets",
     className: "lg:col-span-5",
   },
 ];
@@ -43,8 +49,9 @@ export function CollectionShowcase() {
           >
             <Image
               src={tile.image}
-              alt={tile.title}
+              alt={tile.alt}
               fill
+              unoptimized
               sizes={index === 0 ? "(max-width: 1023px) 100vw, 58vw" : "(max-width: 1023px) 100vw, 42vw"}
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
             />
