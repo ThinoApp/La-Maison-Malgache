@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { generatedCraft } from "@/data/generated/craft";
 
 export function CraftStory() {
   return (
@@ -8,7 +7,7 @@ export function CraftStory() {
       <div className="site-shell grid min-h-[78svh] lg:grid-cols-[1.05fr_0.95fr]">
         <div className="relative min-h-[48svh] overflow-hidden lg:min-h-full">
           <Image
-            src={generatedCraft}
+            src="/assets/generated/craft.webp"
             alt="Geste de tressage illustrant l'univers des savoir-faire"
             fill
             unoptimized
