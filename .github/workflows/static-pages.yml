@@ -33,6 +33,14 @@ jobs:
       - name: Materialize WebP assets
         run: node static-prototype/materialize-assets.mjs
 
+      - name: Prepare cache-busted preview
+        run: |
+          rm -rf static-prototype/assets/generated
+          rm -rf static-prototype/preview-v2
+          mkdir -p static-prototype/preview-v2/assets
+          cp static-prototype/index.html static-prototype/preview-v2/index.html
+          cp -R static-prototype/assets/images static-prototype/preview-v2/assets/images
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
