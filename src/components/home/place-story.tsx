@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { generatedPlace } from "@/data/generated/place";
 
 export function PlaceStory() {
   return (
@@ -8,9 +9,10 @@ export function PlaceStory() {
         <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-8">
           <div className="relative min-h-[34rem] overflow-hidden lg:col-span-7 lg:min-h-[44rem]">
             <Image
-              src="/assets/images/CDC_3.png"
-              alt="Objet de La Maison Malgache"
+              src={generatedPlace}
+              alt="Paysage et intérieur évoquant le territoire de Madagascar"
               fill
+              unoptimized
               sizes="(max-width: 1023px) 100vw, 58vw"
               className="object-cover"
             />
