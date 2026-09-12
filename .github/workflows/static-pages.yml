@@ -25,6 +25,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Materialize WebP assets
+        run: node static-prototype/materialize-assets.mjs
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
