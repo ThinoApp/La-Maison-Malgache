@@ -1,1 +1,43 @@
-export function Manifesto() { return <section className="site-shell grid gap-10 py-20 sm:py-28 lg:grid-cols-[0.55fr_1.45fr] lg:py-36"><div className="hidden lg:block" aria-hidden="true" /><div className="max-w-4xl"><h2 className="display text-balance text-4xl leading-[0.98] sm:text-6xl lg:text-7xl">Une boutique ne suffit pas pour comprendre la valeur d'un objet.</h2><p className="mt-8 max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-lg">La nouvelle architecture relie le produit à sa matière, son geste, son atelier et son territoire. Le catalogue devient une porte d'entrée vers le savoir-faire.</p></div></section>; }
+import Link from "next/link";
+
+const pillars = [
+  { title: "Objet", copy: "La pièce comme point d'entrée dans l'univers de la Maison." },
+  { title: "Matière", copy: "Ce qui donne texture, usage et présence à l'objet." },
+  { title: "Geste", copy: "Le savoir-faire qui transforme la matière et lui donne forme." },
+  { title: "Territoire", copy: "Le contexte qui relie l'objet à Madagascar." },
+];
+
+export function Manifesto() {
+  return (
+    <section className="site-shell section-pad border-b border-[var(--line)]">
+      <div className="grid gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:gap-24">
+        <div className="max-w-[48rem]">
+          <h2 className="display text-balance text-[clamp(3rem,5.5vw,5.6rem)] leading-[0.92]">
+            Un objet prend une autre valeur quand on sait d'où il vient.
+          </h2>
+        </div>
+
+        <div className="lg:pt-3">
+          <p className="max-w-[42rem] text-lg leading-8">
+            La Maison Malgache relie chaque pièce à ce qui lui donne du sens : une matière, un geste, un savoir-faire et un territoire.
+          </p>
+          <p className="mt-5 max-w-[42rem] leading-7 text-[var(--muted)]">
+            Ici, le produit n'est pas séparé de son histoire. La boutique devient une porte d'entrée vers Madagascar, ses objets et les connaissances qui les entourent.
+          </p>
+          <Link href="/la-maison" className="link-underline mt-8 text-sm font-medium">
+            Découvrir La Maison
+          </Link>
+
+          <div className="mt-14 grid sm:grid-cols-2">
+            {pillars.map((pillar) => (
+              <div key={pillar.title} className="border-t border-[var(--line)] py-5 sm:pr-8">
+                <h3 className="display text-3xl">{pillar.title}</h3>
+                <p className="mt-2 max-w-xs text-sm leading-6 text-[var(--muted)]">{pillar.copy}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
