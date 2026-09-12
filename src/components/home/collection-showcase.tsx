@@ -1,28 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
-import { generatedAccessories } from "@/data/generated/accessories";
-import { generatedHome } from "@/data/generated/home";
-import { generatedSelection } from "@/data/generated/selection";
 
 const collectionTiles = [
   {
     title: "Maison & décoration",
     href: "/boutique",
-    image: generatedHome,
+    image: "/assets/generated/home.webp",
     alt: "Composition éditoriale autour de la maison et des objets",
     className: "lg:col-span-7 lg:row-span-2",
   },
   {
     title: "Mode & accessoires",
     href: "/boutique",
-    image: generatedAccessories,
+    image: "/assets/generated/accessories.webp",
     alt: "Composition éditoriale autour des fibres, du chapeau et du sac",
     className: "lg:col-span-5",
   },
   {
     title: "Première sélection",
     href: "/collections/premiere-selection",
-    image: generatedSelection,
+    image: "/assets/generated/selection.webp",
     alt: "Nature morte éditoriale de matières et d'objets",
     className: "lg:col-span-5",
   },
