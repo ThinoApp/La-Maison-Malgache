@@ -2,7 +2,6 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 
 const assets = [
-  ["hero", "hero.webp"],
   ["home", "collection-home.webp"],
   ["accessories", "collection-accessories.webp"],
   ["selection", "collection-selection.webp"],
