@@ -42,7 +42,7 @@ Motion is restrained and purposeful. The hero image uses one authored clip revea
 
 ## Imagery
 
-Migration starts with existing repository photography. Real product, artisan, material, and territory photography should replace placeholders as it becomes available. Do not fabricate documentary proof or product claims.
+The homepage preview currently uses synthetic editorial imagery generated to validate the art direction. Treat these images as visual-direction material, not documentary evidence of specific people, makers, products, workshops, or places. Real product, artisan, material, and territory photography should replace synthetic imagery as verified brand assets become available. Product cards keep the existing repository photography during migration.
 
 ## Content Rules
 
