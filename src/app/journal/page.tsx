@@ -1,0 +1,3 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Journal" };
+export default function JournalPage() { return <div className="site-shell py-16 sm:py-24"><header className="max-w-4xl border-b border-[var(--line)] pb-14 sm:pb-20"><h1 className="display text-6xl leading-[0.9] sm:text-8xl">Journal</h1><p className="mt-7 max-w-2xl text-lg leading-8 text-[var(--muted)]">La couche éditoriale est prête. Les futurs articles pourront documenter rencontres, matières, lieux et gestes sans être mélangés aux données commerciales.</p></header><div className="py-16 text-[var(--muted)]"><p>Aucun article validé n'est encore publié dans la nouvelle architecture.</p></div></div>; }

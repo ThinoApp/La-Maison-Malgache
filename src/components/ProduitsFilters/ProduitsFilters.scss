@@ -1,7 +1,0 @@
-@use "/src/assets/global";
-
-.ProduitsFilters {
-  @include global.paddingInline();
-  @apply pt-4 flex items-center flex-col gap-4;
-  @apply lg:pb-0;
-}

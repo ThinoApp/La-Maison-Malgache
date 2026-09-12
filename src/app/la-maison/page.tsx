@@ -1,0 +1,4 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+export const metadata: Metadata = { title: "La Maison" };
+export default function MaisonPage() { return <div className="site-shell py-16 sm:py-24"><div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start"><div className="lg:sticky lg:top-28"><h1 className="display text-6xl leading-[0.9] sm:text-8xl">La Maison</h1><p className="mt-7 max-w-md text-lg leading-8 text-[var(--muted)]">Un espace pour expliquer la vision, les engagements réels et la manière dont La Maison Malgache sélectionne ses pièces.</p></div><div className="relative min-h-[74svh] overflow-hidden bg-[var(--surface)]"><Image src="/assets/images/hero_1.png" alt="Univers visuel de La Maison Malgache" fill sizes="(max-width: 1023px) 100vw, 60vw" className="object-cover" /></div></div></div>; }

@@ -1,31 +1,33 @@
-# React + TypeScript + Vite
+# La Maison Malgache
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Refonte complète de l'architecture web de La Maison Malgache.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Motion
 
-## Expanding the ESLint configuration
+## Structure
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- `src/app`: routes et composition des pages
+- `src/components`: composants visuels par domaine
+- `src/data`: données de migration temporaires
+- `src/lib`: accès et helpers de domaine
+- `src/types`: contrats de données
+- `public/assets`: actifs de marque conservés pendant la migration
 
-- Configure the top-level `parserOptions` property like this:
+## Prérequis
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+Node.js 20.9 ou plus récent.
+
+## Lancer le projet
+
+```bash
+npm install
+npm run dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
-# La-Maison-Malgache
+Les prix, stocks, variantes, biographies d'artisans, coordonnées et autres données commerciales restent volontairement absents tant qu'ils ne sont pas validés.

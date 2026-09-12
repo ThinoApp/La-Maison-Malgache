@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function NotFound() { return <div className="site-shell flex min-h-[62svh] items-center py-20"><div className="max-w-2xl"><h1 className="display text-6xl leading-[0.9] sm:text-8xl">Cette page n'existe pas.</h1><p className="mt-6 text-lg text-[var(--muted)]">La nouvelle architecture ne connaît pas encore cette adresse.</p><Link href="/" className="link-underline mt-8 text-sm font-medium">Retour à l'accueil</Link></div></div>; }
