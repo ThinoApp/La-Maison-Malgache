@@ -1,21 +1,24 @@
 import Image from "next/image";
 import Link from "next/link";
+import { generatedCraft } from "@/data/generated/craft";
+import { generatedJournal } from "@/data/generated/journal";
+import { generatedSelection } from "@/data/generated/selection";
 
 const entries = [
   {
     title: "Les matières",
     copy: "Comprendre ce que la matière change dans la lecture d'un objet.",
-    image: "/assets/images/CDC_1.png",
+    image: generatedSelection,
   },
   {
     title: "Les gestes",
     copy: "Observer ce que la main transmet quand une matière devient une pièce.",
-    image: "/assets/images/Cta-bg.png",
+    image: generatedCraft,
   },
   {
     title: "Les territoires",
     copy: "Regarder Madagascar à travers les objets, les usages et les histoires.",
-    image: "/assets/images/hero_1.png",
+    image: generatedJournal,
   },
 ];
 
@@ -42,6 +45,7 @@ export function JournalPreview() {
                 src={entry.image}
                 alt=""
                 fill
+                unoptimized
                 sizes="(max-width: 767px) 100vw, 33vw"
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.025]"
               />
