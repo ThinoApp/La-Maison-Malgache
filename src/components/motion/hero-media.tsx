@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
+import { generatedHero } from "@/data/generated/hero";
 
 export function HeroMedia() {
   const reduceMotion = useReducedMotion();
@@ -14,10 +15,11 @@ export function HeroMedia() {
       className="absolute inset-0 -z-10 overflow-hidden bg-[#202725]"
     >
       <Image
-        src="/assets/images/hero_1.png"
-        alt="Univers visuel de La Maison Malgache"
+        src={generatedHero}
+        alt="Univers éditorial de La Maison Malgache"
         fill
         priority
+        unoptimized
         sizes="100vw"
         className="object-cover object-center"
       />
