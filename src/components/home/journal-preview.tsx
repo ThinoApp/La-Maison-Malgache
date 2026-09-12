@@ -1,24 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
-import { generatedCraft } from "@/data/generated/craft";
-import { generatedJournal } from "@/data/generated/journal";
-import { generatedSelection } from "@/data/generated/selection";
 
 const entries = [
   {
     title: "Les matières",
     copy: "Comprendre ce que la matière change dans la lecture d'un objet.",
-    image: generatedSelection,
+    image: "/assets/generated/selection.webp",
   },
   {
     title: "Les gestes",
     copy: "Observer ce que la main transmet quand une matière devient une pièce.",
-    image: generatedCraft,
+    image: "/assets/generated/craft.webp",
   },
   {
     title: "Les territoires",
     copy: "Regarder Madagascar à travers les objets, les usages et les histoires.",
-    image: generatedJournal,
+    image: "/assets/generated/journal.webp",
   },
 ];
 
