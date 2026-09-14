@@ -11,9 +11,21 @@
   <link rel="stylesheet" href="motion.css">
   <link rel="stylesheet" href="hero-motion.css">
   <link rel="stylesheet" href="storytelling.css">
+  <link rel="stylesheet" href="preloader.css">
   <script defer src="motion.js"></script>
 </head>
-<body data-scene="sage">
+<body data-scene="sage" data-loading="true">
+  <div class="site-preloader" role="status" aria-live="polite" aria-label="Chargement de La Maison Malgache">
+    <div class="preloader-panel preloader-panel-top" aria-hidden="true"></div>
+    <div class="preloader-panel preloader-panel-bottom" aria-hidden="true"></div>
+    <div class="preloader-content">
+      <span class="preloader-kicker">Objets · Matières · Gestes · Territoires</span>
+      <div class="preloader-mark">La Maison <em>Malgache</em></div>
+      <div class="preloader-line" aria-hidden="true"><span></span></div>
+    </div>
+    <span class="preloader-corner" aria-hidden="true">Madagascar</span>
+  </div>
+
   <div class="ambient-layer" aria-hidden="true"></div>
 
   <main>
