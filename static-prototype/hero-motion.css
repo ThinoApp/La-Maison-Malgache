@@ -1,0 +1,178 @@
+/* Refined hero choreography. Loaded after motion.css so it only overrides the hero scene. */
+
+.hero-stage{
+  height:230vh;
+}
+
+.hero{
+  border-radius:0;
+}
+
+/* Keep the first frame architectural and fully readable. */
+.hero .portal{
+  clip-path:inset(12% 8% 12% 56% round 220px 220px 28px 28px);
+}
+
+.hero .portal::after{
+  opacity:1;
+  will-change:opacity;
+}
+
+@supports (animation-timeline:view()){
+  .hero .portal{
+    animation:lmm-portal-open linear both;
+    animation-timeline:--hero-stage;
+    animation-range:exit 0% exit 47%;
+  }
+
+  .hero .portal img{
+    animation:lmm-hero-depth linear both;
+    animation-timeline:--hero-stage;
+    animation-range:exit 0% exit 47%;
+  }
+
+  .hero .portal::after{
+    animation:lmm-portal-light linear both;
+    animation-timeline:--hero-stage;
+    animation-range:exit 0% exit 47%;
+  }
+
+  .hero .copy{
+    animation:lmm-copy-exit linear both;
+    animation-timeline:--hero-stage;
+    animation-range:exit 0% exit 31%;
+  }
+
+  .hero .header{
+    animation:lmm-header-exit linear both;
+    animation-timeline:--hero-stage;
+    animation-range:exit 0% exit 24%;
+  }
+
+  .arch-frame{
+    animation:lmm-frame-release linear both;
+    animation-timeline:--hero-stage;
+    animation-range:exit 0% exit 37%;
+  }
+
+  .hero .portal-copy{
+    animation:lmm-portal-message linear both;
+    animation-timeline:--hero-stage;
+    animation-range:exit 31% exit 48%;
+  }
+}
+
+@keyframes lmm-portal-open{
+  0%,10%{
+    clip-path:inset(12% 8% 12% 56% round 220px 220px 28px 28px);
+  }
+  52%{
+    clip-path:inset(9.5% 6% 9.5% 42% round 188px 188px 24px 24px);
+  }
+  80%{
+    clip-path:inset(4% 2.7% 4% 18% round 92px 92px 18px 18px);
+  }
+  100%{
+    clip-path:inset(0 0 0 0 round 0);
+  }
+}
+
+@keyframes lmm-hero-depth{
+  0%,10%{
+    transform:scale(1.105) translate3d(1.2%,0,0);
+  }
+  52%{
+    transform:scale(1.075) translate3d(.5%,-.4%,0);
+  }
+  80%{
+    transform:scale(1.038) translate3d(0,-1%,0);
+  }
+  100%{
+    transform:scale(1.005) translate3d(0,-1.5%,0);
+  }
+}
+
+@keyframes lmm-portal-light{
+  0%,20%{opacity:1}
+  70%{opacity:.72}
+  100%{opacity:.46}
+}
+
+@keyframes lmm-copy-exit{
+  0%,16%{
+    opacity:1;
+    transform:translateY(-46%) translate3d(0,0,0);
+  }
+  58%{
+    opacity:.9;
+    transform:translateY(-46%) translate3d(-1.2vw,0,0);
+  }
+  100%{
+    opacity:0;
+    transform:translateY(-46%) translate3d(-7vw,0,0);
+  }
+}
+
+@keyframes lmm-header-exit{
+  0%,18%{
+    opacity:1;
+    transform:translate3d(0,0,0);
+  }
+  100%{
+    opacity:0;
+    transform:translate3d(0,-22px,0);
+  }
+}
+
+@keyframes lmm-frame-release{
+  0%,18%{
+    opacity:1;
+    transform:scale(1);
+  }
+  72%{
+    opacity:.52;
+    transform:scale(1.035);
+  }
+  100%{
+    opacity:0;
+    transform:scale(1.075);
+  }
+}
+
+@keyframes lmm-portal-message{
+  0%,34%{
+    opacity:0;
+    transform:translate3d(0,36px,0);
+  }
+  72%{
+    opacity:.2;
+    transform:translate3d(0,18px,0);
+  }
+  100%{
+    opacity:1;
+    transform:translate3d(0,0,0);
+  }
+}
+
+/* The full-screen frame gets a short visual hold before the sticky scene releases. */
+.hero-stage::after{
+  content:"";
+  position:absolute;
+  inset:auto 0 0;
+  height:1px;
+  pointer-events:none;
+}
+
+@media(max-width:1000px){
+  .hero-stage{height:auto}
+  .hero{border-radius:0 0 28px 28px}
+  .hero .portal{clip-path:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-stage{height:auto!important}
+  .hero{border-radius:0 0 28px 28px}
+  .hero .portal,.hero .portal img,.hero .portal::after,.hero .copy,.hero .header,.arch-frame,.hero .portal-copy{
+    animation:none!important;
+  }
+}
