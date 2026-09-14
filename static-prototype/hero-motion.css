@@ -18,6 +18,35 @@
   will-change:opacity;
 }
 
+/* Seamless preloader -> hero overlap. */
+body[data-loading="true"] .hero{
+  opacity:.01;
+}
+body.hero-handoff .hero{
+  opacity:1;
+  transition:opacity .58s cubic-bezier(.16,1,.3,1);
+}
+body.hero-handoff .hero .portal{
+  opacity:.88;
+  transition:opacity .62s cubic-bezier(.16,1,.3,1);
+}
+body.hero-handoff-visible .hero .portal{
+  opacity:1;
+}
+body.hero-handoff .hero .copy,
+body.hero-handoff .hero .header,
+body.hero-handoff .arch-frame{
+  opacity:0;
+  transform:translate3d(0,14px,0);
+  transition:opacity .72s .18s cubic-bezier(.16,1,.3,1),transform .82s .18s cubic-bezier(.16,1,.3,1);
+}
+body.hero-handoff-visible .hero .copy,
+body.hero-handoff-visible .hero .header,
+body.hero-handoff-visible .arch-frame{
+  opacity:1;
+  transform:translate3d(0,0,0);
+}
+
 @supports (animation-timeline:view()){
   .hero .portal{
     animation:lmm-portal-open linear both;
@@ -167,12 +196,16 @@
   .hero-stage{height:auto}
   .hero{border-radius:0 0 28px 28px}
   .hero .portal{clip-path:none}
+  body[data-loading="true"] .hero{opacity:.01}
+  body.hero-handoff .hero{opacity:1}
+  body.hero-handoff .hero .copy,body.hero-handoff .hero .header,body.hero-handoff .arch-frame{transform:none}
 }
 
 @media(prefers-reduced-motion:reduce){
   .hero-stage{height:auto!important}
-  .hero{border-radius:0 0 28px 28px}
+  .hero{border-radius:0 0 28px 28px;opacity:1!important}
   .hero .portal,.hero .portal img,.hero .portal::after,.hero .copy,.hero .header,.arch-frame,.hero .portal-copy{
     animation:none!important;
+    transition:none!important;
   }
 }
