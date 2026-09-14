@@ -1,0 +1,135 @@
+/* Signature cursor for fine-pointer devices only. */
+.brand-cursor{
+  --cursor-angle:0deg;
+  --cursor-stretch:1;
+  --cursor-squash:1;
+  --cursor-size:34px;
+  --cursor-alpha:.74;
+  position:fixed;
+  z-index:30000;
+  inset:0 auto auto 0;
+  width:0;
+  height:0;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .18s ease;
+  mix-blend-mode:normal;
+}
+
+.brand-cursor.is-visible{opacity:1}
+
+.brand-cursor__dot{
+  position:absolute;
+  left:0;
+  top:0;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#ead5aa;
+  box-shadow:0 0 0 1px rgba(20,35,27,.08),0 0 16px rgba(234,213,170,.26);
+  transform:translate3d(-50%,-50%,0);
+  transition:width .18s var(--ease),height .18s var(--ease),background-color .25s ease,box-shadow .25s ease;
+}
+
+.brand-cursor__ring{
+  position:absolute;
+  left:0;
+  top:0;
+  width:var(--cursor-size);
+  height:var(--cursor-size);
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(234,213,170,var(--cursor-alpha));
+  border-radius:50%;
+  background:rgba(24,40,32,.045);
+  box-shadow:0 8px 24px rgba(12,22,16,.08),inset 0 0 0 1px rgba(255,255,255,.025);
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+  transform:translate3d(-50%,-50%,0) rotate(var(--cursor-angle)) scaleX(var(--cursor-stretch)) scaleY(var(--cursor-squash));
+  transition:
+    width .34s var(--ease),
+    height .34s var(--ease),
+    border-color .25s ease,
+    background-color .25s ease,
+    box-shadow .25s ease;
+  will-change:transform,left,top,width,height;
+}
+
+.brand-cursor__label{
+  color:#26372d;
+  font-size:.58rem;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  opacity:0;
+  transform:scale(.86);
+  transition:opacity .18s ease,transform .3s var(--ease);
+  white-space:nowrap;
+}
+
+.brand-cursor.is-link{
+  --cursor-size:48px;
+  --cursor-alpha:.9;
+}
+.brand-cursor.is-link .brand-cursor__dot{
+  width:3px;
+  height:3px;
+  background:#f3dfb8;
+}
+.brand-cursor.is-link .brand-cursor__ring{
+  background:rgba(212,180,125,.07);
+  box-shadow:0 10px 30px rgba(12,22,16,.09),inset 0 0 0 1px rgba(255,255,255,.04);
+}
+
+.brand-cursor.is-card{
+  --cursor-size:86px;
+  --cursor-alpha:0;
+}
+.brand-cursor.is-card .brand-cursor__dot{opacity:0}
+.brand-cursor.is-card .brand-cursor__ring{
+  background:rgba(239,226,203,.94);
+  border-color:rgba(239,226,203,.94);
+  box-shadow:0 16px 42px rgba(17,30,22,.16);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.brand-cursor.is-card .brand-cursor__label{
+  opacity:1;
+  transform:scale(1);
+}
+
+.brand-cursor.is-pressed .brand-cursor__ring{
+  width:calc(var(--cursor-size) * .82);
+  height:calc(var(--cursor-size) * .82);
+}
+.brand-cursor.is-pressed .brand-cursor__dot{
+  width:8px;
+  height:8px;
+}
+
+body[data-scene="sand"] .brand-cursor__ring{border-color:rgba(81,89,76,.52)}
+body[data-scene="sand"] .brand-cursor__dot{background:#465649}
+body[data-scene="sand"] .brand-cursor.is-card .brand-cursor__dot{opacity:0}
+body[data-scene="dark"] .brand-cursor__ring,
+body[data-scene="territory"] .brand-cursor__ring{border-color:rgba(238,222,191,.74)}
+body[data-scene="dark"] .brand-cursor__dot,
+body[data-scene="territory"] .brand-cursor__dot{background:#edd7ac}
+
+.has-brand-cursor,
+.has-brand-cursor a,
+.has-brand-cursor button,
+.has-brand-cursor [role="button"],
+.has-brand-cursor .card[data-reactive]{cursor:none!important}
+
+/* Old collection-only cursor is superseded by the global signature cursor. */
+.has-brand-cursor .context-cursor{display:none!important}
+
+@media(pointer:coarse),(hover:none){
+  .brand-cursor{display:none!important}
+  .has-brand-cursor,.has-brand-cursor a,.has-brand-cursor button,.has-brand-cursor [role="button"],.has-brand-cursor .card[data-reactive]{cursor:auto!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .brand-cursor{display:none!important}
+  .has-brand-cursor,.has-brand-cursor a,.has-brand-cursor button,.has-brand-cursor [role="button"],.has-brand-cursor .card[data-reactive]{cursor:auto!important}
+}
