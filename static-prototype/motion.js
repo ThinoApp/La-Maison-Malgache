@@ -3,6 +3,11 @@ storytellingStyles.rel = 'stylesheet';
 storytellingStyles.href = 'storytelling.css';
 document.head.appendChild(storytellingStyles);
 
+const madagascarStyles = document.createElement('link');
+madagascarStyles.rel = 'stylesheet';
+madagascarStyles.href = 'madagascar-motion.css';
+document.head.appendChild(madagascarStyles);
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(pointer:fine)');
 
