@@ -8,13 +8,18 @@ madagascarStyles.rel = 'stylesheet';
 madagascarStyles.href = 'madagascar-motion.css';
 document.head.appendChild(madagascarStyles);
 
+const surfaceStyles = document.createElement('link');
+surfaceStyles.rel = 'stylesheet';
+surfaceStyles.href = 'surface-motion.css';
+document.head.appendChild(surfaceStyles);
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(pointer:fine)');
 
 document.body.classList.add('ready');
 
 function revealImmediately() {
-  document.querySelectorAll('.reveal,.line-reveal,.mask-reveal').forEach((el) => el.classList.add('is-visible'));
+  document.querySelectorAll('.reveal,.line-reveal,.mask-reveal,.craft .item,.closing').forEach((el) => el.classList.add('is-visible'));
 }
 
 if (reduceMotion.matches || !('IntersectionObserver' in window)) {
@@ -28,7 +33,7 @@ if (reduceMotion.matches || !('IntersectionObserver' in window)) {
     });
   }, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
 
-  document.querySelectorAll('.reveal,.line-reveal,.mask-reveal').forEach((el) => revealObserver.observe(el));
+  document.querySelectorAll('.reveal,.line-reveal,.mask-reveal,.craft .item,.closing').forEach((el) => revealObserver.observe(el));
 }
 
 const storytelling = document.querySelector('.storytelling');
@@ -105,23 +110,67 @@ if (!reduceMotion.matches && finePointer.matches) {
     });
   });
 
-  document.querySelectorAll('.card[data-reactive]').forEach((card) => {
-    card.addEventListener('pointermove', (event) => {
-      const rect = card.getBoundingClientRect();
-      const px = (event.clientX - rect.left) / rect.width;
-      const py = (event.clientY - rect.top) / rect.height;
-      const ry = (px - 0.5) * 8;
-      const rx = (0.5 - py) * 7;
-      card.style.setProperty('--rx', `${rx}deg`);
-      card.style.setProperty('--ry', `${ry}deg`);
-      card.style.setProperty('--px', `${px * 100}%`);
-      card.style.setProperty('--py', `${py * 100}%`);
+  const contextualCards = [...document.querySelectorAll('.card[data-reactive]')];
+  if (contextualCards.length) {
+    document.body.classList.add('has-context-cursor');
+    const cursor = document.createElement('div');
+    cursor.className = 'context-cursor';
+    cursor.textContent = 'Explorer';
+    cursor.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(cursor);
+
+    let pointerX = -200;
+    let pointerY = -200;
+    let cursorX = -200;
+    let cursorY = -200;
+    let cursorRaf = 0;
+
+    const animateCursor = () => {
+      cursorRaf = 0;
+      cursorX += (pointerX - cursorX) * 0.18;
+      cursorY += (pointerY - cursorY) * 0.18;
+      cursor.style.left = `${cursorX}px`;
+      cursor.style.top = `${cursorY}px`;
+      if (Math.abs(pointerX - cursorX) > 0.2 || Math.abs(pointerY - cursorY) > 0.2) {
+        cursorRaf = requestAnimationFrame(animateCursor);
+      }
+    };
+
+    const requestCursor = () => {
+      if (!cursorRaf) cursorRaf = requestAnimationFrame(animateCursor);
+    };
+
+    contextualCards.forEach((card) => {
+      card.addEventListener('pointerenter', (event) => {
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        cursorX = event.clientX;
+        cursorY = event.clientY;
+        cursor.classList.add('is-visible');
+        requestCursor();
+      });
+      card.addEventListener('pointermove', (event) => {
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        requestCursor();
+
+        const rect = card.getBoundingClientRect();
+        const px = (event.clientX - rect.left) / rect.width;
+        const py = (event.clientY - rect.top) / rect.height;
+        const ry = (px - 0.5) * 8;
+        const rx = (0.5 - py) * 7;
+        card.style.setProperty('--rx', `${rx}deg`);
+        card.style.setProperty('--ry', `${ry}deg`);
+        card.style.setProperty('--px', `${px * 100}%`);
+        card.style.setProperty('--py', `${py * 100}%`);
+      });
+      card.addEventListener('pointerleave', () => {
+        cursor.classList.remove('is-visible');
+        card.style.setProperty('--rx', '0deg');
+        card.style.setProperty('--ry', '0deg');
+        card.style.setProperty('--px', '50%');
+        card.style.setProperty('--py', '50%');
+      });
     });
-    card.addEventListener('pointerleave', () => {
-      card.style.setProperty('--rx', '0deg');
-      card.style.setProperty('--ry', '0deg');
-      card.style.setProperty('--px', '50%');
-      card.style.setProperty('--py', '50%');
-    });
-  });
+  }
 }
