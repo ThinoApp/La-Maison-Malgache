@@ -35,6 +35,7 @@ jobs:
           cp static-prototype/hero-motion.css static-prototype/preview-v2/hero-motion.css
           cp static-prototype/storytelling.css static-prototype/preview-v2/storytelling.css
           cp static-prototype/madagascar-motion.css static-prototype/preview-v2/madagascar-motion.css
+          cp static-prototype/surface-motion.css static-prototype/preview-v2/surface-motion.css
           cp static-prototype/motion.js static-prototype/preview-v2/motion.js
 
       - name: Configure Pages
