@@ -1,0 +1,239 @@
+/* Secondary motion layer: collections, craft, closing, contextual cursor. */
+
+.universes{
+  position:relative;
+  overflow:clip;
+  view-timeline-name:--universes-stage;
+  view-timeline-axis:block;
+}
+
+.universes::before{
+  content:"";
+  position:absolute;
+  width:min(54vw,760px);
+  aspect-ratio:1;
+  right:-18vw;
+  top:12%;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(102,112,95,.12),rgba(102,112,95,0) 68%);
+  pointer-events:none;
+  transform:scale(.72);
+  opacity:.2;
+}
+
+.universes .card{
+  transform-origin:center bottom;
+}
+
+.universes .card.is-visible:nth-child(1){transition-delay:.02s}
+.universes .card.is-visible:nth-child(2){transition-delay:.11s}
+.universes .card.is-visible:nth-child(3){transition-delay:.2s}
+
+.universes .card .card-content::after{
+  content:"Explorer";
+  display:block;
+  width:max-content;
+  margin-top:.9rem;
+  padding-bottom:.18rem;
+  border-bottom:1px solid rgba(255,255,255,.65);
+  font-size:.68rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  opacity:0;
+  transform:translate3d(0,10px,0);
+  transition:opacity .35s var(--ease),transform .45s var(--ease);
+}
+
+.universes .card:hover .card-content::after{
+  opacity:1;
+  transform:translate3d(0,0,0);
+}
+
+@supports (animation-timeline:view()){
+  .universes::before{
+    animation:universe-orbit linear both;
+    animation-timeline:--universes-stage;
+    animation-range:entry 0% exit 80%;
+  }
+  .universes .section-head{
+    animation:universe-heading-drift linear both;
+    animation-timeline:--universes-stage;
+    animation-range:entry 0% entry 60%;
+  }
+}
+
+@keyframes universe-orbit{
+  from{transform:translate3d(6%,10%,0) scale(.72);opacity:.12}
+  to{transform:translate3d(-18%,-8%,0) scale(1.18);opacity:.32}
+}
+
+@keyframes universe-heading-drift{
+  from{transform:translate3d(0,34px,0);opacity:.45}
+  to{transform:translate3d(0,0,0);opacity:1}
+}
+
+/* Craft section: progressive material reveal rather than a static list. */
+.craft{
+  view-timeline-name:--craft-stage;
+  view-timeline-axis:block;
+}
+
+.craft-grid{
+  isolation:isolate;
+}
+
+.craft-grid::before{
+  content:"GESTE";
+  position:absolute;
+  z-index:-1;
+  left:46%;
+  top:50%;
+  color:rgba(244,237,225,.055);
+  font:italic 400 clamp(7rem,17vw,16rem)/.75 Georgia,serif;
+  letter-spacing:-.08em;
+  white-space:nowrap;
+  transform:translate3d(-12%,-50%,0);
+  pointer-events:none;
+}
+
+.craft .item{
+  position:relative;
+  overflow:hidden;
+  opacity:.25;
+  transform:translate3d(28px,0,0);
+  transition:opacity .7s var(--ease),transform .8s var(--ease),padding-left .4s var(--ease);
+}
+
+.craft .item::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(90deg,var(--sand),rgba(255,255,255,.16) 42%,rgba(255,255,255,.04));
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .85s var(--ease);
+}
+
+.craft .item.is-visible{
+  opacity:1;
+  transform:translate3d(0,0,0);
+}
+.craft .item.is-visible::after{transform:scaleX(1)}
+.craft .item.is-visible:nth-child(2){transition-delay:.08s}
+.craft .item.is-visible:nth-child(3){transition-delay:.16s}
+.craft .item.is-visible:nth-child(4){transition-delay:.24s}
+.craft .item.is-visible:nth-child(2)::after{transition-delay:.08s}
+.craft .item.is-visible:nth-child(3)::after{transition-delay:.16s}
+.craft .item.is-visible:nth-child(4)::after{transition-delay:.24s}
+
+.craft .item:hover{padding-left:.6rem}
+.craft .item span{transition:transform .35s var(--ease),color .35s var(--ease)}
+.craft .item strong{transition:transform .35s var(--ease),color .35s var(--ease)}
+.craft .item:hover span{transform:translate3d(4px,0,0);color:#ead6ad}
+.craft .item:hover strong{transform:translate3d(8px,0,0);color:#fff}
+
+@supports (animation-timeline:view()){
+  .craft-grid::before{
+    animation:gesture-word-drift linear both;
+    animation-timeline:--craft-stage;
+    animation-range:entry 0% exit 100%;
+  }
+}
+
+@keyframes gesture-word-drift{
+  from{transform:translate3d(-6%,-46%,0);opacity:.15}
+  to{transform:translate3d(-26%,-58%,0);opacity:.65}
+}
+
+/* Closing scene gets a slow field of sage rising behind the final statement. */
+.closing{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  view-timeline-name:--closing-stage;
+  view-timeline-axis:block;
+}
+
+.closing::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:-8%;
+  bottom:-58%;
+  width:72vw;
+  aspect-ratio:1.45;
+  border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(102,112,95,.23),rgba(102,112,95,.06) 48%,transparent 72%);
+  transform:translate3d(-6%,18%,0) scale(.82);
+  opacity:0;
+  transition:opacity .9s var(--ease),transform 1.2s var(--ease);
+}
+
+.closing.is-visible::before{
+  opacity:1;
+  transform:translate3d(0,0,0) scale(1);
+}
+
+.closing .closing-grid{
+  transition:transform 1s var(--ease);
+}
+.closing.is-visible .closing-grid{transform:translate3d(0,-6px,0)}
+
+@supports (animation-timeline:view()){
+  .closing::before{
+    animation:closing-field linear both;
+    animation-timeline:--closing-stage;
+    animation-range:entry 0% entry 80%;
+  }
+}
+
+@keyframes closing-field{
+  from{opacity:0;transform:translate3d(-8%,22%,0) scale(.78)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+
+/* Context cursor only exists when JS confirms a fine pointer. */
+.context-cursor{
+  position:fixed;
+  z-index:9999;
+  left:0;
+  top:0;
+  width:76px;
+  height:76px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:rgba(238,226,204,.94);
+  color:#26372d;
+  box-shadow:0 14px 40px rgba(24,37,29,.16);
+  font-size:.62rem;
+  font-weight:600;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  pointer-events:none;
+  opacity:0;
+  transform:translate3d(-50%,-50%,0) scale(.72);
+  transition:opacity .2s var(--ease),transform .24s var(--ease);
+  backdrop-filter:blur(8px);
+}
+.context-cursor.is-visible{
+  opacity:1;
+  transform:translate3d(-50%,-50%,0) scale(1);
+}
+.has-context-cursor .card[data-reactive]{cursor:none}
+
+@media(max-width:1000px){
+  .craft-grid::before{left:40%;font-size:clamp(6rem,25vw,11rem)}
+  .craft .item{opacity:1;transform:none}
+  .closing::before{width:120vw;left:-40%;bottom:-30%}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .universes::before,.universes .section-head,.craft-grid::before,.closing::before{animation:none!important;transform:none!important}
+  .craft .item,.craft .item::after,.closing .closing-grid{transition:none!important;transform:none!important;opacity:1!important}
+  .craft .item::after{transform:scaleX(1)!important}
+  .context-cursor{display:none!important}
+}
