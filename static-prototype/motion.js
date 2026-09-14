@@ -1,3 +1,8 @@
+const storytellingStyles = document.createElement('link');
+storytellingStyles.rel = 'stylesheet';
+storytellingStyles.href = 'storytelling.css';
+document.head.appendChild(storytellingStyles);
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(pointer:fine)');
 
@@ -21,15 +26,39 @@ if (reduceMotion.matches || !('IntersectionObserver' in window)) {
   document.querySelectorAll('.reveal,.line-reveal,.mask-reveal').forEach((el) => revealObserver.observe(el));
 }
 
+const storytelling = document.querySelector('.storytelling');
+const storyMedia = document.querySelector('.story-media');
 const storyPhotos = [...document.querySelectorAll('.story-photo')];
 const storyPanels = [...document.querySelectorAll('.story-copy-panel')];
 const storyBars = [...document.querySelectorAll('.story-progress span')];
 const storySentinels = [...document.querySelectorAll('.story-sentinel')];
+const storyWords = ['Objet', 'Matière', 'Geste', 'Territoire'];
+let currentStoryStep = 0;
+let storyWordTimer;
 
 function setStoryStep(index) {
-  storyPhotos.forEach((el, i) => el.classList.toggle('is-active', i === index));
-  storyPanels.forEach((el, i) => el.classList.toggle('is-active', i === index));
-  storyBars.forEach((el, i) => el.classList.toggle('is-active', i <= index));
+  if (!storytelling || !storyMedia) return;
+  const safeIndex = Math.max(0, Math.min(index, storyPhotos.length - 1));
+  const changed = safeIndex !== currentStoryStep;
+  currentStoryStep = safeIndex;
+
+  storytelling.dataset.activeStep = String(safeIndex);
+  storytelling.style.setProperty('--story-progress', String((safeIndex + 1) / storyPhotos.length));
+
+  storyPhotos.forEach((el, i) => el.classList.toggle('is-active', i === safeIndex));
+  storyPanels.forEach((el, i) => el.classList.toggle('is-active', i === safeIndex));
+  storyBars.forEach((el, i) => el.classList.toggle('is-active', i <= safeIndex));
+
+  if (changed && !reduceMotion.matches) {
+    storyMedia.classList.add('is-switching');
+    clearTimeout(storyWordTimer);
+    storyWordTimer = setTimeout(() => {
+      storyMedia.dataset.word = storyWords[safeIndex];
+      storyMedia.classList.remove('is-switching');
+    }, 190);
+  } else {
+    storyMedia.dataset.word = storyWords[safeIndex];
+  }
 }
 
 setStoryStep(0);
