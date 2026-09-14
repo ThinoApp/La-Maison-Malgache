@@ -1,0 +1,140 @@
+/* Extreme cinematic motion layer. Desktop-first, disabled for reduced motion. */
+:root{
+  --depth-x:0px;
+  --depth-y:0px;
+  --depth-x-inverse:0px;
+  --depth-y-inverse:0px;
+  --velocity-blur:0px;
+  --velocity-offset:0px;
+  --velocity-opacity:0;
+}
+
+/* Pointer-driven spatial depth. Uses individual translate so existing transform animations remain intact. */
+@media(pointer:fine) and (hover:hover){
+  .hero .portal{translate:var(--depth-x) var(--depth-y)}
+  .hero .copy{translate:var(--depth-x-inverse) var(--depth-y-inverse)}
+  .story .arch-card{translate:calc(var(--depth-x) * .55) calc(var(--depth-y) * .55)}
+  .story .reveal{translate:calc(var(--depth-x-inverse) * .22) calc(var(--depth-y-inverse) * .22)}
+  .story-media{translate:calc(var(--depth-x) * .34) calc(var(--depth-y) * .34)}
+  .madagascar-media{translate:calc(var(--depth-x) * .24) calc(var(--depth-y) * .24)}
+  .portal,.arch-card,.story-media,.madagascar-media,.hero .copy,.story .reveal{
+    transition:translate .22s cubic-bezier(.2,.8,.2,1);
+    will-change:translate;
+  }
+}
+
+/* Three refractive viewport bands wake up only when scroll velocity is high. */
+.velocity-lens{
+  position:fixed;
+  z-index:16000;
+  inset:0;
+  pointer-events:none;
+  opacity:var(--velocity-opacity);
+  transition:opacity .12s linear;
+  overflow:hidden;
+  will-change:opacity;
+}
+.velocity-lens__band{
+  position:absolute;
+  left:0;
+  width:100%;
+  height:34%;
+  overflow:hidden;
+  backdrop-filter:blur(var(--velocity-blur));
+  -webkit-backdrop-filter:blur(var(--velocity-blur));
+  border-top:1px solid rgba(238,224,196,.035);
+  border-bottom:1px solid rgba(238,224,196,.035);
+  will-change:transform,backdrop-filter;
+}
+.velocity-lens__band:nth-child(1){top:-1%;transform:translate3d(0,calc(var(--velocity-offset) * -.58),0)}
+.velocity-lens__band:nth-child(2){top:33%;transform:translate3d(0,calc(var(--velocity-offset) * .32),0)}
+.velocity-lens__band:nth-child(3){top:66%;transform:translate3d(0,calc(var(--velocity-offset) * -.2),0)}
+.velocity-lens::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(90deg,transparent,rgba(212,180,125,.035) 45%,transparent 58%),
+    linear-gradient(180deg,rgba(102,112,95,.025),transparent 38%,rgba(212,180,125,.025));
+  mix-blend-mode:soft-light;
+}
+
+/* Cinematic navigation wipe for internal anchors. */
+.cinematic-wipe{
+  position:fixed;
+  z-index:29000;
+  inset:0;
+  pointer-events:none;
+  visibility:hidden;
+}
+.cinematic-wipe__panel{
+  position:absolute;
+  left:0;
+  width:100%;
+  height:50.5%;
+  background:#182820;
+  transform:scaleY(0);
+  transition:transform .42s cubic-bezier(.77,0,.18,1);
+  will-change:transform;
+}
+.cinematic-wipe__panel--top{top:0;transform-origin:top}
+.cinematic-wipe__panel--bottom{bottom:0;transform-origin:bottom}
+.cinematic-wipe__label{
+  position:absolute;
+  z-index:2;
+  left:50%;
+  top:50%;
+  color:#ead5aa;
+  font:italic 400 clamp(2rem,4.2vw,4.8rem)/1 Georgia,serif;
+  letter-spacing:-.045em;
+  opacity:0;
+  transform:translate3d(-50%,calc(-50% + 18px),0);
+  transition:opacity .2s ease .08s,transform .34s var(--ease) .08s;
+  white-space:nowrap;
+}
+.cinematic-wipe.is-active{visibility:visible}
+.cinematic-wipe.is-covering .cinematic-wipe__panel{transform:scaleY(1)}
+.cinematic-wipe.is-covering .cinematic-wipe__label{opacity:1;transform:translate3d(-50%,-50%,0)}
+.cinematic-wipe.is-revealing .cinematic-wipe__panel--top{transform:translate3d(0,-102%,0) scaleY(1)}
+.cinematic-wipe.is-revealing .cinematic-wipe__panel--bottom{transform:translate3d(0,102%,0) scaleY(1)}
+.cinematic-wipe.is-revealing .cinematic-wipe__label{opacity:0;transform:translate3d(-50%,calc(-50% - 20px),0)}
+
+/* Scene bloom: one controlled flash when entering major cinematic chapters. */
+.scene-bloom{
+  position:fixed;
+  z-index:15000;
+  inset:-14vmax;
+  pointer-events:none;
+  opacity:0;
+  background:radial-gradient(circle at 50% 50%,rgba(230,208,165,.22),rgba(102,112,95,.06) 28%,transparent 56%);
+  transform:scale(.72);
+  mix-blend-mode:soft-light;
+}
+.scene-bloom.is-active{animation:scene-bloom-pulse .9s cubic-bezier(.16,1,.3,1) both}
+@keyframes scene-bloom-pulse{
+  0%{opacity:0;transform:scale(.72)}
+  36%{opacity:.92;transform:scale(.95)}
+  100%{opacity:0;transform:scale(1.22)}
+}
+
+/* Give major photographic scenes a subtle optical edge while the pointer moves. */
+@media(pointer:fine) and (hover:hover){
+  .portal::before,.arch-card::after,.madagascar-final::after{
+    transition:opacity .3s ease,background-position .3s ease;
+  }
+  body.has-pointer-energy .portal::before,
+  body.has-pointer-energy .arch-card::after{
+    opacity:.72;
+  }
+}
+
+@media(max-width:1000px){
+  .velocity-lens{display:none}
+  .hero .portal,.hero .copy,.story .arch-card,.story .reveal,.story-media,.madagascar-media{translate:none!important}
+  .cinematic-wipe__label{font-size:clamp(2rem,9vw,3.4rem)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .velocity-lens,.cinematic-wipe,.scene-bloom{display:none!important}
+  .hero .portal,.hero .copy,.story .arch-card,.story .reveal,.story-media,.madagascar-media{translate:none!important;transition:none!important}
+}
