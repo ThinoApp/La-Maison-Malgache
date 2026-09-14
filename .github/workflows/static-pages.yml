@@ -42,6 +42,7 @@ jobs:
           cp static-prototype/cursor-motion.css static-prototype/preview-v2/cursor-motion.css
           cp static-prototype/cinematic-motion.css static-prototype/preview-v2/cinematic-motion.css
           cp static-prototype/motion.js static-prototype/preview-v2/motion.js
+          cat static-prototype/preloader-boost.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cursor-motion.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cinematic-motion.js >> static-prototype/preview-v2/motion.js
 
