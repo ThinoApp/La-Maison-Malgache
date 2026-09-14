@@ -1,0 +1,232 @@
+/* Editorial bridge between the hero and the sticky narrative. */
+.story{
+  position:relative;
+  min-height:155vh;
+  padding:0;
+  overflow:clip;
+  isolation:isolate;
+  view-timeline-name:--story-bridge;
+  view-timeline-axis:block;
+}
+
+.story::before{
+  content:"MAISON";
+  position:absolute;
+  z-index:0;
+  left:-3vw;
+  bottom:2vh;
+  color:rgba(61,73,61,.08);
+  font:italic 400 clamp(7rem,19vw,19rem)/.72 Georgia,serif;
+  letter-spacing:-.075em;
+  white-space:nowrap;
+  pointer-events:none;
+  transform:translate3d(-5%,0,0);
+  will-change:transform,opacity;
+}
+
+.story-grid{
+  position:sticky;
+  top:0;
+  z-index:1;
+  min-height:100dvh;
+  padding-top:clamp(5rem,8vw,8rem);
+  padding-bottom:clamp(5rem,8vw,8rem);
+}
+
+.story-grid::after{
+  content:"";
+  position:absolute;
+  left:calc(40% + 1vw);
+  top:18%;
+  bottom:18%;
+  width:1px;
+  background:linear-gradient(180deg,transparent,rgba(75,84,72,.2) 16%,rgba(75,84,72,.2) 84%,transparent);
+  transform:scaleY(.45);
+  transform-origin:center;
+  opacity:.3;
+  pointer-events:none;
+}
+
+.story .reveal{
+  position:relative;
+  z-index:2;
+}
+
+.story h2{
+  max-width:8.5ch;
+  transform-origin:left center;
+  will-change:transform,opacity;
+}
+
+.story p{
+  will-change:transform,opacity;
+}
+
+.story .text-link{
+  display:inline-flex;
+  margin-top:.65rem;
+  will-change:transform,opacity;
+}
+
+.story .arch-card{
+  position:relative;
+  min-height:min(72dvh,760px);
+  height:min(72dvh,760px);
+  border-radius:260px 260px 24px 24px / 210px 210px 24px 24px;
+  transform:translate3d(7%,5%,0) scale(.86);
+  transform-origin:center;
+  box-shadow:0 28px 75px rgba(60,52,42,.12);
+  will-change:transform,border-radius,box-shadow;
+}
+
+.story .arch-card::before{
+  content:"OBJET · MATIÈRE · GESTE · TERRITOIRE";
+  position:absolute;
+  z-index:3;
+  left:1.5rem;
+  right:1.5rem;
+  bottom:1.35rem;
+  color:rgba(255,250,240,.78);
+  font-size:.62rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  pointer-events:none;
+  opacity:0;
+  transform:translate3d(0,14px,0);
+}
+
+.story .arch-card img{
+  width:100%;
+  height:100%;
+  min-height:0;
+  object-fit:cover;
+  object-position:center 62%;
+  filter:saturate(.86) contrast(1.02);
+  will-change:object-position,filter;
+}
+
+@supports (animation-timeline:view()){
+  .story::before{
+    animation:bridge-word-drift linear both;
+    animation-timeline:--story-bridge;
+    animation-range:entry 0% exit 90%;
+  }
+
+  .story-grid::after{
+    animation:bridge-divider linear both;
+    animation-timeline:--story-bridge;
+    animation-range:entry 10% exit 72%;
+  }
+
+  .story h2{
+    animation:bridge-title linear both;
+    animation-timeline:--story-bridge;
+    animation-range:entry 4% exit 58%;
+  }
+
+  .story p{
+    animation:bridge-copy linear both;
+    animation-timeline:--story-bridge;
+    animation-range:entry 10% exit 60%;
+  }
+
+  .story .text-link{
+    animation:bridge-link linear both;
+    animation-timeline:--story-bridge;
+    animation-range:entry 14% exit 62%;
+  }
+
+  .story .arch-card{
+    animation:bridge-arch-open linear both;
+    animation-timeline:--story-bridge;
+    animation-range:entry 0% exit 72%;
+  }
+
+  .story .arch-card::before{
+    animation:bridge-caption linear both;
+    animation-timeline:--story-bridge;
+    animation-range:entry 22% exit 68%;
+  }
+
+  .story .arch-card img{
+    animation:bridge-image-shift linear both;
+    animation-timeline:--story-bridge;
+    animation-range:entry 0% exit 78%;
+  }
+}
+
+@keyframes bridge-word-drift{
+  0%{transform:translate3d(-6%,18%,0);opacity:.1}
+  48%{transform:translate3d(2%,0,0);opacity:.55}
+  100%{transform:translate3d(14%,-12%,0);opacity:.2}
+}
+
+@keyframes bridge-divider{
+  0%{transform:scaleY(.35);opacity:.12}
+  45%{transform:scaleY(1);opacity:.75}
+  100%{transform:scaleY(.55);opacity:.2}
+}
+
+@keyframes bridge-title{
+  0%,10%{transform:translate3d(-3vw,32px,0) scale(.94);opacity:.18}
+  48%{transform:translate3d(0,0,0) scale(1);opacity:1}
+  100%{transform:translate3d(0,-26px,0) scale(.985);opacity:.62}
+}
+
+@keyframes bridge-copy{
+  0%,18%{transform:translate3d(0,28px,0);opacity:.08}
+  50%{transform:translate3d(0,0,0);opacity:1}
+  100%{transform:translate3d(0,-18px,0);opacity:.58}
+}
+
+@keyframes bridge-link{
+  0%,28%{transform:translate3d(0,18px,0);opacity:0}
+  58%{transform:translate3d(0,0,0);opacity:1}
+  100%{transform:translate3d(8px,-10px,0);opacity:.72}
+}
+
+@keyframes bridge-arch-open{
+  0%{
+    transform:translate3d(10%,8%,0) scale(.82);
+    border-radius:280px 280px 26px 26px / 225px 225px 26px 26px;
+    box-shadow:0 18px 55px rgba(60,52,42,.08);
+  }
+  48%{
+    transform:translate3d(1%,0,0) scale(.96);
+    border-radius:220px 220px 22px 22px / 170px 170px 22px 22px;
+    box-shadow:0 30px 80px rgba(60,52,42,.14);
+  }
+  100%{
+    transform:translate3d(-4%,-3%,0) scale(1.03);
+    border-radius:44px;
+    box-shadow:0 34px 90px rgba(60,52,42,.18);
+  }
+}
+
+@keyframes bridge-caption{
+  0%,30%{opacity:0;transform:translate3d(0,14px,0)}
+  62%{opacity:1;transform:translate3d(0,0,0)}
+  100%{opacity:.76;transform:translate3d(0,-4px,0)}
+}
+
+@keyframes bridge-image-shift{
+  0%{object-position:center 68%;filter:saturate(.74) contrast(1.03) brightness(.93)}
+  52%{object-position:center 56%;filter:saturate(.9) contrast(1.02) brightness(.98)}
+  100%{object-position:center 44%;filter:saturate(1) contrast(1.01) brightness(1)}
+}
+
+@media(max-width:1000px){
+  .story{min-height:auto;padding:clamp(5rem,9vw,8rem) 0}
+  .story-grid{position:relative;min-height:auto;padding:0}
+  .story-grid::after{display:none}
+  .story::before{font-size:clamp(7rem,26vw,12rem);bottom:4rem}
+  .story .arch-card{height:60svh;min-height:60svh;transform:none;border-radius:180px 180px 20px 20px / 140px 140px 20px 20px}
+  .story .arch-card::before{opacity:1;transform:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .story{min-height:auto;padding:clamp(5rem,9vw,8rem) 0}
+  .story-grid{position:relative;min-height:auto;padding:0}
+  .story::before,.story-grid::after,.story h2,.story p,.story .text-link,.story .arch-card,.story .arch-card::before,.story .arch-card img{animation:none!important;transform:none!important}
+  .story .arch-card::before{opacity:1!important}
+}
