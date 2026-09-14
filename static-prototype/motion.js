@@ -21,7 +21,63 @@ document.head.appendChild(bridgeStyles);
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(pointer:fine)');
 
-document.body.classList.add('ready');
+const preloader = document.querySelector('.site-preloader');
+const heroImage = document.querySelector('.portal img');
+const preloadStart = performance.now();
+const preloadMin = reduceMotion.matches ? 180 : 900;
+const preloadMax = reduceMotion.matches ? 900 : 2800;
+let preloadFinished = false;
+let preloadProgress = 0.08;
+let preloadTicker = 0;
+
+function setPreloadProgress(value) {
+  preloadProgress = Math.max(preloadProgress, Math.min(value, 1));
+  if (preloader) preloader.style.setProperty('--preload-progress', String(preloadProgress));
+}
+
+function animatePreloadProgress() {
+  if (preloadFinished || !preloader) return;
+  const elapsed = performance.now() - preloadStart;
+  const target = elapsed < 600 ? 0.46 : elapsed < 1200 ? 0.72 : 0.86;
+  setPreloadProgress(preloadProgress + (target - preloadProgress) * 0.08);
+  preloadTicker = requestAnimationFrame(animatePreloadProgress);
+}
+
+function finishPreloader() {
+  if (preloadFinished) return;
+  preloadFinished = true;
+  cancelAnimationFrame(preloadTicker);
+  setPreloadProgress(1);
+
+  const elapsed = performance.now() - preloadStart;
+  const wait = Math.max(0, preloadMin - elapsed);
+
+  window.setTimeout(() => {
+    document.body.classList.add('ready');
+    document.body.dataset.loading = 'false';
+
+    if (!preloader) return;
+    preloader.classList.add('is-leaving');
+    window.setTimeout(() => preloader.remove(), reduceMotion.matches ? 180 : 980);
+  }, wait);
+}
+
+if (preloader) {
+  document.body.dataset.loading = 'true';
+  animatePreloadProgress();
+
+  if (!heroImage || heroImage.complete) {
+    finishPreloader();
+  } else {
+    heroImage.addEventListener('load', finishPreloader, { once: true });
+    heroImage.addEventListener('error', finishPreloader, { once: true });
+  }
+
+  window.setTimeout(finishPreloader, preloadMax);
+} else {
+  document.body.classList.add('ready');
+  document.body.dataset.loading = 'false';
+}
 
 function revealImmediately() {
   document.querySelectorAll('.reveal,.line-reveal,.mask-reveal,.craft .item,.closing').forEach((el) => el.classList.add('is-visible'));
