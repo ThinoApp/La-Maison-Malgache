@@ -18,6 +18,11 @@ bridgeStyles.rel = 'stylesheet';
 bridgeStyles.href = 'bridge-motion.css';
 document.head.appendChild(bridgeStyles);
 
+const globalMotionStyles = document.createElement('link');
+globalMotionStyles.rel = 'stylesheet';
+globalMotionStyles.href = 'global-motion.css';
+document.head.appendChild(globalMotionStyles);
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(pointer:fine)');
 
@@ -148,17 +153,145 @@ if (!reduceMotion.matches && 'IntersectionObserver' in window && storySentinels.
 }
 
 const sceneSections = [...document.querySelectorAll('[data-scene]')];
+const sceneNames = new Map([
+  ['top', 'Entrée'],
+  ['story', 'La Maison'],
+  ['storytelling', 'Objet · Matière'],
+  ['universes', 'Collections'],
+  ['craft', 'Savoir-faire'],
+  ['madagascar', 'Territoire'],
+  ['closing', 'Transmission']
+]);
+let activeSceneName = 'Entrée';
+
+function pulseScene() {
+  if (reduceMotion.matches) return;
+  document.body.classList.remove('scene-pulse');
+  void document.body.offsetWidth;
+  document.body.classList.add('scene-pulse');
+  window.setTimeout(() => document.body.classList.remove('scene-pulse'), 420);
+}
+
+function updateSceneLabels(name) {
+  if (!name || name === activeSceneName) return;
+  activeSceneName = name;
+  document.querySelectorAll('.floating-nav__scene,.motion-rail__label').forEach((el) => {
+    el.classList.add('is-changing');
+    window.setTimeout(() => {
+      el.textContent = name;
+      el.classList.remove('is-changing');
+    }, 130);
+  });
+  pulseScene();
+}
+
 if ('IntersectionObserver' in window && sceneSections.length) {
   const sceneObserver = new IntersectionObserver((entries) => {
     const active = entries
       .filter((entry) => entry.isIntersecting)
       .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-    if (active) document.body.dataset.scene = active.target.dataset.scene || 'sage';
+    if (!active) return;
+    document.body.dataset.scene = active.target.dataset.scene || 'sage';
+    updateSceneLabels(sceneNames.get(active.target.id) || 'La Maison');
   }, { threshold: [0.15, 0.35, 0.6] });
   sceneSections.forEach((section) => sceneObserver.observe(section));
 }
 
+function installGlobalMotionUI() {
+  const nav = document.createElement('div');
+  nav.className = 'floating-nav';
+  nav.innerHTML = `
+    <a class="floating-nav__brand" href="#top">La Maison Malgache</a>
+    <span class="floating-nav__divider" aria-hidden="true"></span>
+    <span class="floating-nav__scene">${activeSceneName}</span>
+    <nav class="floating-nav__links" aria-label="Navigation rapide">
+      <a href="#universes">Collections</a>
+      <a href="#craft">Savoir-faire</a>
+      <a href="#madagascar">Madagascar</a>
+    </nav>`;
+  document.body.appendChild(nav);
+
+  const rail = document.createElement('div');
+  rail.className = 'motion-rail';
+  rail.setAttribute('aria-hidden', 'true');
+  rail.innerHTML = '<span class="motion-rail__fill"></span><span class="motion-rail__dot"></span><span class="motion-rail__label">Entrée</span>';
+  document.body.appendChild(rail);
+
+  const flare = document.createElement('div');
+  flare.className = 'motion-flare';
+  flare.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(flare);
+
+  const speedLines = document.createElement('div');
+  speedLines.className = 'motion-speed-lines';
+  speedLines.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(speedLines);
+}
+
+if (!reduceMotion.matches) installGlobalMotionUI();
+
+if (!reduceMotion.matches) {
+  let lastY = window.scrollY;
+  let lastTime = performance.now();
+  let scrollRaf = 0;
+  let fastTimer = 0;
+
+  const updateGlobalMotion = () => {
+    scrollRaf = 0;
+    const now = performance.now();
+    const y = window.scrollY;
+    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const progress = Math.min(1, Math.max(0, y / max));
+    const dt = Math.max(16, now - lastTime);
+    const velocity = (y - lastY) / dt * 16.67;
+    const clampedVelocity = Math.max(-42, Math.min(42, velocity));
+    const intensity = Math.min(1, Math.abs(clampedVelocity) / 28);
+
+    document.documentElement.style.setProperty('--page-progress', String(progress));
+    document.documentElement.style.setProperty('--scroll-velocity', `${clampedVelocity}px`);
+    document.documentElement.style.setProperty('--speed-opacity', String(Math.max(0, (intensity - .28) * .22)));
+
+    const hero = document.querySelector('.hero-stage');
+    const heroEnd = hero ? hero.offsetTop + hero.offsetHeight * .62 : window.innerHeight;
+    document.body.classList.toggle('has-floating-nav', y > heroEnd);
+    document.body.classList.toggle('is-scrolling-fast', intensity > .48);
+
+    clearTimeout(fastTimer);
+    fastTimer = window.setTimeout(() => {
+      document.body.classList.remove('is-scrolling-fast');
+      document.documentElement.style.setProperty('--scroll-velocity', '0px');
+      document.documentElement.style.setProperty('--speed-opacity', '0');
+    }, 120);
+
+    lastY = y;
+    lastTime = now;
+  };
+
+  const requestGlobalMotion = () => {
+    if (!scrollRaf) scrollRaf = requestAnimationFrame(updateGlobalMotion);
+  };
+
+  window.addEventListener('scroll', requestGlobalMotion, { passive: true });
+  window.addEventListener('resize', requestGlobalMotion);
+  updateGlobalMotion();
+}
+
 if (!reduceMotion.matches && finePointer.matches) {
+  let pointerRaf = 0;
+  let pointerX = window.innerWidth * .72;
+  let pointerY = window.innerHeight * .28;
+
+  window.addEventListener('pointermove', (event) => {
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    if (pointerRaf) return;
+    pointerRaf = requestAnimationFrame(() => {
+      pointerRaf = 0;
+      document.documentElement.style.setProperty('--pointer-x', `${pointerX}px`);
+      document.documentElement.style.setProperty('--pointer-y', `${pointerY}px`);
+    });
+  }, { passive: true });
+
   document.querySelectorAll('.magnetic').forEach((el) => {
     el.addEventListener('pointermove', (event) => {
       const rect = el.getBoundingClientRect();
