@@ -5,6 +5,7 @@
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = window.matchMedia('(pointer:fine)').matches;
+  const heroImage = document.querySelector('.portal img');
   let raf = 0;
   let pointerRaf = 0;
   let targetX = 0;
@@ -12,6 +13,20 @@
   let currentX = 0;
   let currentY = 0;
   let lastPercent = -1;
+  let handoffReady = false;
+
+  if (!reduce && heroImage) {
+    const handoff = document.createElement('div');
+    handoff.className = 'preloader-handoff';
+    handoff.setAttribute('aria-hidden', 'true');
+    const handoffImage = document.createElement('img');
+    handoffImage.alt = '';
+    handoffImage.decoding = 'async';
+    handoffImage.src = heroImage.currentSrc || heroImage.src;
+    handoff.appendChild(handoffImage);
+    loader.insertBefore(handoff, loader.firstChild);
+    handoffReady = true;
+  }
 
   function readProgress() {
     const raw = getComputedStyle(loader).getPropertyValue('--preload-progress').trim();
@@ -27,6 +42,10 @@
     loader.classList.toggle('phase-brand', progress >= .12 && progress < .42);
     loader.classList.toggle('phase-portal', progress >= .42 && progress < .88);
     loader.classList.toggle('phase-ready', progress >= .88);
+
+    if (progress >= .94 && handoffReady) {
+      loader.classList.add('handoff-armed');
+    }
 
     if (loader.isConnected && !loader.classList.contains('is-leaving')) {
       raf = requestAnimationFrame(readProgress);
@@ -58,7 +77,16 @@
     if (!loader.classList.contains('is-leaving')) return;
     cancelAnimationFrame(raf);
     cancelAnimationFrame(pointerRaf);
-    loader.classList.add('phase-ready');
+    loader.classList.add('phase-ready', 'handoff-armed');
+
+    /* Start the hero while the loader is still visually covering it. */
+    document.body.classList.add('hero-handoff');
+    requestAnimationFrame(() => document.body.classList.add('hero-handoff-visible'));
+
+    window.setTimeout(() => {
+      document.body.classList.remove('hero-handoff', 'hero-handoff-visible');
+    }, 1180);
+
     exitObserver.disconnect();
   });
   exitObserver.observe(loader, { attributes:true, attributeFilter:['class'] });
