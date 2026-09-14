@@ -38,6 +38,7 @@ jobs:
           cp static-prototype/surface-motion.css static-prototype/preview-v2/surface-motion.css
           cp static-prototype/bridge-motion.css static-prototype/preview-v2/bridge-motion.css
           cp static-prototype/preloader.css static-prototype/preview-v2/preloader.css
+          cp static-prototype/global-motion.css static-prototype/preview-v2/global-motion.css
           cp static-prototype/motion.js static-prototype/preview-v2/motion.js
 
       - name: Configure Pages
