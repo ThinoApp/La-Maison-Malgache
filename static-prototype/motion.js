@@ -13,6 +13,11 @@ surfaceStyles.rel = 'stylesheet';
 surfaceStyles.href = 'surface-motion.css';
 document.head.appendChild(surfaceStyles);
 
+const bridgeStyles = document.createElement('link');
+bridgeStyles.rel = 'stylesheet';
+bridgeStyles.href = 'bridge-motion.css';
+document.head.appendChild(bridgeStyles);
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(pointer:fine)');
 
