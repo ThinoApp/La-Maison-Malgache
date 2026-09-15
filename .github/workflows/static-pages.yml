@@ -42,11 +42,13 @@ jobs:
           cp static-prototype/cursor-motion.css static-prototype/preview-v2/cursor-motion.css
           cp static-prototype/cinematic-motion.css static-prototype/preview-v2/cinematic-motion.css
           cp static-prototype/shared-transition.css static-prototype/preview-v2/shared-transition.css
+          cp static-prototype/camera-motion.css static-prototype/preview-v2/camera-motion.css
           cp static-prototype/motion.js static-prototype/preview-v2/motion.js
           cat static-prototype/preloader-boost.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cursor-motion.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cinematic-motion.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/shared-transition.js >> static-prototype/preview-v2/motion.js
+          printf '\nconst cameraMotionStyles=document.createElement("link");cameraMotionStyles.rel="stylesheet";cameraMotionStyles.href="camera-motion.css";document.head.appendChild(cameraMotionStyles);\n' >> static-prototype/preview-v2/motion.js
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
