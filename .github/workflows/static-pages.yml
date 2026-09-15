@@ -45,12 +45,14 @@ jobs:
           cp static-prototype/camera-motion.css static-prototype/preview-v2/camera-motion.css
           cp static-prototype/horizontal-gallery.css static-prototype/preview-v2/horizontal-gallery.css
           cp static-prototype/kinetic-typography.css static-prototype/preview-v2/kinetic-typography.css
+          cp static-prototype/material-webgl.css static-prototype/preview-v2/material-webgl.css
           cp static-prototype/motion.js static-prototype/preview-v2/motion.js
           cat static-prototype/preloader-boost.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cursor-motion.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cinematic-motion.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/shared-transition.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/kinetic-typography.js >> static-prototype/preview-v2/motion.js
+          cat static-prototype/material-webgl.js >> static-prototype/preview-v2/motion.js
           printf '\nconst cameraMotionStyles=document.createElement("link");cameraMotionStyles.rel="stylesheet";cameraMotionStyles.href="camera-motion.css";document.head.appendChild(cameraMotionStyles);\n' >> static-prototype/preview-v2/motion.js
           printf '\nconst horizontalGalleryStyles=document.createElement("link");horizontalGalleryStyles.rel="stylesheet";horizontalGalleryStyles.href="horizontal-gallery.css";document.head.appendChild(horizontalGalleryStyles);\n' >> static-prototype/preview-v2/motion.js
           printf '\nconst kineticTypographyStyles=document.createElement("link");kineticTypographyStyles.rel="stylesheet";kineticTypographyStyles.href="kinetic-typography.css";document.head.appendChild(kineticTypographyStyles);\n' >> static-prototype/preview-v2/motion.js
