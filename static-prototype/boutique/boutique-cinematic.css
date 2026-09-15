@@ -1,0 +1,180 @@
+/* Boutique cinematic layer: stronger spatial focus without sacrificing product legibility. */
+:root{
+  --shop-hero-media-x:0px;
+  --shop-hero-media-y:0px;
+  --shop-hero-copy-x:0px;
+  --shop-hero-copy-y:0px;
+  --catalogue-progress:0;
+}
+
+/* Header compresses once the visitor is browsing, but keeps its architectural shape. */
+@media(min-width:761px){
+  .shop-header{
+    transition:min-height .5s var(--ease),padding .5s var(--ease),background-color .35s ease,border-color .35s ease,opacity .6s ease,transform .8s var(--ease);
+  }
+  .shop-brand,.shop-nav,.cart-trigger{transition:font-size .45s var(--ease),opacity .3s ease,transform .35s var(--ease)}
+  .universe-tabs{transition:top .5s var(--ease),background-color .35s ease,box-shadow .35s ease}
+  body.shop-header-condensed .shop-header{
+    min-height:60px;
+    padding-left:clamp(1.25rem,3vw,3.25rem);
+    padding-right:clamp(1.25rem,3vw,3.25rem);
+    background:rgba(25,42,33,.965);
+  }
+  body.shop-header-condensed .shop-brand{font-size:1.12rem}
+  body.shop-header-condensed .shop-nav{font-size:.63rem}
+  body.shop-header-condensed .cart-trigger{font-size:.66rem}
+  body.shop-header-condensed .universe-tabs{top:60px;box-shadow:0 12px 26px rgba(32,49,39,.05)}
+}
+
+/* Pointer-driven camera on the opening scene. */
+@media(pointer:fine) and (hover:hover) and (min-width:1001px){
+  .shop-hero__copy{
+    translate:var(--shop-hero-copy-x) var(--shop-hero-copy-y);
+    transition:translate .45s cubic-bezier(.2,.8,.2,1);
+    will-change:translate;
+  }
+  .shop-hero__media{
+    translate:var(--shop-hero-media-x) var(--shop-hero-media-y);
+    transition:opacity .65s ease .06s,clip-path 1.15s cubic-bezier(.76,0,.24,1) .06s,translate .45s cubic-bezier(.2,.8,.2,1);
+    will-change:translate,clip-path,opacity;
+  }
+}
+
+/* Shared product transition: featured Vase Ambato becomes the first catalogue card. */
+.shop-shared-product{
+  position:fixed;
+  z-index:88;
+  left:0;
+  top:0;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  pointer-events:none;
+  opacity:0;
+  background:#cbc3b5;
+  box-shadow:0 28px 70px rgba(28,42,33,.14);
+  will-change:left,top,width,height,opacity,box-shadow;
+}
+.shop-shared-product.is-active{opacity:1}
+.shop-shared-product img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  scale:1.015;
+}
+body.shop-shared-product-active .featured-piece__copy{opacity:.78;transition:opacity .3s ease}
+
+/* Catalogue becomes a spatial field. The card nearest the viewport center receives full emphasis. */
+.product-card{
+  --shop-focus:.45;
+  opacity:calc(.7 + var(--shop-focus) * .3);
+  translate:0 calc((1 - var(--shop-focus)) * 10px);
+  scale:calc(.982 + var(--shop-focus) * .018);
+  filter:saturate(calc(.88 + var(--shop-focus) * .12));
+  transition:opacity .35s ease,translate .45s var(--ease),scale .45s var(--ease),filter .4s ease;
+}
+.product-card.is-shop-focus{
+  --shop-focus:1!important;
+  z-index:4;
+}
+.product-card.is-shop-focus .product-card__info{border-color:rgba(32,49,39,.34)}
+.product-card.is-shop-focus .product-card__media::before{inset:.4rem;border-color:rgba(255,255,255,.28)}
+
+/* A controlled optical echo inside product photography. */
+.product-card__echo{
+  position:absolute;
+  z-index:1;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  opacity:0;
+  clip-path:inset(39% 0 35% 0);
+  translate:var(--shop-echo-x,0px) var(--shop-echo-y,0px);
+  scale:1.045;
+  transition:opacity .28s ease,translate .35s var(--ease);
+}
+.product-card__echo img{width:100%;height:100%;object-fit:cover;object-position:center;filter:contrast(1.04) saturate(.78)}
+.product-card:hover .product-card__echo{opacity:.34}
+.product-card__media>span{z-index:3}
+
+/* Catalogue focus rail. It is information, not decorative chrome. */
+.shop-focus-rail{
+  position:fixed;
+  z-index:74;
+  right:clamp(1rem,1.8vw,1.8rem);
+  top:50%;
+  display:grid;
+  grid-template-columns:1px auto;
+  gap:1rem;
+  align-items:center;
+  color:var(--deep);
+  opacity:0;
+  pointer-events:none;
+  transform:translate3d(16px,-50%,0);
+  transition:opacity .35s ease,transform .55s var(--ease);
+}
+body.shop-catalogue-active .shop-focus-rail{opacity:1;transform:translate3d(0,-50%,0)}
+.shop-focus-rail__track{position:relative;width:1px;height:128px;background:rgba(32,49,39,.16)}
+.shop-focus-rail__fill{position:absolute;inset:0;background:var(--deep);transform:scaleY(var(--catalogue-progress));transform-origin:top;will-change:transform}
+.shop-focus-rail__copy{display:grid;gap:.22rem;max-width:9.5rem}
+.shop-focus-rail__index{font:400 1.45rem/1 Georgia,serif;letter-spacing:-.03em}
+.shop-focus-rail__name{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase}
+.shop-focus-rail__material{color:#777167;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase}
+
+/* Filter/sort changes feel like a scene recomposition instead of a DOM jump. */
+.product-grid::before{
+  content:"";
+  position:absolute;
+  z-index:16;
+  left:0;
+  right:0;
+  top:0;
+  height:1px;
+  background:rgba(32,49,39,.38);
+  opacity:0;
+  pointer-events:none;
+  transform:translate3d(0,-8px,0) scaleX(.18);
+  transform-origin:left;
+}
+body.shop-recomposing .product-grid::before{animation:shop-recompose-line .58s var(--ease) both}
+body.shop-recomposing .product-card{transition-duration:.24s}
+@keyframes shop-recompose-line{
+  0%{opacity:0;transform:translate3d(0,-8px,0) scaleX(.18)}
+  28%{opacity:.9;transform:translate3d(0,0,0) scaleX(1)}
+  100%{opacity:0;transform:translate3d(0,18px,0) scaleX(1)}
+}
+
+/* The central product gets a tiny editorial marker that will later become the PDP transition origin. */
+.product-card__media::after{
+  content:"";
+  position:absolute;
+  z-index:2;
+  right:.7rem;
+  bottom:.7rem;
+  width:12px;
+  height:1px;
+  background:rgba(255,255,255,.74);
+  opacity:0;
+  transform:scaleX(.3);
+  transform-origin:right;
+  transition:opacity .3s ease,transform .5s var(--ease),width .5s var(--ease);
+}
+.product-card.is-shop-focus .product-card__media::after{width:34px;opacity:.86;transform:scaleX(1)}
+
+@media(max-width:1180px){
+  .shop-focus-rail{display:none}
+}
+
+@media(max-width:1000px){
+  .product-card{opacity:1;translate:none;scale:1;filter:none}
+  .product-card__echo{display:none}
+  .shop-shared-product{display:none!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .shop-focus-rail,.shop-shared-product,.product-card__echo{display:none!important}
+  .product-card{opacity:1!important;translate:none!important;scale:1!important;filter:none!important;transition:none!important}
+  .shop-hero__copy,.shop-hero__media{translate:none!important}
+  .product-grid::before{display:none!important}
+}
