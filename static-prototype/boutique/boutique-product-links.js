@@ -8,6 +8,25 @@
     document.head.appendChild(styles);
   }
 
+  function loadObsidianPolish(){
+    if (!document.querySelector('link[data-boutique-obsidian]')) {
+      const styles = document.createElement('link');
+      styles.rel = 'stylesheet';
+      styles.href = 'boutique-obsidian.css';
+      styles.dataset.boutiqueObsidian = 'true';
+      document.head.appendChild(styles);
+    }
+    if (!document.querySelector('script[data-boutique-obsidian]')) {
+      const script = document.createElement('script');
+      script.src = 'boutique-obsidian.js';
+      script.defer = true;
+      script.dataset.boutiqueObsidian = 'true';
+      document.head.appendChild(script);
+    }
+  }
+
+  loadObsidianPolish();
+
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const routes = [
     ['Vase Ambato','vase-ambato'],
