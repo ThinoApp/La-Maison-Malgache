@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#66705f">
+  <meta name="description" content="La Boutique de La Maison Malgache, objets, matières et pièces choisies de Madagascar.">
+  <title>La Boutique · La Maison Malgache</title>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="stylesheet" href="boutique.css">
+  <script defer src="boutique.js"></script>
+</head>
+<body>
+  <header class="shop-header">
+    <a class="shop-brand" href="../">La Maison Malgache</a>
+    <nav class="shop-nav" aria-label="Navigation boutique">
+      <a href="#catalogue">Catalogue</a>
+      <a href="../#craft">Savoir-faire</a>
+      <a href="../#madagascar">Madagascar</a>
+    </nav>
+    <button class="cart-trigger" type="button" aria-controls="cart-panel" aria-expanded="false">Panier <span aria-live="polite">0</span></button>
+  </header>
+
+  <main>
+    <section class="shop-hero" aria-labelledby="shop-title">
+      <div class="shop-hero__copy">
+        <p class="shop-kicker">La Boutique</p>
+        <h1 id="shop-title">Des objets choisis pour vivre, durer et transmettre.</h1>
+        <p>Une sélection courte de pièces pour la maison, choisies pour leur matière, leur usage et l'histoire qu'elles portent.</p>
+        <a class="shop-link" href="#catalogue">Voir les pièces</a>
+      </div>
+      <div class="shop-hero__media" aria-hidden="true">
+        <img src="https://images.unsplash.com/photo-1760431215881-ea381816f1ca?auto=format&fit=crop&w=1800&q=88" alt="" fetchpriority="high" decoding="async">
+        <span>Collection · 01</span>
+      </div>
+      <div class="shop-hero__count"><strong>08</strong><span>pièces de démonstration</span></div>
+    </section>
+
+    <nav class="universe-tabs" aria-label="Univers de la boutique">
+      <button type="button" class="is-active" data-universe="all" aria-pressed="true">Tout</button>
+      <button type="button" data-universe="maison" aria-pressed="false">Maison</button>
+      <button type="button" data-universe="fibres" aria-pressed="false">Fibres</button>
+      <button type="button" data-universe="quotidien" aria-pressed="false">Quotidien</button>
+      <button type="button" data-universe="singulier" aria-pressed="false">Pièces singulières</button>
+    </nav>
+
+    <!-- Données produit de démonstration. Noms, prix, stocks et matières sont à remplacer par le catalogue réel. -->
+    <section class="featured-piece" aria-labelledby="featured-title">
+      <div class="featured-piece__media">
+        <img src="https://images.unsplash.com/photo-1695740639466-7baecca4224d?auto=format&fit=crop&w=2000&q=88" alt="" loading="lazy" decoding="async">
+        <span class="piece-index">Pièce sélectionnée · 01</span>
+      </div>
+      <div class="featured-piece__copy">
+        <p class="piece-meta">Céramique · Hautes terres</p>
+        <h2 id="featured-title">Vase Ambato</h2>
+        <p>Une forme volontairement simple, laissée irrégulière là où la main rencontre la terre.</p>
+        <div class="piece-price">145 € <span>· Série courte</span></div>
+        <a class="shop-link" href="#catalogue">Découvrir la sélection</a>
+      </div>
+    </section>
+
+    <section class="catalogue" id="catalogue" aria-labelledby="catalogue-title">
+      <div class="catalogue-head">
+        <div>
+          <h2 id="catalogue-title">La sélection</h2>
+          <p><span id="result-count">8</span> pièces</p>
+        </div>
+        <div class="catalogue-tools">
+          <label class="search-field">
+            <span>Rechercher</span>
+            <input id="product-search" type="search" placeholder="Nom, matière..." autocomplete="off">
+          </label>
+
+          <details class="filter-panel">
+            <summary>Filtres <span id="filter-count">0</span></summary>
+            <div class="filter-panel__body">
+              <fieldset>
+                <legend>Matière</legend>
+                <label><input type="checkbox" name="material" value="ceramique"> Céramique</label>
+                <label><input type="checkbox" name="material" value="raphia"> Raphia</label>
+                <label><input type="checkbox" name="material" value="bois"> Bois</label>
+                <label><input type="checkbox" name="material" value="textile"> Textile</label>
+              </fieldset>
+              <fieldset>
+                <legend>Disponibilité</legend>
+                <label><input type="checkbox" name="availability" value="available"> Disponible</label>
+                <label><input type="checkbox" name="availability" value="limited"> Série limitée</label>
+                <label><input type="checkbox" name="availability" value="order"> Sur commande</label>
+              </fieldset>
+              <button id="reset-filters" class="filter-reset" type="button">Réinitialiser</button>
+            </div>
+          </details>
+
+          <label class="sort-field">
+            <span>Trier</span>
+            <select id="sort-products">
+              <option value="selection">Sélection</option>
+              <option value="new">Nouveautés</option>
+              <option value="price-asc">Prix croissant</option>
+              <option value="price-desc">Prix décroissant</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="product-grid" id="product-grid">
+        <article class="product-card product-card--hero" data-product data-univers="maison" data-material="ceramique" data-availability="available" data-price="145" data-rank="1" data-name="Vase Ambato céramique">
+          <div class="product-card__media">
+            <img src="https://images.unsplash.com/photo-1695740639466-7baecca4224d?auto=format&fit=crop&w=1500&q=86" alt="" loading="lazy" decoding="async">
+            <span>Disponible</span>
+          </div>
+          <div class="product-card__info"><div><p>Céramique</p><h3>Vase Ambato</h3></div><strong>145 €</strong></div>
+        </article>
+
+        <article class="product-card" data-product data-univers="fibres" data-material="raphia" data-availability="limited" data-price="98" data-rank="2" data-name="Panier Anja raphia">
+          <div class="product-card__media">
+            <img src="https://images.unsplash.com/photo-1646170629004-b3c84a27fc17?auto=format&fit=crop&w=1300&q=86" alt="" loading="lazy" decoding="async">
+            <span>Série limitée</span>
+          </div>
+          <div class="product-card__info"><div><p>Raphia</p><h3>Panier Anja</h3></div><strong>98 €</strong></div>
+        </article>
+
+        <article class="product-card product-card--tall" data-product data-univers="quotidien" data-material="bois" data-availability="available" data-price="84" data-rank="3" data-name="Plateau Tsiro bois">
+          <div class="product-card__media">
+            <img src="https://images.unsplash.com/photo-1760431215881-ea381816f1ca?auto=format&fit=crop&w=1400&q=86" alt="" loading="lazy" decoding="async">
+            <span>Disponible</span>
+          </div>
+          <div class="product-card__info"><div><p>Bois</p><h3>Plateau Tsiro</h3></div><strong>84 €</strong></div>
+        </article>
+
+        <article class="product-card" data-product data-univers="maison" data-material="ceramique" data-availability="order" data-price="72" data-rank="4" data-name="Coupe Fianara céramique">
+          <div class="product-card__media">
+            <img src="https://images.unsplash.com/photo-1695740639466-7baecca4224d?auto=format&fit=crop&w=1300&q=86&sat=-8" alt="" loading="lazy" decoding="async">
+            <span>Sur commande</span>
+          </div>
+          <div class="product-card__info"><div><p>Céramique</p><h3>Coupe Fianara</h3></div><strong>72 €</strong></div>
+        </article>
+
+        <aside class="catalogue-note" data-editorial>
+          <div class="catalogue-note__image"><img src="https://images.unsplash.com/photo-1768902406144-a348c559c73c?auto=format&fit=crop&w=1700&q=86" alt="" loading="lazy" decoding="async"></div>
+          <div class="catalogue-note__copy"><span>Matière · Geste</span><h3>La matière avant la forme.</h3><p>Le choix commence par ce que l'on touche, puis par la manière dont la pièce sera utilisée.</p></div>
+        </aside>
+
+        <article class="product-card product-card--wide" data-product data-univers="fibres" data-material="raphia" data-availability="order" data-price="189" data-rank="5" data-name="Suspension Vola raphia">
+          <div class="product-card__media">
+            <img src="https://images.unsplash.com/photo-1646170629004-b3c84a27fc17?auto=format&fit=crop&w=1600&q=86&sat=-12" alt="" loading="lazy" decoding="async">
+            <span>Sur commande</span>
+          </div>
+          <div class="product-card__info"><div><p>Raphia</p><h3>Suspension Vola</h3></div><strong>189 €</strong></div>
+        </article>
+
+        <article class="product-card" data-product data-univers="quotidien" data-material="textile" data-availability="available" data-price="64" data-rank="6" data-name="Housse Sira textile">
+          <div class="product-card__media">
+            <img src="https://images.unsplash.com/photo-1768902406144-a348c559c73c?auto=format&fit=crop&w=1300&q=86&sat=-18" alt="" loading="lazy" decoding="async">
+            <span>Disponible</span>
+          </div>
+          <div class="product-card__info"><div><p>Textile</p><h3>Housse Sira</h3></div><strong>64 €</strong></div>
+        </article>
+
+        <article class="product-card product-card--tall" data-product data-univers="fibres" data-material="raphia" data-availability="limited" data-price="110" data-rank="7" data-name="Corbeille Kanto raphia">
+          <div class="product-card__media">
+            <img src="https://images.unsplash.com/photo-1646170629004-b3c84a27fc17?auto=format&fit=crop&w=1400&q=86&con=4" alt="" loading="lazy" decoding="async">
+            <span>Série limitée</span>
+          </div>
+          <div class="product-card__info"><div><p>Raphia</p><h3>Corbeille Kanto</h3></div><strong>110 €</strong></div>
+        </article>
+
+        <article class="product-card product-card--hero" data-product data-univers="singulier" data-material="bois" data-availability="limited" data-price="220" data-rank="8" data-name="Objet Tsingy bois sculpté">
+          <div class="product-card__media">
+            <img src="https://images.unsplash.com/photo-1760431215881-ea381816f1ca?auto=format&fit=crop&w=1600&q=86&sat=-20" alt="" loading="lazy" decoding="async">
+            <span>Pièce singulière</span>
+          </div>
+          <div class="product-card__info"><div><p>Bois sculpté</p><h3>Objet Tsingy</h3></div><strong>220 €</strong></div>
+        </article>
+      </div>
+
+      <div class="empty-state" id="empty-state" hidden>
+        <h3>Aucune pièce ne correspond à cette sélection.</h3>
+        <button type="button" id="empty-reset">Voir toutes les pièces</button>
+      </div>
+    </section>
+
+    <section class="singular-story" aria-labelledby="singular-title">
+      <div class="singular-story__copy">
+        <span>Pièces singulières</span>
+        <h2 id="singular-title">Certaines pièces ne reviennent pas deux fois.</h2>
+        <p>Variations de matière, gestes visibles, petite série ou objet unique : cette partie de la boutique assume l'irrégularité comme une qualité.</p>
+        <button class="shop-link shop-link--button" type="button" data-jump-universe="singulier">Voir les pièces singulières</button>
+      </div>
+      <div class="singular-story__media"><img src="https://images.unsplash.com/photo-1564198729838-cb82ee0c733c?auto=format&fit=crop&w=1900&q=88" alt="" loading="lazy" decoding="async"></div>
+    </section>
+
+    <section class="shop-assurance" aria-label="Informations de commande">
+      <div><strong>Livraison</strong><span>France & Europe</span></div>
+      <div><strong>Retours</strong><span>Conditions détaillées à venir</span></div>
+      <div><strong>Paiement</strong><span>Sécurisé lors de la mise en production</span></div>
+      <div><strong>Origine</strong><span>Pièces et savoir-faire de Madagascar</span></div>
+    </section>
+  </main>
+
+  <footer class="shop-footer">
+    <a href="../">La Maison Malgache</a>
+    <p>Objets · Matières · Gestes · Territoires</p>
+    <p>Prototype boutique. Photographies de démonstration via Unsplash.</p>
+  </footer>
+
+  <dialog class="cart-panel" id="cart-panel">
+    <div class="cart-panel__head"><strong>Panier</strong><button type="button" data-close-cart>Fermer</button></div>
+    <div class="cart-panel__empty"><p>Votre panier est vide.</p><span>Les fonctions d'achat seront connectées dans une prochaine étape.</span></div>
+  </dialog>
+</body>
+</html>
