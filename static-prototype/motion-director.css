@@ -1,0 +1,121 @@
+/* Motion direction layer: prioritize one signature effect at a time. */
+
+:root{
+  --motion-secondary-opacity:1;
+  --motion-optical-opacity:1;
+  --motion-ui-opacity:1;
+}
+
+body.motion-focus-changing .floating-nav,
+body.motion-focus-changing .motion-rail,
+body.motion-focus-changing .motion-flare{
+  transition-duration:.28s;
+}
+
+/* Signature scenes temporarily quiet global optical noise. */
+body[data-motion-focus="gallery"],
+body[data-motion-focus="material"],
+body[data-motion-focus="territory"],
+body.is-shared-transitioning{
+  --motion-secondary-opacity:.3;
+  --motion-optical-opacity:.28;
+}
+
+body[data-motion-focus="closing"]{
+  --motion-secondary-opacity:.08;
+  --motion-optical-opacity:.14;
+  --motion-ui-opacity:.42;
+}
+
+.velocity-lens,
+.motion-speed-lines{
+  opacity:calc(var(--speed-opacity,0) * var(--motion-secondary-opacity))!important;
+}
+
+.motion-flare{opacity:calc(.55 * var(--motion-optical-opacity))}
+body.scene-pulse .motion-flare{opacity:calc(.95 * var(--motion-optical-opacity))}
+body::after{opacity:calc(.72 * var(--motion-optical-opacity))}
+
+.floating-nav,.motion-rail{opacity:var(--motion-ui-opacity)}
+body.has-floating-nav .floating-nav{opacity:var(--motion-ui-opacity)}
+
+/* During the shared bridge transition, typography and camera yield to the travelling image. */
+body.is-shared-transitioning .story .kinetic-word,
+body.is-shared-transitioning .storytelling .kinetic-word{
+  animation-play-state:paused!important;
+}
+body.is-shared-transitioning .story-grid,
+body.is-shared-transitioning .story .reveal,
+body.is-shared-transitioning .storytelling .story-media,
+body.is-shared-transitioning .storytelling .story-copy-stack{
+  scale:1!important;
+  rotate:0deg!important;
+}
+
+/* Collections owns its movement: suppress the older camera animation that targets the same nodes. */
+@media(min-width:1001px){
+  body[data-motion-focus="gallery"] .universe-grid,
+  body[data-motion-focus="gallery"] .universe-grid .card{
+    animation-name:gallery-horizontal-travel!important;
+  }
+  body[data-motion-focus="gallery"] .universe-grid .card:nth-child(1){animation-name:gallery-card-one!important}
+  body[data-motion-focus="gallery"] .universe-grid .card:nth-child(2){animation-name:gallery-card-two!important}
+  body[data-motion-focus="gallery"] .universe-grid .card:nth-child(3){animation-name:gallery-card-three!important}
+
+  /* WebGL becomes the hero in craft; camera and kinetic type become supporting motion. */
+  body[data-motion-focus="material"] .craft-grid{
+    scale:1!important;
+    rotate:0deg!important;
+  }
+  body[data-motion-focus="material"] .craft .list{scale:1!important}
+  body[data-motion-focus="material"] .craft .kinetic-word{
+    animation-duration:1s;
+    opacity:.94;
+  }
+
+  /* Territory is a long visual hold. Reduce extra overlays and settle the typography. */
+  body[data-motion-focus="territory"] .madagascar-copy .kinetic-word{
+    letter-spacing:0!important;
+  }
+
+  /* Final scene intentionally rests. */
+  body[data-motion-focus="closing"] .closing-grid{
+    rotate:0deg!important;
+  }
+  body[data-motion-focus="closing"] .closing .kinetic-word{
+    animation-timing-function:linear!important;
+  }
+}
+
+/* Safer replacements for CSS multiplication on typed custom-property lengths. */
+@media(pointer:fine) and (hover:hover){
+  .story .arch-card{translate:var(--depth-x-soft,0px) var(--depth-y-soft,0px)}
+  .story .reveal{translate:var(--depth-x-copy,0px) var(--depth-y-copy,0px)}
+  .story-media{translate:var(--depth-x-story,0px) var(--depth-y-story,0px)}
+  .madagascar-media{translate:var(--depth-x-territory,0px) var(--depth-y-territory,0px)}
+}
+
+/* Balanced devices retain the composition but trim expensive optical work. */
+body[data-motion-quality="balanced"] .velocity-lens,
+body[data-motion-quality="balanced"] .motion-speed-lines,
+body[data-motion-quality="balanced"] .scene-bloom{
+  display:none!important;
+}
+body[data-motion-quality="balanced"] .motion-flare{opacity:.18!important}
+body[data-motion-quality="balanced"] .craft-material-canvas{filter:none;opacity:.5!important}
+body[data-motion-quality="balanced"] .brand-cursor__ring{backdrop-filter:none;-webkit-backdrop-filter:none}
+
+body.motion-page-hidden .motion-flare,
+body.motion-page-hidden .motion-speed-lines,
+body.motion-page-hidden .velocity-lens,
+body.motion-page-hidden .craft-material-canvas{
+  visibility:hidden!important;
+}
+
+@media(max-width:1000px){
+  body::after{display:none!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  :root{--motion-secondary-opacity:0;--motion-optical-opacity:0;--motion-ui-opacity:1}
+}
