@@ -4,6 +4,23 @@
   const body = document.body;
   if (!body) return;
 
+  function loadSignatureCursor(){
+    if (!document.querySelector('link[data-brand-cursor]')) {
+      const style = document.createElement('link');
+      style.rel = 'stylesheet';
+      style.href = '../shared-brand-cursor.css';
+      style.dataset.brandCursor = 'true';
+      document.head.appendChild(style);
+    }
+    if (!document.querySelector('script[data-brand-cursor]')) {
+      const script = document.createElement('script');
+      script.src = '../shared-brand-cursor.js';
+      script.defer = true;
+      script.dataset.brandCursor = 'true';
+      document.body.appendChild(script);
+    }
+  }
+
   const slug = body.dataset.productSlug || location.pathname.split('/').filter(Boolean).slice(-1)[0];
   const product = catalog[slug] || catalog['vase-ambato'];
   if (!product) return;
@@ -202,5 +219,6 @@
   }
 
   setQuantity(1);
+  loadSignatureCursor();
   requestAnimationFrame(playIncomingTransition);
 })();
