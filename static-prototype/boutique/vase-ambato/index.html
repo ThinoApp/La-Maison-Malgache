@@ -7,176 +7,30 @@
   <meta name="description" content="Vase Ambato, pièce en céramique sélectionnée par La Maison Malgache.">
   <title>Vase Ambato · La Maison Malgache</title>
   <link rel="preconnect" href="https://images.unsplash.com">
-  <script>
-    try {
-      const t = JSON.parse(sessionStorage.getItem('lmm-product-transition') || 'null');
-      if (t && Date.now() - t.time < 3000) document.documentElement.classList.add('pdp-transition-pending');
-    } catch (_) {}
-  </script>
+  <script>try{const t=JSON.parse(sessionStorage.getItem('lmm-product-transition')||'null');if(t&&Date.now()-t.time<3000)document.documentElement.classList.add('pdp-transition-pending')}catch(_){}</script>
   <link rel="stylesheet" href="product.css">
   <link rel="stylesheet" href="product-boost.css">
-  <script defer src="product.js"></script>
+  <script defer src="../product-catalog.js"></script>
+  <script defer src="../product-page.js"></script>
   <script defer src="product-boost.js"></script>
 </head>
-<body>
+<body data-product-slug="vase-ambato">
   <header class="pdp-header">
     <a class="pdp-brand" href="../../">La Maison Malgache</a>
-    <nav class="pdp-nav" aria-label="Navigation produit">
-      <a href="../">Boutique</a>
-      <a href="../../#craft">Savoir-faire</a>
-      <a href="../../#madagascar">Madagascar</a>
-    </nav>
+    <nav class="pdp-nav" aria-label="Navigation produit"><a href="../">Boutique</a><a href="../../#craft">Savoir-faire</a><a href="../../#madagascar">Madagascar</a></nav>
     <button class="pdp-cart-trigger" type="button" aria-controls="pdp-cart" aria-expanded="false">Panier <span data-cart-count>0</span></button>
   </header>
-
   <main>
     <section class="pdp-hero" aria-labelledby="product-title">
-      <div class="pdp-main-media" id="pdp-main-media">
-        <img id="pdp-main-image" src="https://images.unsplash.com/photo-1695740639466-7baecca4224d?auto=format&fit=crop&w=2200&q=90" alt="Vase Ambato en céramique artisanale" fetchpriority="high" decoding="async">
-        <div class="pdp-media-index" aria-hidden="true"><span>01</span><span>03</span></div>
-        <p class="pdp-media-caption">Céramique · Hautes terres</p>
-      </div>
-
-      <div class="pdp-buy-panel">
-        <div class="pdp-buy-inner">
-          <a class="pdp-back" href="../">Retour à la sélection</a>
-          <p class="pdp-eyebrow">Maison · Céramique</p>
-          <h1 id="product-title">Vase Ambato</h1>
-          <div class="pdp-price-row"><strong>145 €</strong><span>TVA incluse</span></div>
-          <p class="pdp-lead">Une forme volontairement simple, laissée irrégulière là où la main rencontre la terre.</p>
-
-          <dl class="pdp-facts">
-            <div><dt>Matière</dt><dd>Céramique</dd></div>
-            <div><dt>Origine</dt><dd>Hautes terres</dd></div>
-            <div><dt>Dimensions</dt><dd>28 × 16 cm</dd></div>
-            <div><dt>Série</dt><dd>Courte</dd></div>
-          </dl>
-
-          <div class="pdp-stock"><span aria-hidden="true"></span>Disponible · expédition estimée sous 4 à 7 jours</div>
-
-          <div class="pdp-purchase">
-            <div class="quantity" aria-label="Quantité">
-              <button type="button" data-qty-minus aria-label="Diminuer la quantité">−</button>
-              <output data-qty aria-live="polite">1</output>
-              <button type="button" data-qty-plus aria-label="Augmenter la quantité">+</button>
-            </div>
-            <button class="add-to-cart" type="button" data-add-to-cart>Ajouter au panier <span>145 €</span></button>
-          </div>
-
-          <div class="pdp-notes">
-            <details>
-              <summary>Matière & fabrication</summary>
-              <p>Chaque pièce est façonnée en petite série. Les légères variations de surface et de forme font partie de son caractère.</p>
-            </details>
-            <details>
-              <summary>Dimensions & entretien</summary>
-              <p>Hauteur 28 cm, diamètre maximal 16 cm. Nettoyage à la main recommandé, avec une éponge douce.</p>
-            </details>
-            <details>
-              <summary>Livraison & retours</summary>
-              <p>Prototype : les conditions finales de livraison, retour et assurance transport seront précisées avant mise en production.</p>
-            </details>
-          </div>
-          <p class="pdp-demo-note">Données produit de démonstration.</p>
-        </div>
-      </div>
+      <div class="pdp-main-media" id="pdp-main-media"><img id="pdp-main-image" src="https://images.unsplash.com/photo-1695740639466-7baecca4224d?auto=format&fit=crop&w=2200&q=90" alt="Vase Ambato en céramique artisanale" fetchpriority="high" decoding="async"><div class="pdp-media-index" aria-hidden="true"><span>01</span><span>03</span></div><p class="pdp-media-caption">Céramique · Hautes terres</p></div>
+      <div class="pdp-buy-panel"><div class="pdp-buy-inner"><a class="pdp-back" href="../">Retour à la sélection</a><p class="pdp-eyebrow">Maison · Céramique</p><h1 id="product-title">Vase Ambato</h1><div class="pdp-price-row"><strong>145 €</strong><span>TVA incluse</span></div><p class="pdp-lead">Une forme volontairement simple, laissée irrégulière là où la main rencontre la terre.</p><dl class="pdp-facts"></dl><div class="pdp-stock"></div><div class="pdp-purchase"><div class="quantity" aria-label="Quantité"><button type="button" data-qty-minus aria-label="Diminuer la quantité">−</button><output data-qty aria-live="polite">1</output><button type="button" data-qty-plus aria-label="Augmenter la quantité">+</button></div><button class="add-to-cart" type="button" data-add-to-cart>Ajouter au panier <span>145 €</span></button></div><div class="pdp-notes"></div><p class="pdp-demo-note">Données produit de démonstration.</p></div></div>
     </section>
-
-    <section class="pdp-story" id="histoire" aria-label="Histoire de la pièce">
-      <div class="pdp-story-pin">
-        <div class="pdp-story-media">
-          <figure class="pdp-story-photo is-active" data-story-photo="0">
-            <img src="https://images.unsplash.com/photo-1695740639466-7baecca4224d?auto=format&fit=crop&w=2100&q=88" alt="Détail de formes en céramique" loading="lazy" decoding="async">
-          </figure>
-          <figure class="pdp-story-photo" data-story-photo="1">
-            <img src="https://images.unsplash.com/photo-1768902406144-a348c559c73c?auto=format&fit=crop&w=2100&q=88" alt="Matière travaillée à la main" loading="lazy" decoding="async">
-          </figure>
-          <figure class="pdp-story-photo" data-story-photo="2">
-            <img src="https://images.unsplash.com/photo-1760431215881-ea381816f1ca?auto=format&fit=crop&w=2100&q=88" alt="Objet artisanal dans un intérieur contemporain" loading="lazy" decoding="async">
-          </figure>
-          <span class="pdp-story-word" aria-hidden="true">MATIÈRE</span>
-        </div>
-
-        <div class="pdp-story-copy">
-          <article class="pdp-story-panel is-active" data-story-panel="0">
-            <span>01 · Matière</span>
-            <h2>La terre donne d’abord le rythme.</h2>
-            <p>La surface n’est pas cherchée parfaitement régulière. Elle conserve des nuances, des tensions et une profondeur qui rendent chaque exemplaire légèrement différent.</p>
-          </article>
-          <article class="pdp-story-panel" data-story-panel="1">
-            <span>02 · Geste</span>
-            <h2>La main reste visible.</h2>
-            <p>Le volume est construit lentement puis repris jusqu’à ce que sa silhouette trouve un équilibre entre précision et irrégularité.</p>
-          </article>
-          <article class="pdp-story-panel" data-story-panel="2">
-            <span>03 · Usage</span>
-            <h2>Une présence avant d’être un décor.</h2>
-            <p>Ambato peut rester seul, recevoir quelques branches ou dialoguer avec d’autres objets. Sa forme est pensée pour garder une présence même lorsqu’il est vide.</p>
-          </article>
-          <div class="pdp-story-progress" aria-hidden="true"><span class="is-active"></span><span></span><span></span></div>
-        </div>
-      </div>
-      <div class="pdp-story-sentinels" aria-hidden="true">
-        <div data-story-step="0"></div>
-        <div data-story-step="1"></div>
-        <div data-story-step="2"></div>
-      </div>
-    </section>
-
-    <section class="pdp-detail-scene" aria-labelledby="detail-title">
-      <div class="pdp-detail-copy">
-        <p>La pièce · en détail</p>
-        <h2 id="detail-title">Une surface qui change avec la lumière.</h2>
-        <div class="pdp-detail-specs">
-          <div><span>Finition</span><strong>Mate, nuances naturelles</strong></div>
-          <div><span>Fabrication</span><strong>Petite série</strong></div>
-          <div><span>Usage</span><strong>Vase ou objet sculptural</strong></div>
-          <div><span>Entretien</span><strong>Nettoyage doux à la main</strong></div>
-        </div>
-      </div>
-      <div class="pdp-detail-media">
-        <img src="https://images.unsplash.com/photo-1695740639466-7baecca4224d?auto=format&fit=crop&w=1900&q=90&sat=-12" alt="Gros plan sur la surface mate d'une céramique" loading="lazy" decoding="async">
-      </div>
-    </section>
-
-    <section class="pdp-related" aria-labelledby="related-title">
-      <div class="pdp-related-head">
-        <div><p>Continuer la maison</p><h2 id="related-title">Pièces en dialogue.</h2></div>
-        <a href="../">Voir toute la boutique</a>
-      </div>
-      <div class="pdp-related-grid">
-        <a class="related-card" href="../?univers=fibres">
-          <div><img src="https://images.unsplash.com/photo-1646170629004-b3c84a27fc17?auto=format&fit=crop&w=1200&q=86" alt="Panier en fibre naturelle" loading="lazy" decoding="async"></div>
-          <p>Raphia</p><h3>Panier Anja</h3><span>98 €</span>
-        </a>
-        <a class="related-card related-card--wide" href="../?univers=quotidien">
-          <div><img src="https://images.unsplash.com/photo-1760431215881-ea381816f1ca?auto=format&fit=crop&w=1500&q=86" alt="Plateau en bois dans un intérieur" loading="lazy" decoding="async"></div>
-          <p>Bois</p><h3>Plateau Tsiro</h3><span>84 €</span>
-        </a>
-        <a class="related-card" href="../?univers=singulier">
-          <div><img src="https://images.unsplash.com/photo-1760431215881-ea381816f1ca?auto=format&fit=crop&w=1200&q=86&sat=-20" alt="Objet sculptural en bois" loading="lazy" decoding="async"></div>
-          <p>Bois sculpté</p><h3>Objet Tsingy</h3><span>220 €</span>
-        </a>
-      </div>
-    </section>
-
-    <section class="pdp-assurance" aria-label="Informations de commande">
-      <div><strong>Livraison</strong><span>France & Europe</span></div>
-      <div><strong>Retours</strong><span>Conditions finales à venir</span></div>
-      <div><strong>Paiement</strong><span>Sécurisé à la mise en production</span></div>
-      <div><strong>Origine</strong><span>Madagascar</span></div>
-    </section>
+    <section class="pdp-story" id="histoire" aria-label="Histoire de la pièce"><div class="pdp-story-pin"><div class="pdp-story-media"><span class="pdp-story-word" aria-hidden="true">MATIÈRE</span></div><div class="pdp-story-copy"><div class="pdp-story-progress" aria-hidden="true"></div></div></div><div class="pdp-story-sentinels" aria-hidden="true"></div></section>
+    <section class="pdp-detail-scene" aria-labelledby="detail-title"><div class="pdp-detail-copy"><p>La pièce · en détail</p><h2 id="detail-title">Une surface qui change avec la lumière.</h2><div class="pdp-detail-specs"></div></div><div class="pdp-detail-media"><img src="https://images.unsplash.com/photo-1695740639466-7baecca4224d?auto=format&fit=crop&w=1900&q=90&sat=-12" alt="Gros plan sur la surface mate d’une céramique" loading="lazy" decoding="async"></div></section>
+    <section class="pdp-related" aria-labelledby="related-title"><div class="pdp-related-head"><div><p>Continuer la maison</p><h2 id="related-title">Pièces en dialogue.</h2></div><a href="../">Voir toute la boutique</a></div><div class="pdp-related-grid"></div></section>
+    <section class="pdp-assurance" aria-label="Informations de commande"><div><strong>Livraison</strong><span>France & Europe</span></div><div><strong>Retours</strong><span>Conditions finales à venir</span></div><div><strong>Paiement</strong><span>Sécurisé à la mise en production</span></div><div><strong>Origine</strong><span>Madagascar</span></div></section>
   </main>
-
-  <footer class="pdp-footer">
-    <a href="../../">La Maison Malgache</a>
-    <p>Objet · Matière · Geste · Territoire</p>
-    <a href="../">Retour à la Boutique</a>
-  </footer>
-
-  <dialog class="pdp-cart" id="pdp-cart">
-    <div class="pdp-cart-head"><strong>Panier</strong><button type="button" data-cart-close>Fermer</button></div>
-    <div class="pdp-cart-body" data-cart-body></div>
-  </dialog>
+  <footer class="pdp-footer"><a href="../../">La Maison Malgache</a><p>Objet · Matière · Geste · Territoire</p><a href="../">Retour à la Boutique</a></footer>
+  <dialog class="pdp-cart" id="pdp-cart"><div class="pdp-cart-head"><strong>Panier</strong><button type="button" data-cart-close>Fermer</button></div><div class="pdp-cart-body" data-cart-body></div></dialog>
 </body>
 </html>
