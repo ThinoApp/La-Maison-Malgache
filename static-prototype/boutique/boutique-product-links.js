@@ -1,5 +1,13 @@
 /* Product routing + cross-page shared image transition for catalogue cards. */
 (() => {
+  if (!document.querySelector('link[data-boutique-product-links]')) {
+    const styles = document.createElement('link');
+    styles.rel = 'stylesheet';
+    styles.href = 'boutique-product-links.css';
+    styles.dataset.boutiqueProductLinks = 'true';
+    document.head.appendChild(styles);
+  }
+
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const routes = [
     ['Vase Ambato','vase-ambato'],
