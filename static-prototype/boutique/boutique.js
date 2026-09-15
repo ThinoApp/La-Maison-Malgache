@@ -20,22 +20,17 @@
   if (!universeButtons.some((button) => button.dataset.universe === activeUniverse)) activeUniverse = 'all';
 
   function selectedValues(name) {
-    return filterInputs
-      .filter((input) => input.name === name && input.checked)
-      .map((input) => input.value);
+    return filterInputs.filter((input) => input.name === name && input.checked).map((input) => input.value);
   }
 
   function matches(product) {
     const materials = selectedValues('material');
     const availability = selectedValues('availability');
     const query = (search?.value || '').trim().toLowerCase();
-
-    const universeMatch = activeUniverse === 'all' || product.dataset.univers === activeUniverse;
-    const materialMatch = !materials.length || materials.includes(product.dataset.material);
-    const availabilityMatch = !availability.length || availability.includes(product.dataset.availability);
-    const searchMatch = !query || (product.dataset.name || '').toLowerCase().includes(query);
-
-    return universeMatch && materialMatch && availabilityMatch && searchMatch;
+    return (activeUniverse === 'all' || product.dataset.univers === activeUniverse)
+      && (!materials.length || materials.includes(product.dataset.material))
+      && (!availability.length || availability.includes(product.dataset.availability))
+      && (!query || (product.dataset.name || '').toLowerCase().includes(query));
   }
 
   function sortVisible() {
@@ -47,16 +42,13 @@
       if (mode === 'new') return Number(b.dataset.rank) - Number(a.dataset.rank);
       return Number(a.dataset.rank) - Number(b.dataset.rank);
     });
-
     ordered.forEach((product) => grid.appendChild(product));
     if (editorial) {
       const visible = ordered.filter((product) => !product.hidden);
       if (visible.length >= 4) {
         grid.insertBefore(editorial, visible[Math.min(4, visible.length - 1)]);
         editorial.hidden = false;
-      } else {
-        editorial.hidden = true;
-      }
+      } else editorial.hidden = true;
     }
   }
 
@@ -70,25 +62,18 @@
   function render() {
     let visibleCount = 0;
     products.forEach((product) => {
-      const visible = matches(product);
-      product.hidden = !visible;
-      if (visible) visibleCount += 1;
+      product.hidden = !matches(product);
+      if (!product.hidden) visibleCount += 1;
     });
-
     sortVisible();
-
     if (resultCount) resultCount.textContent = String(visibleCount);
     if (emptyState) emptyState.hidden = visibleCount !== 0;
-
-    const appliedFilters = filterInputs.filter((input) => input.checked).length;
-    if (filterCount) filterCount.textContent = String(appliedFilters);
-
+    if (filterCount) filterCount.textContent = String(filterInputs.filter((input) => input.checked).length);
     universeButtons.forEach((button) => {
       const active = button.dataset.universe === activeUniverse;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', String(active));
     });
-
     updateUrl();
   }
 
@@ -100,47 +85,25 @@
     render();
   }
 
-  universeButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      activeUniverse = button.dataset.universe || 'all';
-      render();
-    });
-  });
-
+  universeButtons.forEach((button) => button.addEventListener('click', () => { activeUniverse = button.dataset.universe || 'all'; render(); }));
   filterInputs.forEach((input) => input.addEventListener('change', render));
   search?.addEventListener('input', render);
   sort?.addEventListener('change', render);
   reset?.addEventListener('click', resetAll);
   emptyReset?.addEventListener('click', resetAll);
 
-  jumpButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      activeUniverse = button.dataset.jumpUniverse || 'all';
-      filterInputs.forEach((input) => { input.checked = false; });
-      if (search) search.value = '';
-      render();
-      document.querySelector('#catalogue')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
+  jumpButtons.forEach((button) => button.addEventListener('click', () => {
+    activeUniverse = button.dataset.jumpUniverse || 'all';
+    filterInputs.forEach((input) => { input.checked = false; });
+    if (search) search.value = '';
+    render();
+    document.querySelector('#catalogue')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  }));
 
-  cartTrigger?.addEventListener('click', () => {
-    if (!cartPanel) return;
-    cartPanel.showModal();
-    cartTrigger.setAttribute('aria-expanded', 'true');
-  });
-
-  closeCart?.addEventListener('click', () => {
-    cartPanel?.close();
-    cartTrigger?.setAttribute('aria-expanded', 'false');
-  });
-
-  cartPanel?.addEventListener('click', (event) => {
-    if (event.target !== cartPanel) return;
-    cartPanel.close();
-    cartTrigger?.setAttribute('aria-expanded', 'false');
-  });
-
-  cartPanel?.addEventListener('close', () => cartTrigger?.setAttribute('aria-expanded', 'false'));
+  cartTrigger?.addEventListener('click', () => { if (cartPanel) { cartPanel.showModal(); cartTrigger.setAttribute('aria-expanded','true'); } });
+  closeCart?.addEventListener('click', () => { cartPanel?.close(); cartTrigger?.setAttribute('aria-expanded','false'); });
+  cartPanel?.addEventListener('click', (event) => { if (event.target === cartPanel) { cartPanel.close(); cartTrigger?.setAttribute('aria-expanded','false'); } });
+  cartPanel?.addEventListener('close', () => cartTrigger?.setAttribute('aria-expanded','false'));
 
   function syncCartCount() {
     let items = [];
@@ -150,51 +113,17 @@
     if (countEl) countEl.textContent = String(count);
   }
 
-  function goToAmbato(source) {
-    const media = source?.querySelector?.('.product-card__media') || document.querySelector('.featured-piece__media');
-    const img = media?.querySelector('img');
-    if (media && img) {
-      const rect = media.getBoundingClientRect();
-      try {
-        sessionStorage.setItem('lmm-product-transition', JSON.stringify({
-          left: rect.left,
-          top: rect.top,
-          width: rect.width,
-          height: rect.height,
-          radius: parseFloat(getComputedStyle(media).borderRadius) || 0,
-          image: img.currentSrc || img.src,
-          time: Date.now()
-        }));
-      } catch (_) {}
-    }
-    location.href = 'vase-ambato/';
-  }
+  const linksStyle = document.createElement('link');
+  linksStyle.rel = 'stylesheet';
+  linksStyle.href = 'boutique-product-links.css';
+  document.head.appendChild(linksStyle);
 
-  const ambatoCard = products.find((product) => product.dataset.rank === '1');
-  if (ambatoCard) {
-    ambatoCard.setAttribute('role', 'link');
-    ambatoCard.setAttribute('tabindex', '0');
-    ambatoCard.setAttribute('aria-label', 'Voir la fiche du Vase Ambato');
-    ambatoCard.style.cursor = 'pointer';
-    ambatoCard.addEventListener('click', () => goToAmbato(ambatoCard));
-    ambatoCard.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        goToAmbato(ambatoCard);
-      }
-    });
-  }
-
-  const featuredLink = document.querySelector('.featured-piece__copy .shop-link');
-  featuredLink?.setAttribute('href', 'vase-ambato/');
-  if (featuredLink) featuredLink.textContent = 'Découvrir la pièce';
-  featuredLink?.addEventListener('click', (event) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    goToAmbato(document.querySelector('.featured-piece'));
-  });
-
+  render();
   syncCartCount();
   window.addEventListener('pageshow', syncCartCount);
-  render();
+
+  const linksScript = document.createElement('script');
+  linksScript.src = 'boutique-product-links.js';
+  linksScript.defer = true;
+  document.body.appendChild(linksScript);
 })();
