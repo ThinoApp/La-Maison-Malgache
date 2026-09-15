@@ -31,6 +31,10 @@ jobs:
           mkdir -p static-prototype/preview-v2
           mkdir -p static-prototype/preview-v2/boutique
           mkdir -p static-prototype/preview-v2/boutique/vase-ambato
+          mkdir -p static-prototype/preview-v2/boutique/panier-anja
+          mkdir -p static-prototype/preview-v2/boutique/plateau-tsiro
+          mkdir -p static-prototype/preview-v2/boutique/suspension-vola
+          mkdir -p static-prototype/preview-v2/boutique/objet-tsingy
           cp static-prototype/index.html static-prototype/preview-v2/index.html
           cp static-prototype/base.css static-prototype/preview-v2/base.css
           cp static-prototype/motion.css static-prototype/preview-v2/motion.css
@@ -57,11 +61,18 @@ jobs:
           cp static-prototype/boutique/boutique-motion.js static-prototype/preview-v2/boutique/boutique-motion.js
           cp static-prototype/boutique/boutique-cinematic.css static-prototype/preview-v2/boutique/boutique-cinematic.css
           cp static-prototype/boutique/boutique-cinematic.js static-prototype/preview-v2/boutique/boutique-cinematic.js
+          cp static-prototype/boutique/boutique-product-links.css static-prototype/preview-v2/boutique/boutique-product-links.css
+          cp static-prototype/boutique/boutique-product-links.js static-prototype/preview-v2/boutique/boutique-product-links.js
+          cp static-prototype/boutique/product-catalog.js static-prototype/preview-v2/boutique/product-catalog.js
+          cp static-prototype/boutique/product-page.js static-prototype/preview-v2/boutique/product-page.js
           cp static-prototype/boutique/vase-ambato/index.html static-prototype/preview-v2/boutique/vase-ambato/index.html
           cp static-prototype/boutique/vase-ambato/product.css static-prototype/preview-v2/boutique/vase-ambato/product.css
-          cp static-prototype/boutique/vase-ambato/product.js static-prototype/preview-v2/boutique/vase-ambato/product.js
           cp static-prototype/boutique/vase-ambato/product-boost.css static-prototype/preview-v2/boutique/vase-ambato/product-boost.css
           cp static-prototype/boutique/vase-ambato/product-boost.js static-prototype/preview-v2/boutique/vase-ambato/product-boost.js
+          cp static-prototype/boutique/panier-anja/index.html static-prototype/preview-v2/boutique/panier-anja/index.html
+          cp static-prototype/boutique/plateau-tsiro/index.html static-prototype/preview-v2/boutique/plateau-tsiro/index.html
+          cp static-prototype/boutique/suspension-vola/index.html static-prototype/preview-v2/boutique/suspension-vola/index.html
+          cp static-prototype/boutique/objet-tsingy/index.html static-prototype/preview-v2/boutique/objet-tsingy/index.html
           cat static-prototype/preloader-boost.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cursor-motion.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cinematic-motion.js >> static-prototype/preview-v2/motion.js
