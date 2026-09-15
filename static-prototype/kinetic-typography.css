@@ -1,0 +1,262 @@
+/* Kinetic typography: word-level motion layered over the existing section choreography. */
+
+.kinetic-title{
+  text-wrap:balance;
+}
+
+.kinetic-word{
+  display:inline-block;
+  position:relative;
+  transform-origin:50% 68%;
+  will-change:translate,rotate,scale,opacity,letter-spacing;
+}
+
+.kinetic-word::after{
+  content:"";
+  position:absolute;
+  left:8%;
+  right:8%;
+  bottom:-.08em;
+  height:1px;
+  background:currentColor;
+  opacity:0;
+  transform:scaleX(.35);
+  transform-origin:left;
+  pointer-events:none;
+}
+
+/* The hero keeps its existing line reveal, while words develop depth during the opening scroll. */
+@supports (animation-timeline:view()){
+  .hero .kinetic-word{
+    animation:kinetic-hero-word linear both;
+    animation-timeline:--hero-stage;
+    animation-range:exit 0% exit 39%;
+  }
+
+  .story .kinetic-word{
+    animation:kinetic-word-flow linear both;
+    animation-timeline:--story-bridge;
+    animation-range:entry 4% exit 66%;
+  }
+
+  .universes .kinetic-word{
+    animation:kinetic-gallery-word linear both;
+    animation-timeline:--universes-stage;
+    animation-range:entry 100% exit 0%;
+  }
+
+  .craft .kinetic-word{
+    animation:kinetic-word-flow linear both;
+    animation-timeline:--craft-stage;
+    animation-range:entry 0% exit 82%;
+  }
+
+  .madagascar-copy .kinetic-word{
+    animation:kinetic-territory-word linear both;
+    animation-timeline:--madagascar-stage;
+    animation-range:entry 16% exit 82%;
+  }
+
+  .closing .kinetic-word{
+    animation:kinetic-closing-word linear both;
+    animation-timeline:--closing-stage;
+    animation-range:entry 0% entry 96%;
+  }
+}
+
+@keyframes kinetic-hero-word{
+  0%,8%{
+    translate:var(--kinetic-x) var(--kinetic-y);
+    rotate:var(--kinetic-r);
+    scale:var(--kinetic-s);
+    letter-spacing:var(--kinetic-track);
+  }
+  48%{
+    translate:0 0;
+    rotate:0deg;
+    scale:1;
+    letter-spacing:-.005em;
+  }
+  100%{
+    translate:var(--kinetic-x-out) var(--kinetic-y-out);
+    rotate:var(--kinetic-r-out);
+    scale:.99;
+    letter-spacing:-.018em;
+  }
+}
+
+@keyframes kinetic-word-flow{
+  0%{
+    translate:var(--kinetic-x) var(--kinetic-y);
+    rotate:var(--kinetic-r);
+    scale:var(--kinetic-s);
+    letter-spacing:var(--kinetic-track);
+    opacity:.36;
+  }
+  36%{
+    opacity:.92;
+  }
+  54%{
+    translate:0 0;
+    rotate:0deg;
+    scale:1;
+    letter-spacing:0;
+    opacity:1;
+  }
+  100%{
+    translate:var(--kinetic-x-out) var(--kinetic-y-out);
+    rotate:var(--kinetic-r-out);
+    scale:.992;
+    letter-spacing:-.012em;
+    opacity:.78;
+  }
+}
+
+@keyframes kinetic-gallery-word{
+  0%,7%{
+    translate:var(--kinetic-x) calc(var(--kinetic-y) * .75);
+    rotate:var(--kinetic-r);
+    scale:var(--kinetic-s);
+    letter-spacing:var(--kinetic-track);
+    opacity:.55;
+  }
+  27%{
+    translate:0 0;
+    rotate:0deg;
+    scale:1;
+    letter-spacing:0;
+    opacity:1;
+  }
+  66%{
+    translate:calc(var(--kinetic-x-out) * .45) 0;
+    rotate:0deg;
+    scale:1.006;
+    letter-spacing:-.008em;
+    opacity:.96;
+  }
+  100%{
+    translate:var(--kinetic-x-out) var(--kinetic-y-out);
+    rotate:var(--kinetic-r-out);
+    scale:.985;
+    letter-spacing:-.018em;
+    opacity:.62;
+  }
+}
+
+@keyframes kinetic-territory-word{
+  0%,28%{
+    translate:var(--kinetic-x) calc(var(--kinetic-y) + 18px);
+    rotate:var(--kinetic-r);
+    scale:calc(var(--kinetic-s) * .985);
+    letter-spacing:var(--kinetic-track);
+    opacity:.06;
+  }
+  58%{
+    translate:0 0;
+    rotate:0deg;
+    scale:1;
+    letter-spacing:0;
+    opacity:1;
+  }
+  78%{
+    translate:0 -2px;
+    rotate:0deg;
+    scale:1.006;
+    opacity:1;
+  }
+  100%{
+    translate:var(--kinetic-x-out) calc(var(--kinetic-y-out) - 8px);
+    rotate:var(--kinetic-r-out);
+    scale:.992;
+    letter-spacing:-.014em;
+    opacity:.78;
+  }
+}
+
+@keyframes kinetic-closing-word{
+  0%{
+    translate:var(--kinetic-x) calc(var(--kinetic-y) + 24px);
+    rotate:var(--kinetic-r);
+    scale:var(--kinetic-s);
+    letter-spacing:var(--kinetic-track);
+    opacity:.14;
+  }
+  52%{
+    translate:0 0;
+    rotate:0deg;
+    scale:1;
+    letter-spacing:0;
+    opacity:1;
+  }
+  100%{
+    translate:calc(var(--kinetic-x-out) * .35) -4px;
+    rotate:0deg;
+    scale:1;
+    letter-spacing:-.006em;
+    opacity:1;
+  }
+}
+
+/* One highlighted word per title gets a short editorial underline at its focal point. */
+.kinetic-word.is-kinetic-focus::after{
+  animation:kinetic-underline 1s var(--ease) both;
+  animation-play-state:paused;
+}
+
+@supports (animation-timeline:view()){
+  .story .kinetic-word.is-kinetic-focus::after{
+    animation-play-state:running;
+    animation-timeline:--story-bridge;
+    animation-range:entry 28% exit 52%;
+  }
+  .universes .kinetic-word.is-kinetic-focus::after{
+    animation-play-state:running;
+    animation-timeline:--universes-stage;
+    animation-range:entry 100% exit 48%;
+  }
+  .craft .kinetic-word.is-kinetic-focus::after{
+    animation-play-state:running;
+    animation-timeline:--craft-stage;
+    animation-range:entry 18% exit 54%;
+  }
+  .madagascar-copy .kinetic-word.is-kinetic-focus::after{
+    animation-play-state:running;
+    animation-timeline:--madagascar-stage;
+    animation-range:entry 34% exit 62%;
+  }
+  .closing .kinetic-word.is-kinetic-focus::after{
+    animation-play-state:running;
+    animation-timeline:--closing-stage;
+    animation-range:entry 18% entry 74%;
+  }
+}
+
+@keyframes kinetic-underline{
+  0%,16%{opacity:0;transform:scaleX(.2)}
+  58%,86%{opacity:.55;transform:scaleX(1)}
+  100%{opacity:0;transform:scaleX(1)}
+}
+
+@media(max-width:1000px){
+  .kinetic-word{
+    translate:none!important;
+    rotate:0deg!important;
+    scale:1!important;
+    letter-spacing:inherit!important;
+    opacity:1!important;
+    animation:none!important;
+  }
+  .kinetic-word::after{display:none!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .kinetic-word{
+    translate:none!important;
+    rotate:0deg!important;
+    scale:1!important;
+    letter-spacing:inherit!important;
+    opacity:1!important;
+    animation:none!important;
+  }
+  .kinetic-word::after{display:none!important}
+}
