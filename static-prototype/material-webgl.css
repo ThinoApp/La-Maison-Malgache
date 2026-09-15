@@ -1,0 +1,81 @@
+/* Savoir-faire material scene. WebGL sits between the photographic memory and the editorial copy. */
+.craft{
+  isolation:isolate;
+}
+
+.craft::before{
+  z-index:0;
+  opacity:.13;
+}
+
+.craft::after{
+  z-index:2;
+  background:linear-gradient(90deg,rgba(20,34,27,.44),rgba(20,34,27,.72) 50%,rgba(20,34,27,.88) 100%);
+}
+
+.craft-grid{
+  z-index:3;
+}
+
+.craft-material-canvas{
+  position:absolute;
+  z-index:1;
+  left:-6%;
+  top:-8%;
+  width:112%;
+  height:116%;
+  pointer-events:none;
+  opacity:0;
+  transform:scale(1.025);
+  transform-origin:center;
+  filter:saturate(.92) contrast(1.06);
+  mix-blend-mode:screen;
+  transition:opacity .9s cubic-bezier(.16,1,.3,1),filter .8s ease;
+  will-change:opacity,transform;
+}
+
+.craft.has-material-webgl.is-material-active .craft-material-canvas{
+  opacity:.72;
+}
+
+.craft.has-material-webgl .craft-grid::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:42%;
+  top:-25%;
+  width:1px;
+  height:150%;
+  background:linear-gradient(180deg,transparent,rgba(229,205,160,.2) 24%,rgba(229,205,160,.06) 76%,transparent);
+  transform:rotate(7deg) scaleY(.55);
+  transform-origin:center;
+  opacity:.45;
+  pointer-events:none;
+  transition:transform 1.1s cubic-bezier(.16,1,.3,1),opacity .7s ease;
+}
+
+.craft.has-material-webgl.is-material-active .craft-grid::after{
+  transform:rotate(7deg) scaleY(1);
+  opacity:.72;
+}
+
+/* A non-WebGL fallback keeps a trace of the woven material without pretending to be animated. */
+.craft.material-webgl-fallback::before{
+  opacity:.2;
+  background:
+    linear-gradient(112deg,rgba(212,180,125,.08),transparent 42%),
+    repeating-linear-gradient(78deg,rgba(236,221,190,.025) 0 1px,transparent 1px 8px),
+    url('https://images.unsplash.com/photo-1768902406144-a348c559c73c?auto=format&fit=crop&w=1800&q=85') center/cover no-repeat;
+}
+
+@media(max-width:1000px){
+  .craft-material-canvas{display:none!important}
+  .craft::before{opacity:.13}
+  .craft::after{background:linear-gradient(90deg,rgba(20,34,27,.58),rgba(20,34,27,.88))}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .craft-material-canvas{display:none!important}
+  .craft.has-material-webgl .craft-grid::after{display:none!important}
+  .craft::before{opacity:.16}
+}
