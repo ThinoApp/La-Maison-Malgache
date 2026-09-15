@@ -10,9 +10,12 @@
   <link rel="stylesheet" href="boutique.css">
   <link rel="stylesheet" href="boutique-motion.css">
   <link rel="stylesheet" href="boutique-cinematic.css">
+  <link rel="stylesheet" href="global-cart.css">
+  <script defer src="global-cart.js"></script>
   <script defer src="boutique.js"></script>
   <script defer src="boutique-motion.js"></script>
   <script defer src="boutique-cinematic.js"></script>
+  <script defer src="boutique-product-links.js"></script>
 </head>
 <body>
   <header class="shop-header">
@@ -22,7 +25,7 @@
       <a href="../#craft">Savoir-faire</a>
       <a href="../#madagascar">Madagascar</a>
     </nav>
-    <button class="cart-trigger" type="button" aria-controls="cart-panel" aria-expanded="false">Panier <span aria-live="polite">0</span></button>
+    <button class="cart-trigger" type="button" aria-controls="global-cart" aria-expanded="false">Panier <span aria-live="polite">0</span></button>
   </header>
 
   <main>
@@ -59,7 +62,7 @@
         <h2 id="featured-title">Vase Ambato</h2>
         <p>Une forme volontairement simple, laissée irrégulière là où la main rencontre la terre.</p>
         <div class="piece-price">145 € <span>· Série courte</span></div>
-        <a class="shop-link" href="#catalogue">Découvrir la sélection</a>
+        <a class="shop-link" href="vase-ambato/">Voir la fiche</a>
       </div>
     </section>
 
@@ -207,10 +210,5 @@
     <p>Objets · Matières · Gestes · Territoires</p>
     <p>Prototype boutique. Photographies de démonstration via Unsplash.</p>
   </footer>
-
-  <dialog class="cart-panel" id="cart-panel">
-    <div class="cart-panel__head"><strong>Panier</strong><button type="button" data-close-cart>Fermer</button></div>
-    <div class="cart-panel__empty"><p>Votre panier est vide.</p><span>Les fonctions d'achat seront connectées dans une prochaine étape.</span></div>
-  </dialog>
 </body>
 </html>
