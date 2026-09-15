@@ -5,11 +5,10 @@
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const desktop = window.matchMedia('(min-width:1001px)').matches;
-  const progress = document.querySelector('.checkout-progress');
   const summary = document.querySelector('.checkout-summary');
   const summaryInner = document.querySelector('.checkout-summary__inner');
   const form = document.querySelector('#checkout-form');
-  const confirmButton = document.querySelector('[data-confirm-order]');
+  const steps = [...document.querySelectorAll('[data-checkout-step]')];
   let currentStep = 1;
   let lastTotal = document.querySelector('[data-summary-total]')?.textContent || '';
   let scrollRaf = 0;
@@ -30,9 +29,9 @@
     });
   }
 
-  function markDirection(next){
-    const direction = next === 4 ? 'confirm' : next > currentStep ? 'forward' : 'back';
-    body.dataset.checkoutDirection = direction;
+  function animateStep(next){
+    if (next === currentStep) return;
+    body.dataset.checkoutDirection = next === 4 ? 'confirm' : next > currentStep ? 'forward' : 'back';
     currentStep = next;
     setProgress(next);
     requestAnimationFrame(() => {
@@ -43,14 +42,10 @@
     });
   }
 
-  document.addEventListener('click', (event) => {
-    const target = event.target instanceof Element ? event.target : null;
-    const nextButton = target?.closest('[data-next-step]');
-    const prevButton = target?.closest('[data-prev-step]');
-    if (nextButton) markDirection(Number(nextButton.getAttribute('data-next-step') || currentStep));
-    if (prevButton) markDirection(Number(prevButton.getAttribute('data-prev-step') || currentStep));
-    if (target?.closest('[data-confirm-order]') && !confirmButton?.disabled) markDirection(4);
-  }, true);
+  if ('MutationObserver' in window && steps.length) {
+    const stepObserver = new MutationObserver(() => animateStep(getActiveStep()));
+    steps.forEach((step) => stepObserver.observe(step,{attributes:true,attributeFilter:['hidden']}));
+  }
 
   if (form) {
     form.addEventListener('change', (event) => {
