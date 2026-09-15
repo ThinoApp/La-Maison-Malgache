@@ -1,0 +1,228 @@
+/* Checkout polish: stronger hierarchy, quieter luxury, motivated transitions. */
+:root{
+  --checkout-progress:0;
+  --checkout-summary-shift:0px;
+  --checkout-summary-scale:1;
+}
+
+body[data-checkout-page]{overflow-x:hidden}
+
+/* First-frame choreography */
+.checkout-header,
+.checkout-progress,
+.checkout-step.is-active,
+.checkout-summary__inner{
+  will-change:transform,opacity;
+}
+body:not(.checkout-polish-ready) .checkout-header{opacity:0;transform:translate3d(0,-14px,0)}
+body:not(.checkout-polish-ready) .checkout-progress{opacity:0;transform:translate3d(-20px,0,0)}
+body:not(.checkout-polish-ready) .checkout-step.is-active{opacity:0;transform:translate3d(0,24px,0)}
+body:not(.checkout-polish-ready) .checkout-summary__inner{opacity:0;transform:translate3d(24px,0,0)}
+
+.checkout-header{transition:opacity .55s ease,transform .7s var(--ease),background-color .3s ease}
+.checkout-progress{transition:opacity .6s ease .08s,transform .8s var(--ease) .08s}
+.checkout-summary__inner{transition:opacity .65s ease .12s,transform .85s var(--ease) .12s}
+body.checkout-polish-ready .checkout-header,
+body.checkout-polish-ready .checkout-progress,
+body.checkout-polish-ready .checkout-summary__inner{opacity:1;transform:translate3d(0,0,0)}
+body.checkout-polish-ready .checkout-step.is-active{opacity:1}
+
+/* Header feels more like a protected transaction surface. */
+.checkout-header{background:#18271f;border-bottom-color:rgba(255,255,255,.13)}
+.checkout-header::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-1px;
+  height:1px;
+  background:rgba(211,190,151,.32);
+  transform:scaleX(var(--checkout-progress));
+  transform-origin:left;
+  transition:transform .7s var(--ease);
+}
+.checkout-header>p{position:relative;padding-left:1rem}
+.checkout-header>p::before{content:"";position:absolute;left:0;top:50%;width:5px;height:5px;translate:0 -50%;border:1px solid rgba(231,216,188,.64)}
+.checkout-back{transition:border-color .25s ease,color .25s ease,transform .25s ease}
+.checkout-back:hover{color:#fff;border-color:#fff;transform:translate3d(-2px,0,0)}
+
+/* Progress is now a moving spatial coordinate, not four equal labels. */
+.checkout-progress ol{position:relative;border-top-color:rgba(32,49,39,.12)}
+.checkout-progress ol::after{
+  content:"";
+  position:absolute;
+  left:0;
+  top:-1px;
+  width:25%;
+  height:2px;
+  background:var(--deep);
+  transform:translate3d(calc(var(--checkout-progress) * 300%),0,0);
+  transition:transform .68s var(--ease);
+  pointer-events:none;
+}
+.checkout-progress li::before{display:none}
+.checkout-progress li{min-height:62px;padding-top:1.05rem;transition:color .35s ease,transform .48s var(--ease),opacity .35s ease}
+.checkout-progress li:not(.is-active):not(.is-complete){opacity:.54}
+.checkout-progress li.is-active{transform:translate3d(4px,0,0)}
+.checkout-progress li.is-active strong{font-weight:600}
+.checkout-progress li.is-complete span::after{content:" · fait";font-size:.48rem;letter-spacing:.08em;color:var(--sage)}
+
+/* Flow surface gets clearer rhythm and a quiet architectural rule. */
+.checkout-flow{position:relative;background:#f1eadf}
+.checkout-flow::before{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  right:clamp(1rem,2.2vw,2.5rem);
+  width:1px;
+  background:rgba(32,49,39,.055);
+  pointer-events:none;
+}
+.checkout-step{position:relative}
+.checkout-step-number{display:flex;align-items:center;gap:.8rem}
+.checkout-step-number::after{content:"";width:42px;height:1px;background:rgba(102,112,95,.48)}
+.checkout-step h1,.checkout-step h2{position:relative}
+.checkout-step h1::after,.checkout-step h2::after{
+  content:"";
+  display:block;
+  width:54px;
+  height:1px;
+  margin-top:1.25rem;
+  background:rgba(32,49,39,.26);
+  transform:scaleX(0);
+  transform-origin:left;
+  animation:checkout-heading-rule .75s var(--ease) .18s forwards;
+}
+@keyframes checkout-heading-rule{to{transform:scaleX(1)}}
+
+/* Directional step transitions. */
+body[data-checkout-direction="forward"] .checkout-step.is-active{animation:checkout-forward .58s var(--ease) both}
+body[data-checkout-direction="back"] .checkout-step.is-active{animation:checkout-backward .58s var(--ease) both}
+body[data-checkout-direction="confirm"] .checkout-step.is-active{animation:checkout-confirm-in .75s var(--ease) both}
+@keyframes checkout-forward{from{opacity:0;transform:translate3d(34px,12px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes checkout-backward{from{opacity:0;transform:translate3d(-30px,10px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes checkout-confirm-in{0%{opacity:0;transform:translate3d(0,28px,0) scale(.985)}100%{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+
+/* Form states are quieter but more tactile. */
+.checkout-field{position:relative;transition:transform .35s var(--ease)}
+.checkout-field:focus-within{transform:translate3d(3px,0,0)}
+.checkout-field label{transition:color .25s ease,transform .3s var(--ease)}
+.checkout-field:focus-within label{color:var(--deep);transform:translate3d(2px,0,0)}
+.checkout-field input,.checkout-field select{
+  min-height:54px;
+  background:rgba(255,255,255,.2);
+  border-color:rgba(32,49,39,.18);
+  transition:border-color .24s ease,box-shadow .28s ease,background-color .28s ease,transform .22s ease;
+}
+.checkout-field input:hover,.checkout-field select:hover{border-color:rgba(32,49,39,.34);background:rgba(255,255,255,.34)}
+.checkout-field input:focus,.checkout-field select:focus{background:rgba(255,255,255,.56);box-shadow:inset 3px 0 0 var(--deep),0 0 0 1px rgba(32,49,39,.06)}
+.checkout-field input[aria-invalid="true"],.checkout-field select[aria-invalid="true"]{animation:checkout-field-error .28s ease both}
+@keyframes checkout-field-error{0%,100%{transform:translateX(0)}35%{transform:translateX(4px)}70%{transform:translateX(-3px)}}
+
+/* CTAs receive a controlled sweep through geometry, not shimmer. */
+.checkout-primary{position:relative;overflow:hidden;isolation:isolate;padding-inline:1.45rem}
+.checkout-primary::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:-20%;
+  top:0;
+  width:18%;
+  height:100%;
+  background:rgba(255,255,255,.12);
+  transform:skewX(-14deg) translateX(0);
+  transition:transform .65s var(--ease);
+}
+.checkout-primary:hover:not(:disabled)::after{transform:skewX(-14deg) translateX(700%)}
+.checkout-primary:hover:not(:disabled){transform:translate3d(0,-1px,0)}
+.checkout-primary:active:not(:disabled){transform:translate3d(0,1px,0) scale(.99)}
+
+/* Shipping becomes a considered selection surface. */
+.shipping-options{gap:.85rem}
+.shipping-option{position:relative;min-height:100px;padding:1.1rem 1.2rem 1.1rem 1.35rem;overflow:hidden}
+.shipping-option::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--deep);transform:scaleY(0);transform-origin:bottom;transition:transform .5s var(--ease)}
+.shipping-option:has(input:checked)::before{transform:scaleY(1)}
+.shipping-option:has(input:checked){transform:translate3d(4px,0,0);box-shadow:0 12px 28px rgba(32,49,39,.055)}
+.shipping-option:hover{border-color:rgba(32,49,39,.32);transform:translate3d(2px,0,0)}
+.shipping-option input{width:16px;height:16px}
+.shipping-option b{font-size:.82rem}
+
+/* Payment surface feels secure without fake banking UI. */
+.payment-surface{position:relative;overflow:hidden;padding:1.45rem 1.5rem;background:rgba(255,255,255,.32);border-color:rgba(32,49,39,.18)}
+.payment-surface::before{content:"";position:absolute;right:1.4rem;top:1.4rem;width:18px;height:18px;border:1px solid rgba(32,49,39,.26);transform:rotate(45deg)}
+.payment-surface::after{content:"";position:absolute;right:1.78rem;top:1.78rem;width:6px;height:6px;background:var(--deep);transform:rotate(45deg)}
+.checkout-review>div{transition:background-color .25s ease,padding .35s var(--ease)}
+.checkout-review>div:hover{padding-left:.55rem;padding-right:.55rem;background:rgba(255,255,255,.22)}
+.checkout-demo-confirm{position:relative;padding:1rem 1.1rem;border:1px solid var(--line);background:rgba(255,255,255,.18);transition:border-color .25s ease,background-color .25s ease}
+.checkout-demo-confirm:has(input:checked){border-color:var(--deep);background:rgba(255,255,255,.42)}
+
+/* Summary becomes a dark editorial object. */
+.checkout-summary{position:relative;background:#314339;color:#f5f0e7;border-left-color:rgba(255,255,255,.11);overflow:hidden}
+.checkout-summary::before,.checkout-summary::after{content:"";position:absolute;pointer-events:none;border:1px solid rgba(255,255,255,.11)}
+.checkout-summary::before{width:240px;height:240px;right:-124px;top:12%;border-radius:50%}
+.checkout-summary::after{width:96px;height:96px;right:38px;bottom:8%;transform:rotate(45deg)}
+.checkout-summary__inner{z-index:1;transform:translate3d(0,var(--checkout-summary-shift),0) scale(var(--checkout-summary-scale));transform-origin:50% 20%}
+.checkout-summary__head{border-bottom-color:rgba(255,255,255,.16)}
+.checkout-summary__head span,.checkout-summary__note{color:rgba(255,255,255,.55)}
+.checkout-summary__head h2{color:#fff;font-size:2.25rem}
+.checkout-summary__head>a{color:#fff;border-color:rgba(255,255,255,.35);transition:border-color .25s ease,opacity .25s ease}
+.checkout-summary__head>a:hover{border-color:#fff}
+.checkout-summary__items{scrollbar-color:rgba(255,255,255,.24) transparent}
+.checkout-summary-item{border-bottom-color:rgba(255,255,255,.13);transition:opacity .45s ease,transform .58s var(--ease)}
+.checkout-summary-item img{height:98px;background:#556158;filter:saturate(.9);transition:scale .6s var(--ease),filter .35s ease}
+.checkout-summary-item:hover img{scale:1.04;filter:saturate(1)}
+.checkout-summary-item p,.checkout-summary-item small{color:rgba(255,255,255,.54)}
+.checkout-summary-item h3,.checkout-summary-item strong{color:#fff}
+.checkout-totals>div{color:rgba(255,255,255,.78)}
+.checkout-totals__grand{border-top-color:rgba(255,255,255,.2)}
+.checkout-totals__grand dt,.checkout-totals__grand dd{color:#fff}
+.checkout-totals__grand dd{font-size:1.8rem}
+.checkout-summary.is-total-changing .checkout-totals__grand dd{animation:checkout-total-pulse .45s var(--ease)}
+@keyframes checkout-total-pulse{0%{opacity:.4;transform:translateY(5px)}100%{opacity:1;transform:translateY(0)}}
+
+/* Product images cascade when the page enters. */
+body:not(.checkout-polish-ready) .checkout-summary-item{opacity:0;transform:translate3d(18px,0,0)}
+body.checkout-polish-ready .checkout-summary-item{opacity:1;transform:translate3d(0,0,0);transition-delay:var(--checkout-item-delay,0ms)}
+
+/* Confirmation gets a singular end-state marker. */
+.checkout-confirmation::before{
+  content:"";
+  display:block;
+  width:44px;
+  height:44px;
+  margin-bottom:1.8rem;
+  border:1px solid var(--deep);
+  transform:rotate(45deg) scale(.7);
+  opacity:0;
+}
+body[data-checkout-direction="confirm"] .checkout-confirmation::before{animation:checkout-confirm-mark .7s var(--ease) .12s forwards}
+@keyframes checkout-confirm-mark{to{opacity:1;transform:rotate(45deg) scale(1)}}
+.confirmation-order{position:relative;padding-left:1.25rem}
+.confirmation-order::before{content:"";position:absolute;left:0;top:1.5rem;bottom:1.5rem;width:2px;background:var(--deep);transform:scaleY(0);transform-origin:top;animation:checkout-confirm-line .8s var(--ease) .25s forwards}
+@keyframes checkout-confirm-line{to{transform:scaleY(1)}}
+
+@media(max-width:1000px){
+  .checkout-summary{background:#314339;border-bottom-color:rgba(255,255,255,.12)}
+  .checkout-summary__inner{transform:none!important}
+  .checkout-summary::before{width:180px;height:180px}
+  .checkout-flow::before{display:none}
+}
+
+@media(max-width:700px){
+  .checkout-progress ol::after{width:25%}
+  .checkout-progress li{min-height:58px}
+  .checkout-summary::after{display:none}
+  .checkout-summary__head h2{font-size:1.8rem}
+  .checkout-primary::after{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  body:not(.checkout-polish-ready) .checkout-header,
+  body:not(.checkout-polish-ready) .checkout-progress,
+  body:not(.checkout-polish-ready) .checkout-step.is-active,
+  body:not(.checkout-polish-ready) .checkout-summary__inner,
+  body:not(.checkout-polish-ready) .checkout-summary-item{opacity:1!important;transform:none!important}
+  .checkout-step.is-active,.checkout-confirmation::before,.confirmation-order::before,.checkout-heading-rule{animation:none!important}
+  .checkout-summary__inner,.checkout-progress ol::after,.checkout-header::after,.checkout-primary::after{transition:none!important}
+}
