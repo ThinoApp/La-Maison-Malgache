@@ -29,6 +29,7 @@ jobs:
         run: |
           rm -rf static-prototype/preview-v2
           mkdir -p static-prototype/preview-v2
+          mkdir -p static-prototype/preview-v2/boutique
           cp static-prototype/index.html static-prototype/preview-v2/index.html
           cp static-prototype/base.css static-prototype/preview-v2/base.css
           cp static-prototype/motion.css static-prototype/preview-v2/motion.css
@@ -48,6 +49,9 @@ jobs:
           cp static-prototype/material-webgl.css static-prototype/preview-v2/material-webgl.css
           cp static-prototype/motion-director.css static-prototype/preview-v2/motion-director.css
           cp static-prototype/motion.js static-prototype/preview-v2/motion.js
+          cp static-prototype/boutique/index.html static-prototype/preview-v2/boutique/index.html
+          cp static-prototype/boutique/boutique.css static-prototype/preview-v2/boutique/boutique.css
+          cp static-prototype/boutique/boutique.js static-prototype/preview-v2/boutique/boutique.js
           cat static-prototype/preloader-boost.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cursor-motion.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cinematic-motion.js >> static-prototype/preview-v2/motion.js
