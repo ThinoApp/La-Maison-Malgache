@@ -5,7 +5,7 @@
   if (!body) return;
 
   const formatPrice = (value) => `${Math.max(0, Number(value) || 0).toFixed(0)} €`;
-  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[char]));
   let pulseTimer = 0;
 
   function normalize(items) {
@@ -104,7 +104,7 @@
     const checkout = dialog.querySelector('.global-cart__checkout');
     if (summaryEl) summaryEl.textContent = itemCount ? `${itemCount} ${itemCount > 1 ? 'articles' : 'article'}` : 'Vide';
     if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal(safe));
-    if (checkout) checkout.disabled = safe.length === 0;
+    if (checkout) checkout.disabled = true;
 
     if (!bodyEl) return;
     if (!safe.length) {
