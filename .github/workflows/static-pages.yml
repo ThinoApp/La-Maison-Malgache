@@ -30,6 +30,7 @@ jobs:
           rm -rf static-prototype/preview-v2
           mkdir -p static-prototype/preview-v2
           mkdir -p static-prototype/preview-v2/boutique
+          mkdir -p static-prototype/preview-v2/boutique/vase-ambato
           cp static-prototype/index.html static-prototype/preview-v2/index.html
           cp static-prototype/base.css static-prototype/preview-v2/base.css
           cp static-prototype/motion.css static-prototype/preview-v2/motion.css
@@ -56,6 +57,9 @@ jobs:
           cp static-prototype/boutique/boutique-motion.js static-prototype/preview-v2/boutique/boutique-motion.js
           cp static-prototype/boutique/boutique-cinematic.css static-prototype/preview-v2/boutique/boutique-cinematic.css
           cp static-prototype/boutique/boutique-cinematic.js static-prototype/preview-v2/boutique/boutique-cinematic.js
+          cp static-prototype/boutique/vase-ambato/index.html static-prototype/preview-v2/boutique/vase-ambato/index.html
+          cp static-prototype/boutique/vase-ambato/product.css static-prototype/preview-v2/boutique/vase-ambato/product.css
+          cp static-prototype/boutique/vase-ambato/product.js static-prototype/preview-v2/boutique/vase-ambato/product.js
           cat static-prototype/preloader-boost.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cursor-motion.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cinematic-motion.js >> static-prototype/preview-v2/motion.js
