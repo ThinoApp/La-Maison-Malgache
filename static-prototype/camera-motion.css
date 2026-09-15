@@ -1,0 +1,217 @@
+/* Global camera language. Native scroll-driven motion, desktop-first. */
+
+/* A subtle optical layer ties all scenes to the same lens. */
+body::after{
+  content:"";
+  position:fixed;
+  z-index:14500;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at var(--pointer-x,72%) var(--pointer-y,28%),transparent 0 18%,rgba(21,34,26,.018) 46%,rgba(16,27,20,.085) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.016),transparent 22%,transparent 78%,rgba(18,29,22,.055));
+  opacity:.72;
+  mix-blend-mode:multiply;
+  transition:opacity .6s var(--ease),background .8s var(--ease);
+}
+
+body[data-scene="sand"]::after{opacity:.54}
+body[data-scene="dark"]::after,
+body[data-scene="territory"]::after{opacity:.84}
+
+/* Only storytelling lacked its own named section timeline. */
+.storytelling{
+  view-timeline-name:--camera-storytelling;
+  view-timeline-axis:block;
+}
+
+@media(min-width:1001px){
+  .hero,.story-grid,.storytelling .story-media,.storytelling .story-copy-stack,
+  .universe-grid,.craft-grid,.closing-grid{
+    transform-style:preserve-3d;
+    backface-visibility:hidden;
+  }
+
+  @supports (animation-timeline:view()){
+    /* Hero: a tiny dolly-in while the architectural portal takes over. */
+    .hero{
+      animation:camera-hero-dolly linear both;
+      animation-timeline:--hero-stage;
+      animation-range:exit 0% exit 55%;
+    }
+
+    /* Bridge: the copy is the foreground, so it breathes more than the image. */
+    .story-grid{
+      animation:camera-bridge-body linear both;
+      animation-timeline:--story-bridge;
+      animation-range:entry 0% exit 96%;
+    }
+    .story .reveal{
+      animation:camera-bridge-foreground linear both;
+      animation-timeline:--story-bridge;
+      animation-range:entry 0% exit 88%;
+    }
+
+    /* Storytelling: left image and right copy move as two planes of the same camera rig. */
+    .storytelling .story-media{
+      animation:camera-story-media linear both;
+      animation-timeline:--camera-storytelling;
+      animation-range:entry 0% exit 100%;
+    }
+    .storytelling .story-copy-stack{
+      animation:camera-story-copy linear both;
+      animation-timeline:--camera-storytelling;
+      animation-range:entry 0% exit 100%;
+    }
+
+    /* Collections: one travelling composition rather than three independent cards. */
+    .universe-grid{
+      animation:camera-collections-travel linear both;
+      animation-timeline:--universes-stage;
+      animation-range:entry 0% exit 92%;
+    }
+    .universe-grid .card:nth-child(1){
+      animation:camera-card-one linear both;
+      animation-timeline:view();
+      animation-range:entry 0% exit 100%;
+    }
+    .universe-grid .card:nth-child(2){
+      animation:camera-card-two linear both;
+      animation-timeline:view();
+      animation-range:entry 0% exit 100%;
+    }
+    .universe-grid .card:nth-child(3){
+      animation:camera-card-three linear both;
+      animation-timeline:view();
+      animation-range:entry 0% exit 100%;
+    }
+
+    /* Craft: a slow push through the copy into the material list. */
+    .craft-grid{
+      animation:camera-craft-body linear both;
+      animation-timeline:--craft-stage;
+      animation-range:entry 0% exit 100%;
+    }
+    .craft .list{
+      animation:camera-craft-list linear both;
+      animation-timeline:--craft-stage;
+      animation-range:entry 4% exit 92%;
+    }
+
+    /* Madagascar: copy enters on a closer focal plane than the landscape. */
+    .madagascar-copy h2{
+      animation:camera-territory-title linear both;
+      animation-timeline:--madagascar-stage;
+      animation-range:entry 18% exit 82%;
+    }
+    .madagascar-copy p{
+      animation:camera-territory-copy linear both;
+      animation-timeline:--madagascar-stage;
+      animation-range:entry 24% exit 82%;
+    }
+
+    /* Closing: the camera finally settles instead of ending on another hard stop. */
+    .closing-grid{
+      animation:camera-closing-settle linear both;
+      animation-timeline:--closing-stage;
+      animation-range:entry 0% entry 95%;
+    }
+  }
+}
+
+@keyframes camera-hero-dolly{
+  0%,10%{scale:1.006;rotate:0deg}
+  54%{scale:1.001;rotate:-.035deg}
+  100%{scale:.996;rotate:0deg}
+}
+
+@keyframes camera-bridge-body{
+  0%{scale:.988;rotate:.12deg}
+  45%{scale:1.004;rotate:0deg}
+  100%{scale:.997;rotate:-.08deg}
+}
+
+@keyframes camera-bridge-foreground{
+  0%{scale:.972}
+  48%{scale:1.012}
+  100%{scale:.99}
+}
+
+@keyframes camera-story-media{
+  0%{scale:1.026;rotate:.06deg}
+  24%{scale:1.005;rotate:0deg}
+  58%{scale:1.012;rotate:-.045deg}
+  100%{scale:1.022;rotate:0deg}
+}
+
+@keyframes camera-story-copy{
+  0%{translate:1.1vw 0;scale:1.018;rotate:-.055deg}
+  25%{translate:0 0;scale:1.006;rotate:0deg}
+  62%{translate:-.45vw 0;scale:1.012;rotate:.035deg}
+  100%{translate:-.8vw 0;scale:1.018;rotate:0deg}
+}
+
+@keyframes camera-collections-travel{
+  0%{translate:0 3.2vh;scale:.985;rotate:-.14deg}
+  42%{translate:0 0;scale:1.005;rotate:0deg}
+  100%{translate:0 -2.4vh;scale:.994;rotate:.1deg}
+}
+
+@keyframes camera-card-one{
+  0%{translate:0 26px;scale:.985}
+  48%{translate:0 0;scale:1.008}
+  100%{translate:0 -20px;scale:.998}
+}
+@keyframes camera-card-two{
+  0%{translate:0 38px;scale:.978}
+  52%{translate:0 -4px;scale:1.012}
+  100%{translate:0 -28px;scale:.997}
+}
+@keyframes camera-card-three{
+  0%{translate:0 52px;scale:.972}
+  56%{translate:0 -6px;scale:1.014}
+  100%{translate:0 -36px;scale:.996}
+}
+
+@keyframes camera-craft-body{
+  0%{translate:0 3vh;scale:.987;rotate:.08deg}
+  46%{translate:0 0;scale:1.004;rotate:0deg}
+  100%{translate:0 -2vh;scale:.994;rotate:-.06deg}
+}
+@keyframes camera-craft-list{
+  0%{scale:.975}
+  48%{scale:1.014}
+  100%{scale:.995}
+}
+
+@keyframes camera-territory-title{
+  0%,34%{translate:0 38px;scale:.975}
+  70%{translate:0 0;scale:1.008}
+  100%{translate:0 -18px;scale:.997}
+}
+@keyframes camera-territory-copy{
+  0%,42%{translate:0 26px;scale:.986}
+  74%{translate:0 0;scale:1.004}
+  100%{translate:0 -11px;scale:1}
+}
+
+@keyframes camera-closing-settle{
+  0%{translate:0 4vh;scale:.982;rotate:-.08deg}
+  58%{translate:0 0;scale:1.006;rotate:0deg}
+  100%{translate:0 -1vh;scale:1;rotate:0deg}
+}
+
+@media(max-width:1000px){
+  body::after{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  body::after{display:none!important}
+  .hero,.story-grid,.story .reveal,.storytelling .story-media,.storytelling .story-copy-stack,
+  .universe-grid,.universe-grid .card,.craft-grid,.craft .list,.madagascar-copy h2,.madagascar-copy p,.closing-grid{
+    animation:none!important;
+    translate:none!important;
+    scale:1!important;
+    rotate:0deg!important;
+  }
+}
