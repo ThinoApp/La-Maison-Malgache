@@ -142,5 +142,59 @@
 
   cartPanel?.addEventListener('close', () => cartTrigger?.setAttribute('aria-expanded', 'false'));
 
+  function syncCartCount() {
+    let items = [];
+    try { items = JSON.parse(localStorage.getItem('lmm-cart') || '[]'); } catch (_) {}
+    const count = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+    const countEl = cartTrigger?.querySelector('span');
+    if (countEl) countEl.textContent = String(count);
+  }
+
+  function goToAmbato(source) {
+    const media = source?.querySelector?.('.product-card__media') || document.querySelector('.featured-piece__media');
+    const img = media?.querySelector('img');
+    if (media && img) {
+      const rect = media.getBoundingClientRect();
+      try {
+        sessionStorage.setItem('lmm-product-transition', JSON.stringify({
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+          radius: parseFloat(getComputedStyle(media).borderRadius) || 0,
+          image: img.currentSrc || img.src,
+          time: Date.now()
+        }));
+      } catch (_) {}
+    }
+    location.href = 'vase-ambato/';
+  }
+
+  const ambatoCard = products.find((product) => product.dataset.rank === '1');
+  if (ambatoCard) {
+    ambatoCard.setAttribute('role', 'link');
+    ambatoCard.setAttribute('tabindex', '0');
+    ambatoCard.setAttribute('aria-label', 'Voir la fiche du Vase Ambato');
+    ambatoCard.style.cursor = 'pointer';
+    ambatoCard.addEventListener('click', () => goToAmbato(ambatoCard));
+    ambatoCard.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        goToAmbato(ambatoCard);
+      }
+    });
+  }
+
+  const featuredLink = document.querySelector('.featured-piece__copy .shop-link');
+  featuredLink?.setAttribute('href', 'vase-ambato/');
+  if (featuredLink) featuredLink.textContent = 'Découvrir la pièce';
+  featuredLink?.addEventListener('click', (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    goToAmbato(document.querySelector('.featured-piece'));
+  });
+
+  syncCartCount();
+  window.addEventListener('pageshow', syncCartCount);
   render();
 })();
