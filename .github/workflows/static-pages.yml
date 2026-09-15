@@ -52,6 +52,8 @@ jobs:
           cp static-prototype/boutique/index.html static-prototype/preview-v2/boutique/index.html
           cp static-prototype/boutique/boutique.css static-prototype/preview-v2/boutique/boutique.css
           cp static-prototype/boutique/boutique.js static-prototype/preview-v2/boutique/boutique.js
+          cp static-prototype/boutique/boutique-motion.css static-prototype/preview-v2/boutique/boutique-motion.css
+          cp static-prototype/boutique/boutique-motion.js static-prototype/preview-v2/boutique/boutique-motion.js
           cat static-prototype/preloader-boost.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cursor-motion.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cinematic-motion.js >> static-prototype/preview-v2/motion.js
