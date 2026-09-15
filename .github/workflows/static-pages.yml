@@ -60,6 +60,8 @@ jobs:
           cp static-prototype/boutique/vase-ambato/index.html static-prototype/preview-v2/boutique/vase-ambato/index.html
           cp static-prototype/boutique/vase-ambato/product.css static-prototype/preview-v2/boutique/vase-ambato/product.css
           cp static-prototype/boutique/vase-ambato/product.js static-prototype/preview-v2/boutique/vase-ambato/product.js
+          cp static-prototype/boutique/vase-ambato/product-boost.css static-prototype/preview-v2/boutique/vase-ambato/product-boost.css
+          cp static-prototype/boutique/vase-ambato/product-boost.js static-prototype/preview-v2/boutique/vase-ambato/product-boost.js
           cat static-prototype/preloader-boost.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cursor-motion.js >> static-prototype/preview-v2/motion.js
           cat static-prototype/cinematic-motion.js >> static-prototype/preview-v2/motion.js
