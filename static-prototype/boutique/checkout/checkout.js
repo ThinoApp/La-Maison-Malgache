@@ -16,6 +16,23 @@
   let currentStep = 1;
   let completedOrder = null;
 
+  function loadSignatureCursor(){
+    if (!document.querySelector('link[data-brand-cursor]')) {
+      const style = document.createElement('link');
+      style.rel = 'stylesheet';
+      style.href = '../shared-brand-cursor.css';
+      style.dataset.brandCursor = 'true';
+      document.head.appendChild(style);
+    }
+    if (!document.querySelector('script[data-brand-cursor]')) {
+      const script = document.createElement('script');
+      script.src = '../shared-brand-cursor.js';
+      script.defer = true;
+      script.dataset.brandCursor = 'true';
+      document.body.appendChild(script);
+    }
+  }
+
   const formatPrice = (value) => `${Math.max(0, Number(value) || 0).toFixed(0)} €`;
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
 
@@ -107,9 +124,7 @@
       fieldError(name, message);
       if (message) valid = false;
     });
-    if (!valid) {
-      form.querySelector('[aria-invalid="true"]')?.focus();
-    }
+    if (!valid) form.querySelector('[aria-invalid="true"]')?.focus();
     return valid;
   }
 
@@ -218,4 +233,5 @@
   showEmptyState();
   syncReview();
   setStep(1);
+  loadSignatureCursor();
 })();
