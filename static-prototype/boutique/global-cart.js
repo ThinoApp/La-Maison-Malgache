@@ -5,7 +5,7 @@
   if (!body) return;
 
   const formatPrice = (value) => `${Math.max(0, Number(value) || 0).toFixed(0)} €`;
-  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[char]));
+  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
   let pulseTimer = 0;
 
   function normalize(items) {
@@ -55,6 +55,10 @@
     return inProduct ? `../${encodeURIComponent(item.id)}/` : `${encodeURIComponent(item.id)}/`;
   }
 
+  function checkoutHref() {
+    return body.dataset.productSlug ? '../checkout/' : 'checkout/';
+  }
+
   function ensureDrawer() {
     let dialog = document.querySelector('#global-cart');
     if (dialog) return dialog;
@@ -76,12 +80,17 @@
           <div class="global-cart__summary"><span>Sous-total</span><strong data-global-cart-subtotal>0 €</strong></div>
           <p class="global-cart__shipping">Livraison et taxes calculées à l’étape suivante.</p>
           <button class="global-cart__checkout" type="button" disabled>Passer à la commande</button>
-          <span class="global-cart__prototype">Checkout à connecter dans la prochaine étape</span>
+          <span class="global-cart__prototype">Paiement de démonstration, aucune transaction réelle</span>
         </footer>
       </div>`;
     body.appendChild(dialog);
 
     dialog.querySelector('[data-global-cart-close]')?.addEventListener('click', close);
+    dialog.querySelector('.global-cart__checkout')?.addEventListener('click', () => {
+      if (!read().length) return;
+      close();
+      location.href = checkoutHref();
+    });
     dialog.addEventListener('click', (event) => { if (event.target === dialog) close(); });
     dialog.addEventListener('close', () => {
       body.classList.remove('global-cart-open');
@@ -104,7 +113,7 @@
     const checkout = dialog.querySelector('.global-cart__checkout');
     if (summaryEl) summaryEl.textContent = itemCount ? `${itemCount} ${itemCount > 1 ? 'articles' : 'article'}` : 'Vide';
     if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal(safe));
-    if (checkout) checkout.disabled = true;
+    if (checkout) checkout.disabled = safe.length === 0;
 
     if (!bodyEl) return;
     if (!safe.length) {
