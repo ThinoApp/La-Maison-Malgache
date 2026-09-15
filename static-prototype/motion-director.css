@@ -52,15 +52,12 @@ body.is-shared-transitioning .storytelling .story-copy-stack{
   rotate:0deg!important;
 }
 
-/* Collections owns its movement: suppress the older camera animation that targets the same nodes. */
+/* Collections owns these nodes for the whole section lifecycle. Never let camera-motion compete with it. */
 @media(min-width:1001px){
-  body[data-motion-focus="gallery"] .universe-grid,
-  body[data-motion-focus="gallery"] .universe-grid .card{
-    animation-name:gallery-horizontal-travel!important;
-  }
-  body[data-motion-focus="gallery"] .universe-grid .card:nth-child(1){animation-name:gallery-card-one!important}
-  body[data-motion-focus="gallery"] .universe-grid .card:nth-child(2){animation-name:gallery-card-two!important}
-  body[data-motion-focus="gallery"] .universe-grid .card:nth-child(3){animation-name:gallery-card-three!important}
+  .universe-grid{animation-name:gallery-horizontal-travel!important}
+  .universe-grid .card:nth-child(1){animation-name:gallery-card-one!important}
+  .universe-grid .card:nth-child(2){animation-name:gallery-card-two!important}
+  .universe-grid .card:nth-child(3){animation-name:gallery-card-three!important}
 
   /* WebGL becomes the hero in craft; camera and kinetic type become supporting motion. */
   body[data-motion-focus="material"] .craft-grid{
@@ -69,7 +66,6 @@ body.is-shared-transitioning .storytelling .story-copy-stack{
   }
   body[data-motion-focus="material"] .craft .list{scale:1!important}
   body[data-motion-focus="material"] .craft .kinetic-word{
-    animation-duration:1s;
     opacity:.94;
   }
 
@@ -81,9 +77,6 @@ body.is-shared-transitioning .storytelling .story-copy-stack{
   /* Final scene intentionally rests. */
   body[data-motion-focus="closing"] .closing-grid{
     rotate:0deg!important;
-  }
-  body[data-motion-focus="closing"] .closing .kinetic-word{
-    animation-timing-function:linear!important;
   }
 }
 
