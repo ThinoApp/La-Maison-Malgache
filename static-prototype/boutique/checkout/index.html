@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#203127">
+  <meta name="description" content="Finaliser une commande La Maison Malgache.">
+  <title>Commande · La Maison Malgache</title>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="stylesheet" href="checkout.css">
+  <script defer src="checkout.js"></script>
+</head>
+<body data-checkout-page>
+  <header class="checkout-header">
+    <a class="checkout-brand" href="../../">La Maison Malgache</a>
+    <p>Paiement de démonstration</p>
+    <a class="checkout-back" href="../">Retour à la Boutique</a>
+  </header>
+
+  <main class="checkout-layout">
+    <section class="checkout-flow" aria-labelledby="checkout-title">
+      <nav class="checkout-progress" aria-label="Étapes de commande">
+        <ol>
+          <li class="is-active" data-step-indicator="1"><span>01</span><strong>Coordonnées</strong></li>
+          <li data-step-indicator="2"><span>02</span><strong>Livraison</strong></li>
+          <li data-step-indicator="3"><span>03</span><strong>Paiement</strong></li>
+          <li data-step-indicator="4"><span>04</span><strong>Confirmation</strong></li>
+        </ol>
+      </nav>
+
+      <div class="checkout-empty" data-checkout-empty hidden>
+        <p>Votre panier est vide.</p>
+        <h1>Choisissez d’abord une pièce.</h1>
+        <a href="../">Retour à la Boutique</a>
+      </div>
+
+      <form id="checkout-form" novalidate>
+        <section class="checkout-step is-active" data-checkout-step="1" aria-labelledby="checkout-title">
+          <p class="checkout-step-number">01 · Coordonnées</p>
+          <h1 id="checkout-title">Finaliser votre commande.</h1>
+          <p class="checkout-intro">Renseignez vos coordonnées et l’adresse à laquelle vos pièces doivent être envoyées.</p>
+
+          <div class="checkout-fields">
+            <div class="checkout-field checkout-field--full">
+              <label for="checkout-email">Adresse e-mail</label>
+              <input id="checkout-email" name="email" type="email" autocomplete="email" required>
+              <small class="checkout-error" data-error-for="email" aria-live="polite"></small>
+            </div>
+            <div class="checkout-field">
+              <label for="checkout-firstname">Prénom</label>
+              <input id="checkout-firstname" name="firstname" autocomplete="given-name" required>
+              <small class="checkout-error" data-error-for="firstname" aria-live="polite"></small>
+            </div>
+            <div class="checkout-field">
+              <label for="checkout-lastname">Nom</label>
+              <input id="checkout-lastname" name="lastname" autocomplete="family-name" required>
+              <small class="checkout-error" data-error-for="lastname" aria-live="polite"></small>
+            </div>
+            <div class="checkout-field checkout-field--full">
+              <label for="checkout-address">Adresse</label>
+              <input id="checkout-address" name="address" autocomplete="street-address" required>
+              <small class="checkout-error" data-error-for="address" aria-live="polite"></small>
+            </div>
+            <div class="checkout-field checkout-field--full">
+              <label for="checkout-address2">Complément d’adresse <span>facultatif</span></label>
+              <input id="checkout-address2" name="address2" autocomplete="address-line2">
+            </div>
+            <div class="checkout-field">
+              <label for="checkout-postal">Code postal</label>
+              <input id="checkout-postal" name="postal" inputmode="numeric" autocomplete="postal-code" required>
+              <small class="checkout-error" data-error-for="postal" aria-live="polite"></small>
+            </div>
+            <div class="checkout-field">
+              <label for="checkout-city">Ville</label>
+              <input id="checkout-city" name="city" autocomplete="address-level2" required>
+              <small class="checkout-error" data-error-for="city" aria-live="polite"></small>
+            </div>
+            <div class="checkout-field checkout-field--full">
+              <label for="checkout-country">Pays</label>
+              <select id="checkout-country" name="country" autocomplete="country-name" required>
+                <option value="">Choisir un pays</option>
+                <option value="France">France</option>
+                <option value="Belgique">Belgique</option>
+                <option value="Luxembourg">Luxembourg</option>
+                <option value="Suisse">Suisse</option>
+              </select>
+              <small class="checkout-error" data-error-for="country" aria-live="polite"></small>
+            </div>
+            <div class="checkout-field checkout-field--full">
+              <label for="checkout-phone">Téléphone <span>facultatif</span></label>
+              <input id="checkout-phone" name="phone" type="tel" autocomplete="tel">
+              <small>Utile uniquement si le transporteur doit vous joindre.</small>
+            </div>
+          </div>
+
+          <div class="checkout-actions checkout-actions--end">
+            <button class="checkout-primary" type="button" data-next-step="2">Continuer vers la livraison</button>
+          </div>
+        </section>
+
+        <section class="checkout-step" data-checkout-step="2" aria-labelledby="shipping-title" hidden>
+          <p class="checkout-step-number">02 · Livraison</p>
+          <h2 id="shipping-title">Choisir le rythme de livraison.</h2>
+          <p class="checkout-intro">Les tarifs ci-dessous sont des valeurs de démonstration pour le prototype.</p>
+
+          <div class="checkout-address-recap" data-address-recap></div>
+
+          <fieldset class="shipping-options">
+            <legend>Mode de livraison</legend>
+            <label class="shipping-option">
+              <input type="radio" name="shipping" value="standard" checked>
+              <span><strong>Livraison standard</strong><small>Estimation 4 à 7 jours ouvrés</small></span>
+              <b>12 €</b>
+            </label>
+            <label class="shipping-option">
+              <input type="radio" name="shipping" value="express">
+              <span><strong>Livraison express</strong><small>Estimation 2 à 3 jours ouvrés</small></span>
+              <b>24 €</b>
+            </label>
+          </fieldset>
+
+          <div class="checkout-actions">
+            <button class="checkout-secondary" type="button" data-prev-step="1">Retour</button>
+            <button class="checkout-primary" type="button" data-next-step="3">Continuer vers le paiement</button>
+          </div>
+        </section>
+
+        <section class="checkout-step" data-checkout-step="3" aria-labelledby="payment-title" hidden>
+          <p class="checkout-step-number">03 · Paiement</p>
+          <h2 id="payment-title">Vérifier, puis confirmer.</h2>
+          <p class="checkout-intro">Aucune donnée bancaire n’est collectée sur ce prototype. Le prestataire de paiement sera branché dans une étape dédiée.</p>
+
+          <div class="payment-surface">
+            <div>
+              <strong>Carte bancaire</strong>
+              <span>Intégration sécurisée à venir</span>
+            </div>
+            <p>Le montant affiché sert uniquement à valider le parcours, sans transaction réelle.</p>
+          </div>
+
+          <div class="checkout-review">
+            <div><span>Contact</span><strong data-review-contact></strong></div>
+            <div><span>Adresse</span><strong data-review-address></strong></div>
+            <div><span>Livraison</span><strong data-review-shipping></strong></div>
+          </div>
+
+          <label class="checkout-demo-confirm">
+            <input type="checkbox" data-demo-confirm>
+            <span>Je comprends qu’il s’agit d’une commande de démonstration et qu’aucun paiement réel ne sera effectué.</span>
+          </label>
+
+          <div class="checkout-actions">
+            <button class="checkout-secondary" type="button" data-prev-step="2">Retour</button>
+            <button class="checkout-primary" type="button" data-confirm-order disabled>Confirmer la commande test</button>
+          </div>
+        </section>
+
+        <section class="checkout-step checkout-confirmation" data-checkout-step="4" aria-labelledby="confirmation-title" hidden>
+          <p class="checkout-step-number">04 · Confirmation</p>
+          <h2 id="confirmation-title">La commande test est confirmée.</h2>
+          <p class="checkout-intro">Aucun paiement n’a été réalisé. Cette confirmation sert uniquement à valider l’expérience du checkout.</p>
+          <div class="confirmation-order">
+            <span>Référence de démonstration</span>
+            <strong data-order-reference></strong>
+            <p>Un récapitulatif serait envoyé à <b data-order-email></b> dans la version connectée.</p>
+          </div>
+          <a class="checkout-primary checkout-primary--link" href="../">Retour à la Boutique</a>
+        </section>
+      </form>
+    </section>
+
+    <aside class="checkout-summary" aria-labelledby="summary-title">
+      <div class="checkout-summary__inner">
+        <div class="checkout-summary__head">
+          <div><span>Votre sélection</span><h2 id="summary-title">Récapitulatif</h2></div>
+          <a href="../">Modifier</a>
+        </div>
+        <div class="checkout-summary__items" data-summary-items></div>
+        <dl class="checkout-totals">
+          <div><dt>Sous-total</dt><dd data-summary-subtotal>0 €</dd></div>
+          <div><dt>Livraison</dt><dd data-summary-shipping>12 €</dd></div>
+          <div class="checkout-totals__grand"><dt>Total</dt><dd data-summary-total>0 €</dd></div>
+        </dl>
+        <p class="checkout-summary__note">Taxes et conditions finales à valider lors de l’intégration commerciale.</p>
+      </div>
+    </aside>
+  </main>
+</body>
+</html>
