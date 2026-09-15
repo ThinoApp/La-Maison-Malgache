@@ -100,30 +100,7 @@
   const qtyMinus = document.querySelector('[data-qty-minus]');
   const qtyPlus = document.querySelector('[data-qty-plus]');
   const addButton = document.querySelector('[data-add-to-cart]');
-  const cart = document.querySelector('#pdp-cart');
-  const cartTrigger = document.querySelector('.pdp-cart-trigger');
-  const cartClose = document.querySelector('[data-cart-close]');
-  const cartBody = document.querySelector('[data-cart-body]');
-  const cartCounts = [...document.querySelectorAll('[data-cart-count]')];
 
-  function readCart(){
-    try { return JSON.parse(localStorage.getItem('lmm-cart') || '[]'); }
-    catch (_) { return []; }
-  }
-  function writeCart(items){
-    try { localStorage.setItem('lmm-cart', JSON.stringify(items)); } catch (_) {}
-  }
-  function updateCartUI(){
-    const items = readCart();
-    const count = items.reduce((sum,item) => sum + Number(item.quantity || 0), 0);
-    cartCounts.forEach((el) => { el.textContent = String(count); });
-    if (!cartBody) return;
-    if (!items.length) {
-      cartBody.innerHTML = '<div class="pdp-cart-empty">Votre panier est vide.</div>';
-      return;
-    }
-    cartBody.innerHTML = items.map((item) => `<article class="pdp-cart-item"><img src="${esc(item.image)}" alt=""><div><p>${esc(item.material)}</p><h3>${esc(item.name)}</h3><p>Quantité ${Number(item.quantity || 0)}</p></div><strong>${esc(formatPrice(item.price * item.quantity))}</strong></article>`).join('');
-  }
   function setQuantity(next){
     quantity = Math.max(1, Math.min(9, Number(next) || 1));
     if (qtyOutput) qtyOutput.textContent = String(quantity);
@@ -133,12 +110,18 @@
   qtyMinus?.addEventListener('click', () => setQuantity(quantity - 1));
   qtyPlus?.addEventListener('click', () => setQuantity(quantity + 1));
   addButton?.addEventListener('click', () => {
-    const items = readCart();
-    const existing = items.find((item) => item.id === product.slug);
-    if (existing) existing.quantity += quantity;
-    else items.push({id:product.slug,name:product.name,material:product.material,price:product.price,image:product.hero.src,quantity});
-    writeCart(items);
-    updateCartUI();
+    const cartProduct = {id:product.slug,name:product.name,material:product.material,price:product.price,image:product.hero.src};
+    if (window.LMM_CART) {
+      window.LMM_CART.add(cartProduct, quantity);
+      window.LMM_CART.open();
+    } else {
+      let items = [];
+      try { items = JSON.parse(localStorage.getItem('lmm-cart') || '[]'); } catch (_) {}
+      const existing = items.find((item) => item.id === product.slug);
+      if (existing) existing.quantity += quantity;
+      else items.push({...cartProduct,quantity});
+      try { localStorage.setItem('lmm-cart', JSON.stringify(items)); } catch (_) {}
+    }
     addButton.classList.remove('is-added');
     void addButton.offsetWidth;
     addButton.classList.add('is-added');
@@ -146,13 +129,7 @@
     const original = node?.nodeValue || 'Ajouter au panier ';
     if (node) node.nodeValue = 'Ajouté au panier ';
     setTimeout(() => { if (node) node.nodeValue = original; }, 900);
-    cart?.showModal();
-    cartTrigger?.setAttribute('aria-expanded','true');
   });
-  cartTrigger?.addEventListener('click', () => { updateCartUI(); cart?.showModal(); cartTrigger.setAttribute('aria-expanded','true'); });
-  cartClose?.addEventListener('click', () => cart?.close());
-  cart?.addEventListener('click', (event) => { if (event.target === cart) cart.close(); });
-  cart?.addEventListener('close', () => cartTrigger?.setAttribute('aria-expanded','false'));
 
   const storyPhotos = [...document.querySelectorAll('[data-story-photo]')];
   const storyPanels = [...document.querySelectorAll('[data-story-panel]')];
@@ -225,6 +202,5 @@
   }
 
   setQuantity(1);
-  updateCartUI();
   requestAnimationFrame(playIncomingTransition);
 })();
