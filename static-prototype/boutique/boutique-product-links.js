@@ -17,7 +17,7 @@
   function navigate(card, slug){
     if (!card || !slug) return;
     const media = card.querySelector('.product-card__media');
-    const image = media?.querySelector('img:not(.product-card__echo img)') || media?.querySelector('img');
+    const image = media?.querySelector(':scope > img') || media?.querySelector('img');
     if (!reduce && media && image) {
       const rect = media.getBoundingClientRect();
       try {
