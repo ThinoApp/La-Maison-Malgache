@@ -16,6 +16,23 @@
   const cartPanel = document.querySelector('#cart-panel');
   const closeCart = document.querySelector('[data-close-cart]');
 
+  function loadSignatureCursor(){
+    if (!document.querySelector('link[data-brand-cursor]')) {
+      const style = document.createElement('link');
+      style.rel = 'stylesheet';
+      style.href = 'shared-brand-cursor.css';
+      style.dataset.brandCursor = 'true';
+      document.head.appendChild(style);
+    }
+    if (!document.querySelector('script[data-brand-cursor]')) {
+      const script = document.createElement('script');
+      script.src = 'shared-brand-cursor.js';
+      script.defer = true;
+      script.dataset.brandCursor = 'true';
+      document.body.appendChild(script);
+    }
+  }
+
   let activeUniverse = new URLSearchParams(location.search).get('univers') || 'all';
   if (!universeButtons.some((button) => button.dataset.universe === activeUniverse)) activeUniverse = 'all';
 
@@ -120,6 +137,7 @@
 
   render();
   syncCartCount();
+  loadSignatureCursor();
   window.addEventListener('pageshow', syncCartCount);
 
   const linksScript = document.createElement('script');
