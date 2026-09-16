@@ -20,7 +20,9 @@
   let activeIndex = 0;
   let raf = 0;
   let snapTimer = 0;
+  let captionTimer = 0;
   let snapping = false;
+  let pointerActive = false;
 
   if (!total || !track) return;
   if (counterTotal) counterTotal.textContent = String(total).padStart(2,'0');
@@ -31,7 +33,6 @@
   }));
 
   function clamp(value,min,max){ return Math.min(max,Math.max(min,value)); }
-  function ease(value){ return value * value * (3 - 2 * value); }
 
   function setActive(index){
     const safe = clamp(index,0,total - 1);
@@ -40,13 +41,19 @@
     section.dataset.galleryReady = 'true';
     if (counterCurrent) counterCurrent.textContent = String(safe + 1).padStart(2,'0');
     if (captionIndex) captionIndex.textContent = String(safe + 1).padStart(2,'0');
+
+    clearTimeout(captionTimer);
     caption?.classList.add('is-changing');
-    window.setTimeout(() => {
+    captionTimer = window.setTimeout(() => {
       if (captionTitle) captionTitle.textContent = labels[safe]?.title || '';
       if (captionMeta) captionMeta.textContent = labels[safe]?.meta || '';
       caption?.classList.remove('is-changing');
     }, reduce.matches ? 0 : 130);
-    slides.forEach((slide,i) => slide.toggleAttribute('aria-current', i === safe));
+
+    slides.forEach((slide,i) => {
+      if (i === safe) slide.setAttribute('aria-current','true');
+      else slide.removeAttribute('aria-current');
+    });
   }
 
   function metrics(){
@@ -70,7 +77,7 @@
     });
     if (leftTrack) leftTrack.style.transform = `translate3d(${(-pos * thumbItem).toFixed(2)}px,-50%,0)`;
     if (rightTrack) rightTrack.style.transform = `translate3d(${(-(pos + 1) * thumbItem).toFixed(2)}px,-50%,0)`;
-    document.documentElement.style.setProperty('--gallery-progress', String(total > 1 ? pos / (total - 1) : 0));
+    section.style.setProperty('--gallery-progress', String(total > 1 ? pos / (total - 1) : 0));
     setActive(Math.round(pos));
   }
 
@@ -92,37 +99,47 @@
   }
 
   function snapToNearest(){
-    if (reduce.matches || compact.matches || snapping || total <= 1) return;
+    if (reduce.matches || compact.matches || snapping || pointerActive || total <= 1) return;
     const rect = section.getBoundingClientRect();
-    if (rect.bottom <= innerHeight * .35 || rect.top >= innerHeight * .65) return;
+    const fullyTraversing = rect.top < -innerHeight * .12 && rect.bottom > innerHeight * 1.12;
+    if (!fullyTraversing) return;
+
     const travel = Math.max(1, section.offsetHeight - innerHeight);
     const pos = progressPosition();
     const targetIndex = Math.round(pos);
-    if (Math.abs(pos - targetIndex) < .045) return;
+    const distance = Math.abs(pos - targetIndex);
+    if (distance < .045 || distance > .34) return;
+
     const sectionTop = scrollY + rect.top;
     const targetY = sectionTop + (targetIndex / (total - 1)) * travel;
     snapping = true;
     window.scrollTo({top:targetY,behavior:'smooth'});
-    window.setTimeout(() => { snapping = false; }, 560);
+    window.setTimeout(() => { snapping = false; }, 520);
   }
 
   function scheduleSnap(){
     clearTimeout(snapTimer);
-    snapTimer = window.setTimeout(snapToNearest,160);
+    snapTimer = window.setTimeout(snapToNearest,220);
+  }
+
+  function resetTransforms(){
+    track.style.transform = '';
+    inners.forEach((inner) => {
+      inner.style.transform = '';
+      inner.querySelector('img')?.style.removeProperty('transform');
+    });
+    leftTrack?.style.removeProperty('transform');
+    rightTrack?.style.removeProperty('transform');
+    section.style.setProperty('--gallery-progress','0');
   }
 
   function applyMode(){
+    clearTimeout(snapTimer);
+    snapping = false;
     section.classList.toggle('is-static', reduce.matches);
     section.classList.toggle('is-compact', !reduce.matches && compact.matches);
-    if (reduce.matches || compact.matches) {
-      track.style.transform = '';
-      inners.forEach((inner) => inner.style.transform = '');
-      leftTrack?.style.removeProperty('transform');
-      rightTrack?.style.removeProperty('transform');
-      document.documentElement.style.setProperty('--gallery-progress','0');
-    } else {
-      requestRender();
-    }
+    if (reduce.matches || compact.matches) resetTransforms();
+    else requestRender();
   }
 
   window.addEventListener('scroll', () => {
@@ -130,6 +147,9 @@
     scheduleSnap();
   }, {passive:true});
   window.addEventListener('resize', requestRender, {passive:true});
+  window.addEventListener('pointerdown', () => { pointerActive = true; clearTimeout(snapTimer); }, {passive:true});
+  window.addEventListener('pointerup', () => { pointerActive = false; }, {passive:true});
+  window.addEventListener('pointercancel', () => { pointerActive = false; }, {passive:true});
   reduce.addEventListener?.('change', applyMode);
   compact.addEventListener?.('change', applyMode);
 
