@@ -1,8 +1,8 @@
 /* Advanced boutique choreography: center focus, hero depth, shared product handoff. */
 (() => {
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const desktop = window.matchMedia('(min-width:1001px)').matches;
-  const fine = window.matchMedia('(pointer:fine)').matches;
+  const reduceMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const desktopMq = window.matchMedia('(min-width:1001px)');
+  const fineMq = window.matchMedia('(pointer:fine) and (hover:hover)');
   const body = document.body;
   const hero = document.querySelector('.shop-hero');
   const featuredMedia = document.querySelector('.featured-piece__media');
@@ -13,17 +13,20 @@
   const firstProduct = products.find((item) => item.dataset.rank === '1') || products[0];
   const firstProductMedia = firstProduct?.querySelector('.product-card__media');
   let activeCard = null;
+  let focusRaf = 0;
   let sharedRaf = 0;
-  let sharedSourceRect = null;
-  let sharedTargetRect = null;
   let recompositionTimer = 0;
-
+  let pageVisible = document.visibilityState !== 'hidden';
   if (!body) return;
 
+  const motionAllowed = () => !reduceMq.matches && desktopMq.matches;
+  const pointerAllowed = () => motionAllowed() && fineMq.matches;
+
   function productLabel(card) {
-    const name = card?.querySelector('h3')?.textContent?.trim() || 'Pièce';
-    const material = card?.querySelector('.product-card__info p')?.textContent?.trim() || '';
-    return { name, material };
+    return {
+      name:card?.querySelector('h3')?.textContent?.trim() || 'Pièce',
+      material:card?.querySelector('.product-card__info p')?.textContent?.trim() || ''
+    };
   }
 
   const rail = document.createElement('div');
@@ -34,6 +37,13 @@
   const railIndex = rail.querySelector('.shop-focus-rail__index');
   const railName = rail.querySelector('.shop-focus-rail__name');
   const railMaterial = rail.querySelector('.shop-focus-rail__material');
+
+  function clearFocusStates() {
+    products.forEach((card) => card.classList.remove('is-shop-focus','is-shop-near'));
+    activeCard = null;
+    body.classList.remove('shop-catalogue-active');
+    document.documentElement.style.setProperty('--catalogue-progress','0');
+  }
 
   function setActiveCard(card) {
     if (!card || card === activeCard) return;
@@ -49,7 +59,10 @@
   }
 
   function updateCatalogueFocus() {
-    if (reduce || !desktop || !catalogue) return;
+    if (!pageVisible || !motionAllowed() || !catalogue) {
+      clearFocusStates();
+      return;
+    }
     const rect = catalogue.getBoundingClientRect();
     const active = rect.top < innerHeight * .82 && rect.bottom > innerHeight * .22;
     body.classList.toggle('shop-catalogue-active', active);
@@ -63,36 +76,28 @@
 
     visible.forEach((card) => {
       const r = card.getBoundingClientRect();
-      const c = r.top + r.height * .5;
-      const d = Math.abs(c - centerY);
-      const normalized = Math.min(1, d / Math.max(innerHeight * .72, 1));
-      card.style.setProperty('--shop-focus', String((1 - normalized) * .9 + .1));
-      if (d < bestDistance) {
-        bestDistance = d;
+      const distance = Math.abs(r.top + r.height * .5 - centerY);
+      card.classList.toggle('is-shop-near', distance < innerHeight * .48);
+      if (distance < bestDistance) {
+        bestDistance = distance;
         best = card;
       }
     });
-
     setActiveCard(best);
     const total = Math.max(1, catalogue.offsetHeight - innerHeight);
-    const progressed = Math.min(1, Math.max(0, -rect.top / total));
-    document.documentElement.style.setProperty('--catalogue-progress', String(progressed));
+    document.documentElement.style.setProperty('--catalogue-progress', String(Math.min(1, Math.max(0, -rect.top / total))));
   }
 
-  let focusRaf = 0;
   const requestFocus = () => {
-    if (focusRaf) return;
-    focusRaf = requestAnimationFrame(() => {
-      focusRaf = 0;
-      updateCatalogueFocus();
-    });
+    if (!pageVisible || focusRaf) return;
+    focusRaf = requestAnimationFrame(() => { focusRaf = 0; updateCatalogueFocus(); });
   };
+  window.addEventListener('scroll', requestFocus, {passive:true});
+  window.addEventListener('resize', requestFocus, {passive:true});
 
-  window.addEventListener('scroll', requestFocus, { passive:true });
-  window.addEventListener('resize', requestFocus, { passive:true });
-
-  if (!reduce && fine && desktop && hero) {
+  if (hero) {
     hero.addEventListener('pointermove', (event) => {
+      if (!pageVisible || !pointerAllowed()) return;
       const rect = hero.getBoundingClientRect();
       const nx = (event.clientX - rect.left) / Math.max(rect.width, 1) - .5;
       const ny = (event.clientY - rect.top) / Math.max(rect.height, 1) - .5;
@@ -101,72 +106,80 @@
       root.setProperty('--shop-hero-media-y', `${(ny * 7).toFixed(2)}px`);
       root.setProperty('--shop-hero-copy-x', `${(-nx * 4.5).toFixed(2)}px`);
       root.setProperty('--shop-hero-copy-y', `${(-ny * 3.5).toFixed(2)}px`);
-    }, { passive:true });
-    hero.addEventListener('pointerleave', () => {
-      const root = document.documentElement.style;
-      root.setProperty('--shop-hero-media-x', '0px');
-      root.setProperty('--shop-hero-media-y', '0px');
-      root.setProperty('--shop-hero-copy-x', '0px');
-      root.setProperty('--shop-hero-copy-y', '0px');
-    }, { passive:true });
+    }, {passive:true});
+    hero.addEventListener('pointerleave', resetHeroDepth, {passive:true});
+  }
+
+  function resetHeroDepth() {
+    const root = document.documentElement.style;
+    root.setProperty('--shop-hero-media-x','0px');
+    root.setProperty('--shop-hero-media-y','0px');
+    root.setProperty('--shop-hero-copy-x','0px');
+    root.setProperty('--shop-hero-copy-y','0px');
   }
 
   products.forEach((card) => {
     const media = card.querySelector('.product-card__media');
     const image = media?.querySelector('img');
-    if (!media || !image || reduce || !fine) return;
-    const echo = document.createElement('span');
-    echo.className = 'product-card__echo';
-    const clone = image.cloneNode(true);
-    clone.removeAttribute('loading');
-    clone.alt = '';
-    echo.appendChild(clone);
-    media.prepend(echo);
-
+    if (!media || !image) return;
+    let echo = null;
+    const ensureEcho = () => {
+      if (echo || !pointerAllowed()) return echo;
+      echo = document.createElement('span');
+      echo.className = 'product-card__echo';
+      const clone = image.cloneNode(true);
+      clone.removeAttribute('loading');
+      clone.alt = '';
+      echo.appendChild(clone);
+      media.prepend(echo);
+      return echo;
+    };
+    card.addEventListener('pointerenter', ensureEcho, {passive:true});
     card.addEventListener('pointermove', (event) => {
+      if (!pageVisible || !pointerAllowed()) return;
+      const layer = ensureEcho();
+      if (!layer) return;
       const rect = card.getBoundingClientRect();
       const nx = (event.clientX - rect.left) / Math.max(rect.width, 1) - .5;
       const ny = (event.clientY - rect.top) / Math.max(rect.height, 1) - .5;
-      echo.style.setProperty('--shop-echo-x', `${(nx * 8).toFixed(2)}px`);
-      echo.style.setProperty('--shop-echo-y', `${(ny * 5).toFixed(2)}px`);
-    }, { passive:true });
-
+      layer.style.setProperty('--shop-echo-x', `${(nx * 8).toFixed(2)}px`);
+      layer.style.setProperty('--shop-echo-y', `${(ny * 5).toFixed(2)}px`);
+    }, {passive:true});
     card.addEventListener('pointerleave', () => {
-      echo.style.setProperty('--shop-echo-x', '0px');
-      echo.style.setProperty('--shop-echo-y', '0px');
-    }, { passive:true });
+      echo?.style.setProperty('--shop-echo-x','0px');
+      echo?.style.setProperty('--shop-echo-y','0px');
+    }, {passive:true});
   });
 
   function triggerRecomposition() {
-    if (reduce) return;
+    if (reduceMq.matches) return;
     body.classList.remove('shop-recomposing');
     void body.offsetWidth;
     body.classList.add('shop-recomposing');
     clearTimeout(recompositionTimer);
     recompositionTimer = window.setTimeout(() => body.classList.remove('shop-recomposing'), 620);
   }
-
   ['click','change','input'].forEach((eventName) => {
     document.addEventListener(eventName, (event) => {
       const target = event.target;
-      if (!(target instanceof Element)) return;
-      if (!target.closest('.universe-tabs,.catalogue-tools,.filter-panel,#reset-filters,#empty-reset,[data-jump-universe]')) return;
+      if (!(target instanceof Element) || !target.closest('.universe-tabs,.catalogue-tools,.filter-panel,#reset-filters,#empty-reset,[data-jump-universe]')) return;
       triggerRecomposition();
       requestFocus();
-    }, { capture:true, passive:eventName === 'input' });
+    }, {capture:true,passive:eventName === 'input'});
   });
 
   function updateHeaderState() {
     const threshold = hero ? hero.offsetHeight * .58 : 320;
     body.classList.toggle('shop-header-condensed', window.scrollY > threshold);
   }
-  window.addEventListener('scroll', updateHeaderState, { passive:true });
+  window.addEventListener('scroll', updateHeaderState, {passive:true});
   updateHeaderState();
 
-  if (!reduce && desktop && featuredMedia && featuredImg && firstProductMedia) {
-    const ghost = document.createElement('div');
+  let ghost = null;
+  if (featuredMedia && featuredImg && firstProductMedia && 'IntersectionObserver' in window) {
+    ghost = document.createElement('div');
     ghost.className = 'shop-shared-product';
-    ghost.setAttribute('aria-hidden', 'true');
+    ghost.setAttribute('aria-hidden','true');
     const ghostImg = featuredImg.cloneNode(true);
     ghostImg.alt = '';
     ghost.appendChild(ghostImg);
@@ -174,7 +187,11 @@
 
     function sharedRender() {
       sharedRaf = 0;
-      if (!sharedSourceRect || !sharedTargetRect) return;
+      if (!pageVisible || !motionAllowed()) {
+        ghost.classList.remove('is-active');
+        body.classList.remove('shop-shared-product-active');
+        return;
+      }
       const sourceNow = featuredMedia.getBoundingClientRect();
       const targetNow = firstProductMedia.getBoundingClientRect();
       const travelStart = innerHeight * .94;
@@ -182,49 +199,57 @@
       const raw = (travelStart - sourceNow.bottom) / Math.max(1, travelStart - travelEnd);
       const p = Math.min(1, Math.max(0, raw));
       const eased = p * p * (3 - 2 * p);
-
-      const left = sourceNow.left + (targetNow.left - sourceNow.left) * eased;
-      const top = Math.max(-innerHeight * .1, sourceNow.top + (targetNow.top - sourceNow.top) * eased);
-      const width = sourceNow.width + (targetNow.width - sourceNow.width) * eased;
-      const height = sourceNow.height + (targetNow.height - sourceNow.height) * eased;
-
-      ghost.style.left = `${left}px`;
-      ghost.style.top = `${top}px`;
-      ghost.style.width = `${width}px`;
-      ghost.style.height = `${height}px`;
-      ghost.style.borderRadius = `${Math.max(0, 28 * (1 - eased))}px`;
-      ghost.style.opacity = p > .03 && p < .99 ? '1' : '0';
+      ghost.style.left = `${sourceNow.left + (targetNow.left - sourceNow.left) * eased}px`;
+      ghost.style.top = `${Math.max(-innerHeight * .1, sourceNow.top + (targetNow.top - sourceNow.top) * eased)}px`;
+      ghost.style.width = `${sourceNow.width + (targetNow.width - sourceNow.width) * eased}px`;
+      ghost.style.height = `${sourceNow.height + (targetNow.height - sourceNow.height) * eased}px`;
+      ghost.style.borderRadius = `${Math.max(0,28 * (1 - eased))}px`;
       const active = p > .03 && p < .99;
-      ghost.classList.toggle('is-active', active);
-      body.classList.toggle('shop-shared-product-active', active);
+      ghost.classList.toggle('is-active',active);
+      body.classList.toggle('shop-shared-product-active',active);
     }
 
     const sharedObserver = new IntersectionObserver((entries) => {
-      const visible = entries.some((entry) => entry.isIntersecting);
-      if (!visible) {
+      if (!entries.some((entry) => entry.isIntersecting)) {
         ghost.classList.remove('is-active');
         body.classList.remove('shop-shared-product-active');
         return;
       }
-      sharedSourceRect = featuredMedia.getBoundingClientRect();
-      sharedTargetRect = firstProductMedia.getBoundingClientRect();
       if (!sharedRaf) sharedRaf = requestAnimationFrame(sharedRender);
-    }, { rootMargin:'60% 0px 60% 0px', threshold:0 });
+    }, {rootMargin:'60% 0px 60% 0px',threshold:0});
     sharedObserver.observe(featuredMedia);
     sharedObserver.observe(firstProductMedia);
-
-    window.addEventListener('scroll', () => {
-      if (!sharedRaf) sharedRaf = requestAnimationFrame(sharedRender);
-    }, { passive:true });
-    window.addEventListener('resize', () => {
-      sharedSourceRect = featuredMedia.getBoundingClientRect();
-      sharedTargetRect = firstProductMedia.getBoundingClientRect();
-      if (!sharedRaf) sharedRaf = requestAnimationFrame(sharedRender);
-    }, { passive:true });
+    window.addEventListener('scroll', () => { if (pageVisible && !sharedRaf) sharedRaf = requestAnimationFrame(sharedRender); }, {passive:true});
+    window.addEventListener('resize', () => { if (pageVisible && !sharedRaf) sharedRaf = requestAnimationFrame(sharedRender); }, {passive:true});
   }
 
-  const gridMutation = new MutationObserver(() => requestFocus());
-  if (grid) gridMutation.observe(grid, { subtree:true, childList:true, attributes:true, attributeFilter:['hidden'] });
+  if ('MutationObserver' in window && grid) {
+    new MutationObserver(requestFocus).observe(grid,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden']});
+  }
+
+  function syncCapabilities() {
+    resetHeroDepth();
+    if (!motionAllowed()) {
+      clearFocusStates();
+      ghost?.classList.remove('is-active');
+      body.classList.remove('shop-shared-product-active');
+    } else requestFocus();
+  }
+  reduceMq.addEventListener?.('change',syncCapabilities);
+  desktopMq.addEventListener?.('change',syncCapabilities);
+  fineMq.addEventListener?.('change',syncCapabilities);
+
+  document.addEventListener('visibilitychange', () => {
+    pageVisible = document.visibilityState !== 'hidden';
+    if (!pageVisible) {
+      if (focusRaf) cancelAnimationFrame(focusRaf);
+      if (sharedRaf) cancelAnimationFrame(sharedRaf);
+      focusRaf = sharedRaf = 0;
+    } else {
+      requestFocus();
+      updateHeaderState();
+    }
+  });
 
   requestFocus();
 })();
