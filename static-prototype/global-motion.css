@@ -2,6 +2,8 @@
 :root{
   --page-progress:0;
   --scroll-velocity:0px;
+  --motion-flare-y:0px;
+  --motion-heading-shadow-x:0px;
   --pointer-x:72%;
   --pointer-y:28%;
   --speed-opacity:0;
@@ -129,7 +131,7 @@ body.has-floating-nav .floating-nav{
   background:radial-gradient(circle at var(--pointer-x) var(--pointer-y),rgba(228,201,149,.14),rgba(102,112,95,.05) 14%,transparent 34%);
   mix-blend-mode:soft-light;
   opacity:.55;
-  transform:translate3d(0,calc(var(--scroll-velocity) * .45),0);
+  transform:translate3d(0,var(--motion-flare-y),0);
   transition:opacity .5s ease;
   will-change:transform,background;
 }
@@ -153,7 +155,7 @@ body.scene-pulse .motion-flare{opacity:.95}
 body.is-scrolling-fast .section-head h2,
 body.is-scrolling-fast .craft h2,
 body.is-scrolling-fast .closing h2{
-  text-shadow:calc(var(--scroll-velocity) * .08) 0 0 rgba(212,180,125,.16);
+  text-shadow:var(--motion-heading-shadow-x) 0 0 rgba(212,180,125,.16);
 }
 
 body[data-scene="sand"] .floating-nav,
