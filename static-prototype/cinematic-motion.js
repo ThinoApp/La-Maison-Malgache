@@ -23,6 +23,40 @@ if (!reduceMotion.matches) {
   document.body.appendChild(wipe);
   const wipeLabel = wipe.querySelector('.cinematic-wipe__label');
 
+  const resetWipe = () => {
+    wipe.classList.remove('is-active','is-covering','is-revealing');
+  };
+
+  const revealIncomingWipe = () => {
+    let entry = null;
+    try { entry = JSON.parse(sessionStorage.getItem('lmm-entry-wipe') || 'null'); } catch (_) {}
+    if (!entry || Date.now() - Number(entry.time || 0) > 3500) {
+      try { sessionStorage.removeItem('lmm-entry-wipe'); } catch (_) {}
+      return;
+    }
+    try { sessionStorage.removeItem('lmm-entry-wipe'); } catch (_) {}
+    wipeLabel.textContent = String(entry.label || 'La Maison');
+    wipe.classList.add('is-active','is-covering');
+
+    const placeDestination = () => {
+      const target = location.hash ? document.querySelector(location.hash) : document.querySelector('#top');
+      if (target) {
+        const y = target.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({top:y,behavior:'auto'});
+      }
+      requestAnimationFrame(() => {
+        wipe.classList.remove('is-covering');
+        wipe.classList.add('is-revealing');
+        window.setTimeout(resetWipe,610);
+      });
+    };
+
+    if (document.readyState === 'complete') placeDestination();
+    else window.addEventListener('load',placeDestination,{once:true});
+  };
+
+  revealIncomingWipe();
+
   if (finePointer.matches) {
     let targetDepthX = 0;
     let targetDepthY = 0;
@@ -160,7 +194,7 @@ if (!reduceMotion.matches) {
 
   document.addEventListener('click', (event) => {
     if (wipeBusy || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const anchor = event.target.closest('a[href^="#"]');
+    const anchor = event.target instanceof Element ? event.target.closest('a[href^="#"]') : null;
     if (!anchor) return;
     const href = anchor.getAttribute('href');
     if (!href || href === '#') return;
@@ -183,8 +217,21 @@ if (!reduceMotion.matches) {
     }, 430);
 
     window.setTimeout(() => {
-      wipe.classList.remove('is-active', 'is-revealing');
+      resetWipe();
       wipeBusy = false;
     }, 1040);
+  });
+
+  window.addEventListener('pageshow',(event) => {
+    if (!event.persisted) return;
+    resetWipe();
+    wipeBusy = false;
+    targetBlur = 0;
+    targetOffset = 0;
+    targetOpacity = 0;
+    currentBlur = 0;
+    currentOffset = 0;
+    currentOpacity = 0;
+    requestLens();
   });
 }
