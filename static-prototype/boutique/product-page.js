@@ -4,21 +4,27 @@
   const body = document.body;
   if (!body) return;
 
-  function loadSignatureCursor(){
-    if (!document.querySelector('link[data-brand-cursor]')) {
-      const style = document.createElement('link');
-      style.rel = 'stylesheet';
-      style.href = '../shared-brand-cursor.css';
-      style.dataset.brandCursor = 'true';
-      document.head.appendChild(style);
-    }
-    if (!document.querySelector('script[data-brand-cursor]')) {
-      const script = document.createElement('script');
-      script.src = '../shared-brand-cursor.js';
-      script.defer = true;
-      script.dataset.brandCursor = 'true';
-      document.body.appendChild(script);
-    }
+  function loadSharedEnhancements(){
+    const assets = [
+      ['link','../shared-brand-cursor.css','data-brand-cursor'],
+      ['script','../shared-brand-cursor.js','data-brand-cursor'],
+      ['link','../shared-a11y.css','data-shared-a11y'],
+      ['script','../shared-a11y.js','data-shared-a11y']
+    ];
+    assets.forEach(([type,src,marker]) => {
+      if (document.querySelector(`${type}[${marker}]`)) return;
+      const node = document.createElement(type);
+      node.setAttribute(marker,'true');
+      if (type === 'link') {
+        node.rel = 'stylesheet';
+        node.href = src;
+        document.head.appendChild(node);
+      } else {
+        node.src = src;
+        node.defer = true;
+        document.body.appendChild(node);
+      }
+    });
   }
 
   const slug = body.dataset.productSlug || location.pathname.split('/').filter(Boolean).slice(-1)[0];
@@ -224,6 +230,6 @@
   }
 
   setQuantity(1);
-  loadSignatureCursor();
+  loadSharedEnhancements();
   requestAnimationFrame(playIncomingTransition);
 })();
