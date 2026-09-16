@@ -3,8 +3,8 @@
   const body = document.body;
   if (!body?.hasAttribute('data-checkout-page')) return;
 
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const desktop = window.matchMedia('(min-width:1001px)').matches;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const desktopMode = window.matchMedia('(min-width:1001px)');
   const summary = document.querySelector('.checkout-summary');
   const summaryInner = document.querySelector('.checkout-summary__inner');
   const form = document.querySelector('#checkout-form');
@@ -25,7 +25,7 @@
 
   function refreshItemDelays(){
     document.querySelectorAll('.checkout-summary-item').forEach((item, index) => {
-      item.style.setProperty('--checkout-item-delay', `${110 + index * 70}ms`);
+      item.style.setProperty('--checkout-item-delay', reduceMotion.matches ? '0ms' : `${110 + index * 70}ms`);
     });
   }
 
@@ -34,6 +34,7 @@
     body.dataset.checkoutDirection = next === 4 ? 'confirm' : next > currentStep ? 'forward' : 'back';
     currentStep = next;
     setProgress(next);
+    if (reduceMotion.matches) return;
     requestAnimationFrame(() => {
       const active = document.querySelector('[data-checkout-step]:not([hidden])');
       active?.classList.remove('is-active');
@@ -47,14 +48,19 @@
     steps.forEach((step) => stepObserver.observe(step,{attributes:true,attributeFilter:['hidden']}));
   }
 
+  function pulseTotal(){
+    if (reduceMotion.matches) return;
+    summary?.classList.remove('is-total-changing');
+    void summary?.offsetWidth;
+    summary?.classList.add('is-total-changing');
+    window.setTimeout(() => summary?.classList.remove('is-total-changing'), 500);
+  }
+
   if (form) {
     form.addEventListener('change', (event) => {
       const target = event.target;
       if (!(target instanceof HTMLInputElement) || target.name !== 'shipping') return;
-      summary?.classList.remove('is-total-changing');
-      void summary?.offsetWidth;
-      summary?.classList.add('is-total-changing');
-      window.setTimeout(() => summary?.classList.remove('is-total-changing'), 500);
+      pulseTotal();
     });
   }
 
@@ -64,10 +70,7 @@
       const next = totalObserverTarget.textContent || '';
       if (next === lastTotal) return;
       lastTotal = next;
-      summary?.classList.remove('is-total-changing');
-      void summary?.offsetWidth;
-      summary?.classList.add('is-total-changing');
-      window.setTimeout(() => summary?.classList.remove('is-total-changing'), 500);
+      pulseTotal();
     }).observe(totalObserverTarget,{childList:true,subtree:true,characterData:true});
   }
 
@@ -78,19 +81,31 @@
 
   function renderScroll(){
     scrollRaf = 0;
-    if (reduce || !desktop || !summaryInner) return;
+    if (reduceMotion.matches || !desktopMode.matches || !summaryInner) {
+      document.documentElement.style.setProperty('--checkout-summary-shift','0px');
+      document.documentElement.style.setProperty('--checkout-summary-scale','1');
+      return;
+    }
     const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
     const p = Math.min(1, Math.max(0, scrollY / max));
     document.documentElement.style.setProperty('--checkout-summary-shift', `${(p * -10).toFixed(2)}px`);
     document.documentElement.style.setProperty('--checkout-summary-scale', String(1 - p * .006));
   }
 
-  window.addEventListener('scroll', () => {
+  function requestScrollRender(){
     if (!scrollRaf) scrollRaf = requestAnimationFrame(renderScroll);
-  }, {passive:true});
-  window.addEventListener('resize', () => {
-    if (!scrollRaf) scrollRaf = requestAnimationFrame(renderScroll);
-  }, {passive:true});
+  }
+
+  function syncPreferences(){
+    refreshItemDelays();
+    if (reduceMotion.matches) summary?.classList.remove('is-total-changing');
+    requestScrollRender();
+  }
+
+  window.addEventListener('scroll', requestScrollRender, {passive:true});
+  window.addEventListener('resize', requestScrollRender, {passive:true});
+  reduceMotion.addEventListener?.('change', syncPreferences);
+  desktopMode.addEventListener?.('change', syncPreferences);
 
   currentStep = getActiveStep();
   setProgress(currentStep);
