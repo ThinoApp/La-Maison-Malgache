@@ -222,6 +222,22 @@ if (!reduceMotion.matches) {
     }, 1040);
   });
 
+  document.addEventListener('click',(event) => {
+    if (wipeBusy || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const anchor = event.target instanceof Element ? event.target.closest('a[href="boutique/"],a[href="./boutique/"]') : null;
+    if (!anchor) return;
+    event.preventDefault();
+    wipeBusy = true;
+    wipeLabel.textContent = 'La Boutique';
+    wipe.classList.remove('is-revealing');
+    wipe.classList.add('is-active');
+    requestAnimationFrame(() => wipe.classList.add('is-covering'));
+    try {
+      sessionStorage.setItem('lmm-entry-wipe',JSON.stringify({label:'La Boutique',href:'boutique/',time:Date.now()}));
+    } catch (_) {}
+    window.setTimeout(() => { location.href = anchor.getAttribute('href') || 'boutique/'; },430);
+  },true);
+
   window.addEventListener('pageshow',(event) => {
     if (!event.persisted) return;
     resetWipe();
