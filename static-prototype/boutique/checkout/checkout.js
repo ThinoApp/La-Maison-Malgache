@@ -16,25 +16,30 @@
   let currentStep = 1;
   let completedOrder = null;
 
-  function loadSignatureCursor(){
-    if (!document.querySelector('link[data-brand-cursor]')) {
-      const style = document.createElement('link');
-      style.rel = 'stylesheet';
-      style.href = '../shared-brand-cursor.css';
-      style.dataset.brandCursor = 'true';
-      document.head.appendChild(style);
-    }
-    if (!document.querySelector('script[data-brand-cursor]')) {
-      const script = document.createElement('script');
-      script.src = '../shared-brand-cursor.js';
-      script.defer = true;
-      script.dataset.brandCursor = 'true';
-      document.body.appendChild(script);
-    }
+  function loadSharedEnhancements(){
+    const assets = [
+      ['link','../shared-brand-cursor.css','data-brand-cursor'],
+      ['script','../shared-brand-cursor.js','data-brand-cursor'],
+      ['link','../shared-a11y.css','data-shared-a11y'],
+      ['script','../shared-a11y.js','data-shared-a11y']
+    ];
+    assets.forEach(([type,src,marker]) => {
+      if (document.querySelector(`${type}[${marker}]`)) return;
+      const node = document.createElement(type);
+      node.setAttribute(marker,'true');
+      if (type === 'link') {
+        node.rel = 'stylesheet';
+        node.href = src;
+        document.head.appendChild(node);
+      } else {
+        node.src = src;
+        node.defer = true;
+        document.body.appendChild(node);
+      }
+    });
   }
 
   const formatPrice = (value) => `${Math.max(0, Number(value) || 0).toFixed(0)} €`;
-  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
 
   function readCart() {
     try {
@@ -60,17 +65,40 @@
     return completedOrder?.items || readCart();
   }
 
+  function renderSummaryItem(item) {
+    const article = document.createElement('article');
+    article.className = 'checkout-summary-item';
+
+    const image = document.createElement('img');
+    image.src = String(item.image || '');
+    image.alt = '';
+    image.loading = 'lazy';
+    image.decoding = 'async';
+
+    const copy = document.createElement('div');
+    const material = document.createElement('p');
+    material.textContent = String(item.material || '');
+    const name = document.createElement('h3');
+    name.textContent = String(item.name || item.id || 'Pièce');
+    const quantity = document.createElement('small');
+    quantity.textContent = `Quantité ${Math.max(1, Number(item.quantity) || 1)}`;
+    copy.append(material, name, quantity);
+
+    const linePrice = document.createElement('strong');
+    linePrice.textContent = formatPrice((Number(item.price) || 0) * Math.max(1, Number(item.quantity) || 1));
+
+    article.append(image, copy, linePrice);
+    return article;
+  }
+
   function renderSummary() {
     const items = activeItems();
     const sub = subtotal(items);
     const shipping = completedOrder?.shippingPrice ?? shippingPrice();
     if (summaryItems) {
-      summaryItems.innerHTML = items.map((item) => `
-        <article class="checkout-summary-item">
-          <img src="${esc(item.image || '')}" alt="" loading="lazy" decoding="async">
-          <div><p>${esc(item.material || '')}</p><h3>${esc(item.name || item.id)}</h3><small>Quantité ${Number(item.quantity) || 1}</small></div>
-          <strong>${esc(formatPrice((Number(item.price) || 0) * (Number(item.quantity) || 1)))}</strong>
-        </article>`).join('');
+      const fragment = document.createDocumentFragment();
+      items.forEach((item) => fragment.appendChild(renderSummaryItem(item)));
+      summaryItems.replaceChildren(fragment);
     }
     if (subtotalEl) subtotalEl.textContent = formatPrice(sub);
     if (shippingEl) shippingEl.textContent = items.length ? formatPrice(shipping) : '0 €';
@@ -233,5 +261,5 @@
   showEmptyState();
   syncReview();
   setStep(1);
-  loadSignatureCursor();
+  loadSharedEnhancements();
 })();
