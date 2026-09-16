@@ -38,5 +38,6 @@ main[tabindex="-1"]:focus{outline:none}
 }
 
 @media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
   .lmm-skip-link{transition:none!important}
 }
