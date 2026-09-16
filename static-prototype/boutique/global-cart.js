@@ -5,8 +5,8 @@
   if (!body) return;
 
   const formatPrice = (value) => `${Math.max(0, Number(value) || 0).toFixed(0)} €`;
-  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
   let pulseTimer = 0;
+  let restoreFocusTo = null;
 
   function normalize(items) {
     if (!Array.isArray(items)) return [];
@@ -32,7 +32,7 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch (_) {}
     renderAll(next);
     window.dispatchEvent(new CustomEvent('lmm:cart-change', { detail:{ items:next } }));
-    if (pulse) {
+    if (pulse && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       body.classList.remove('global-cart-count-pulse');
       void body.offsetWidth;
       body.classList.add('global-cart-count-pulse');
@@ -59,6 +59,17 @@
     return body.dataset.productSlug ? '../checkout/' : 'checkout/';
   }
 
+  function continueHref() {
+    return body.dataset.productSlug ? '../' : './';
+  }
+
+  function element(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
   function ensureDrawer() {
     let dialog = document.querySelector('#global-cart');
     if (dialog) return dialog;
@@ -72,7 +83,7 @@
     dialog.innerHTML = `
       <div class="global-cart__shell">
         <header class="global-cart__head">
-          <div class="global-cart__title"><strong id="global-cart-title">Panier</strong><span data-global-cart-summary></span></div>
+          <div class="global-cart__title"><strong id="global-cart-title">Panier</strong><span data-global-cart-summary aria-live="polite"></span></div>
           <button class="global-cart__close" type="button" data-global-cart-close>Fermer</button>
         </header>
         <div class="global-cart__body" data-global-cart-body></div>
@@ -88,7 +99,7 @@
     dialog.querySelector('[data-global-cart-close]')?.addEventListener('click', close);
     dialog.querySelector('.global-cart__checkout')?.addEventListener('click', () => {
       if (!read().length) return;
-      close();
+      close({ restoreFocus:false });
       location.href = checkoutHref();
     });
     dialog.addEventListener('click', (event) => { if (event.target === dialog) close(); });
@@ -96,9 +107,84 @@
       body.classList.remove('global-cart-open');
       document.querySelectorAll('.cart-trigger,.pdp-cart-trigger').forEach((trigger) => trigger.setAttribute('aria-expanded','false'));
     });
-    dialog.addEventListener('cancel', () => body.classList.remove('global-cart-open'));
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      close();
+    });
     dialog.addEventListener('click', handleDrawerClick);
     return dialog;
+  }
+
+  function renderEmpty(bodyEl) {
+    bodyEl.replaceChildren();
+    const wrapper = element('div','global-cart__empty');
+    wrapper.append(
+      element('span','', 'Votre sélection'),
+      element('h2','', 'Le panier attend sa première pièce.'),
+      element('p','', 'Explorez la Boutique et ajoutez les objets que vous souhaitez garder près de vous.')
+    );
+    const link = element('a','', 'Continuer la sélection');
+    link.href = continueHref();
+    wrapper.appendChild(link);
+    bodyEl.appendChild(wrapper);
+  }
+
+  function makeQuantityButton(action, item, label) {
+    const button = element('button','', label === 'Diminuer' ? '−' : '+');
+    button.type = 'button';
+    button.dataset.cartAction = action;
+    button.dataset.cartId = item.id;
+    button.setAttribute('aria-label', `${label} ${item.name}`);
+    if (action === 'minus' && item.quantity <= 1) button.disabled = true;
+    return button;
+  }
+
+  function renderItems(bodyEl, items) {
+    bodyEl.replaceChildren();
+    const list = element('div','global-cart__list');
+
+    items.forEach((item) => {
+      const article = element('article','global-cart__item');
+      article.dataset.cartItem = item.id;
+
+      const media = element('a','global-cart__media');
+      media.href = productHref(item);
+      media.setAttribute('aria-label', `Voir ${item.name}`);
+      const image = document.createElement('img');
+      image.src = item.image;
+      image.alt = '';
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      media.appendChild(image);
+
+      const info = element('div','global-cart__info');
+      info.appendChild(element('p','global-cart__material', item.material));
+      const name = element('a','global-cart__name', item.name);
+      name.href = productHref(item);
+      info.appendChild(name);
+      info.appendChild(element('p','global-cart__unit', `${formatPrice(item.price)} l’unité`));
+
+      const quantity = element('div','global-cart__quantity');
+      quantity.setAttribute('aria-label', `Quantité pour ${item.name}`);
+      quantity.appendChild(makeQuantityButton('minus', item, 'Diminuer'));
+      const output = element('output','', String(item.quantity));
+      output.setAttribute('aria-live','polite');
+      quantity.appendChild(output);
+      quantity.appendChild(makeQuantityButton('plus', item, 'Augmenter'));
+      info.appendChild(quantity);
+
+      const remove = element('button','global-cart__remove','Retirer');
+      remove.type = 'button';
+      remove.dataset.cartAction = 'remove';
+      remove.dataset.cartId = item.id;
+      remove.setAttribute('aria-label', `Retirer ${item.name} du panier`);
+      info.appendChild(remove);
+
+      article.append(media, info, element('strong','global-cart__line-price', formatPrice(item.price * item.quantity)));
+      list.appendChild(article);
+    });
+
+    bodyEl.appendChild(list);
   }
 
   function renderAll(items = read()) {
@@ -116,27 +202,8 @@
     if (checkout) checkout.disabled = safe.length === 0;
 
     if (!bodyEl) return;
-    if (!safe.length) {
-      bodyEl.innerHTML = `<div class="global-cart__empty"><span>Votre sélection</span><h2>Le panier attend sa première pièce.</h2><p>Explorez la Boutique et ajoutez les objets que vous souhaitez garder près de vous.</p><a href="${body.dataset.productSlug ? '../' : './'}">Continuer la sélection</a></div>`;
-      return;
-    }
-
-    bodyEl.innerHTML = `<div class="global-cart__list">${safe.map((item) => `
-      <article class="global-cart__item" data-cart-item="${esc(item.id)}">
-        <a class="global-cart__media" href="${esc(productHref(item))}" aria-label="Voir ${esc(item.name)}"><img src="${esc(item.image)}" alt="" loading="lazy" decoding="async"></a>
-        <div class="global-cart__info">
-          <p class="global-cart__material">${esc(item.material)}</p>
-          <a class="global-cart__name" href="${esc(productHref(item))}">${esc(item.name)}</a>
-          <p class="global-cart__unit">${esc(formatPrice(item.price))} l’unité</p>
-          <div class="global-cart__quantity" aria-label="Quantité pour ${esc(item.name)}">
-            <button type="button" data-cart-action="minus" data-cart-id="${esc(item.id)}" aria-label="Diminuer ${esc(item.name)}"${item.quantity <= 1 ? ' disabled' : ''}>−</button>
-            <output>${item.quantity}</output>
-            <button type="button" data-cart-action="plus" data-cart-id="${esc(item.id)}" aria-label="Augmenter ${esc(item.name)}">+</button>
-          </div>
-          <button class="global-cart__remove" type="button" data-cart-action="remove" data-cart-id="${esc(item.id)}">Retirer</button>
-        </div>
-        <strong class="global-cart__line-price">${esc(formatPrice(item.price * item.quantity))}</strong>
-      </article>`).join('')}</div>`;
+    if (!safe.length) renderEmpty(bodyEl);
+    else renderItems(bodyEl, safe);
   }
 
   function mutate(id, mode) {
@@ -165,15 +232,25 @@
 
   function open() {
     const dialog = ensureDrawer();
+    const active = document.activeElement;
+    restoreFocusTo = active instanceof HTMLElement ? active : null;
     renderAll();
     if (!dialog.open) dialog.showModal();
     body.classList.add('global-cart-open');
     document.querySelectorAll('.cart-trigger,.pdp-cart-trigger').forEach((trigger) => trigger.setAttribute('aria-expanded','true'));
+    requestAnimationFrame(() => dialog.querySelector('[data-global-cart-close]')?.focus());
   }
 
-  function close() {
+  function close({ restoreFocus = true } = {}) {
     const dialog = ensureDrawer();
     if (dialog.open) dialog.close();
+    if (restoreFocus && restoreFocusTo?.isConnected) {
+      const target = restoreFocusTo;
+      restoreFocusTo = null;
+      requestAnimationFrame(() => target.focus({preventScroll:true}));
+    } else if (!restoreFocus) {
+      restoreFocusTo = null;
+    }
   }
 
   function add(product, quantity = 1) {
