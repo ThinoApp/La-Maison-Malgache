@@ -117,6 +117,9 @@
   const qtyMinus = document.querySelector('[data-qty-minus]');
   const qtyPlus = document.querySelector('[data-qty-plus]');
   const addButton = document.querySelector('[data-add-to-cart]');
+  const addTextNode = addButton ? [...addButton.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.nodeValue?.trim()) : null;
+  const addOriginalText = addTextNode?.nodeValue || '';
+  let addFeedbackTimer = 0;
 
   function setQuantity(next){
     quantity = Math.max(1, Math.min(9, Number(next) || 1));
@@ -142,10 +145,12 @@
     addButton.classList.remove('is-added');
     void addButton.offsetWidth;
     addButton.classList.add('is-added');
-    const node = addButton.firstChild;
-    const original = node?.nodeValue || 'Ajouter au panier ';
-    if (node) node.nodeValue = 'Ajouté au panier ';
-    setTimeout(() => { if (node) node.nodeValue = original; }, 900);
+    clearTimeout(addFeedbackTimer);
+    if (addTextNode) addTextNode.nodeValue = addOriginalText.replace('Ajouter au panier','Ajouté au panier');
+    addFeedbackTimer = window.setTimeout(() => {
+      if (addTextNode) addTextNode.nodeValue = addOriginalText;
+      addButton.classList.remove('is-added');
+    }, 900);
   });
 
   const storyPhotos = [...document.querySelectorAll('[data-story-photo]')];
