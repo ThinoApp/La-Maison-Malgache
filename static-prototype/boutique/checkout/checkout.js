@@ -12,7 +12,7 @@
   const totalEl = document.querySelector('[data-summary-total]');
   const demoConfirm = document.querySelector('[data-demo-confirm]');
   const confirmButton = document.querySelector('[data-confirm-order]');
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let currentStep = 1;
   let completedOrder = null;
 
@@ -114,7 +114,15 @@
     renderSummary();
   }
 
-  function setStep(next) {
+  function focusActiveStep() {
+    const active = steps.find((step) => !step.hidden);
+    const heading = active?.querySelector('h1,h2');
+    if (!(heading instanceof HTMLElement)) return;
+    heading.tabIndex = -1;
+    requestAnimationFrame(() => heading.focus({preventScroll:true}));
+  }
+
+  function setStep(next, { focus = true } = {}) {
     currentStep = Math.max(1, Math.min(4, Number(next) || 1));
     steps.forEach((step) => {
       const active = Number(step.dataset.checkoutStep) === currentStep;
@@ -128,8 +136,9 @@
       if (index === currentStep) indicator.setAttribute('aria-current', 'step');
       else indicator.removeAttribute('aria-current');
     });
-    if (!reduce) window.scrollTo({ top:0, behavior:'smooth' });
+    if (!reduceMotion.matches) window.scrollTo({ top:0, behavior:'smooth' });
     else window.scrollTo(0,0);
+    if (focus) focusActiveStep();
   }
 
   function fieldError(name, message) {
@@ -260,6 +269,6 @@
   restoreDraft();
   showEmptyState();
   syncReview();
-  setStep(1);
+  setStep(1,{focus:false});
   loadSharedEnhancements();
 })();
