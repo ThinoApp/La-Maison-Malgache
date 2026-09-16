@@ -4,8 +4,19 @@
   --depth-y:0px;
   --depth-x-inverse:0px;
   --depth-y-inverse:0px;
+  --depth-x-soft:0px;
+  --depth-y-soft:0px;
+  --depth-x-story:0px;
+  --depth-y-story:0px;
+  --depth-x-territory:0px;
+  --depth-y-territory:0px;
+  --depth-x-copy:0px;
+  --depth-y-copy:0px;
   --velocity-blur:0px;
   --velocity-offset:0px;
+  --velocity-band-1-y:0px;
+  --velocity-band-2-y:0px;
+  --velocity-band-3-y:0px;
   --velocity-opacity:0;
 }
 
@@ -13,10 +24,10 @@
 @media(pointer:fine) and (hover:hover){
   .hero .portal{translate:var(--depth-x) var(--depth-y)}
   .hero .copy{translate:var(--depth-x-inverse) var(--depth-y-inverse)}
-  .story .arch-card{translate:calc(var(--depth-x) * .55) calc(var(--depth-y) * .55)}
-  .story .reveal{translate:calc(var(--depth-x-inverse) * .22) calc(var(--depth-y-inverse) * .22)}
-  .story-media{translate:calc(var(--depth-x) * .34) calc(var(--depth-y) * .34)}
-  .madagascar-media{translate:calc(var(--depth-x) * .24) calc(var(--depth-y) * .24)}
+  .story .arch-card{translate:var(--depth-x-soft) var(--depth-y-soft)}
+  .story .reveal{translate:var(--depth-x-copy) var(--depth-y-copy)}
+  .story-media{translate:var(--depth-x-story) var(--depth-y-story)}
+  .madagascar-media{translate:var(--depth-x-territory) var(--depth-y-territory)}
   .portal,.arch-card,.story-media,.madagascar-media,.hero .copy,.story .reveal{
     transition:translate .22s cubic-bezier(.2,.8,.2,1);
     will-change:translate;
@@ -46,9 +57,9 @@
   border-bottom:1px solid rgba(238,224,196,.035);
   will-change:transform,backdrop-filter;
 }
-.velocity-lens__band:nth-child(1){top:-1%;transform:translate3d(0,calc(var(--velocity-offset) * -.58),0)}
-.velocity-lens__band:nth-child(2){top:33%;transform:translate3d(0,calc(var(--velocity-offset) * .32),0)}
-.velocity-lens__band:nth-child(3){top:66%;transform:translate3d(0,calc(var(--velocity-offset) * -.2),0)}
+.velocity-lens__band:nth-child(1){top:-1%;transform:translate3d(0,var(--velocity-band-1-y),0)}
+.velocity-lens__band:nth-child(2){top:33%;transform:translate3d(0,var(--velocity-band-2-y),0)}
+.velocity-lens__band:nth-child(3){top:66%;transform:translate3d(0,var(--velocity-band-3-y),0)}
 .velocity-lens::after{
   content:"";
   position:absolute;
