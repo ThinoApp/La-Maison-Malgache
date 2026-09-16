@@ -45,6 +45,23 @@
     cleanupTimer = window.setTimeout(resetVeil,610);
   }
 
+  function revealIncomingVeil() {
+    let entry = null;
+    try { entry = JSON.parse(sessionStorage.getItem('lmm-entry-wipe') || 'null'); } catch (_) {}
+    if (!entry || Date.now() - Number(entry.time || 0) > 3500) {
+      try { sessionStorage.removeItem('lmm-entry-wipe'); } catch (_) {}
+      return;
+    }
+    try { sessionStorage.removeItem('lmm-entry-wipe'); } catch (_) {}
+    busy = true;
+    document.body.classList.add('is-boutique-section-wiping');
+    label.textContent = String(entry.label || 'La Boutique');
+    wipe.classList.add('is-active','is-covering');
+    const reveal = () => requestAnimationFrame(revealVeil);
+    if (document.readyState === 'complete') reveal();
+    else window.addEventListener('load',reveal,{once:true});
+  }
+
   function navigateLocal(href,target) {
     window.setTimeout(() => {
       const headerOffset = window.innerWidth <= 700 ? 86 : 126;
@@ -81,6 +98,8 @@
     if (isLocal && target) navigateLocal(href,target);
     else navigateExternal(href,name);
   },true);
+
+  revealIncomingVeil();
 
   window.addEventListener('pageshow',(event) => {
     if (event.persisted || busy) resetVeil();
