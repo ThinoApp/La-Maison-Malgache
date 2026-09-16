@@ -23,9 +23,7 @@ if (!reduceMotion.matches) {
   document.body.appendChild(wipe);
   const wipeLabel = wipe.querySelector('.cinematic-wipe__label');
 
-  const resetWipe = () => {
-    wipe.classList.remove('is-active','is-covering','is-revealing');
-  };
+  const resetWipe = () => wipe.classList.remove('is-active','is-covering','is-revealing');
 
   const revealIncomingWipe = () => {
     let entry = null;
@@ -37,25 +35,21 @@ if (!reduceMotion.matches) {
     try { sessionStorage.removeItem('lmm-entry-wipe'); } catch (_) {}
     wipeLabel.textContent = String(entry.label || 'La Maison');
     wipe.classList.add('is-active','is-covering');
-
     const placeDestination = () => {
       const target = location.hash ? document.querySelector(location.hash) : document.querySelector('#top');
-      if (target) {
-        const y = target.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({top:y,behavior:'auto'});
-      }
+      if (target) window.scrollTo({top:target.getBoundingClientRect().top + window.scrollY,behavior:'auto'});
       requestAnimationFrame(() => {
         wipe.classList.remove('is-covering');
         wipe.classList.add('is-revealing');
         window.setTimeout(resetWipe,610);
       });
     };
-
     if (document.readyState === 'complete') placeDestination();
     else window.addEventListener('load',placeDestination,{once:true});
   };
-
   revealIncomingWipe();
+
+  let pageVisible = document.visibilityState !== 'hidden';
 
   if (finePointer.matches) {
     let targetDepthX = 0;
@@ -67,9 +61,9 @@ if (!reduceMotion.matches) {
 
     const updateDepthVars = () => {
       depthRaf = 0;
+      if (!pageVisible) return;
       depthX += (targetDepthX - depthX) * .09;
       depthY += (targetDepthY - depthY) * .09;
-
       const root = document.documentElement.style;
       root.setProperty('--depth-x', `${depthX.toFixed(2)}px`);
       root.setProperty('--depth-y', `${depthY.toFixed(2)}px`);
@@ -83,19 +77,16 @@ if (!reduceMotion.matches) {
       root.setProperty('--depth-y-territory', `${(depthY * .24).toFixed(2)}px`);
       root.setProperty('--depth-x-copy', `${(-depthX * .22).toFixed(2)}px`);
       root.setProperty('--depth-y-copy', `${(-depthY * .22).toFixed(2)}px`);
-
-      if (Math.abs(targetDepthX - depthX) > .05 || Math.abs(targetDepthY - depthY) > .05) {
-        depthRaf = requestAnimationFrame(updateDepthVars);
-      }
+      if (Math.abs(targetDepthX - depthX) > .05 || Math.abs(targetDepthY - depthY) > .05) depthRaf = requestAnimationFrame(updateDepthVars);
     };
 
     window.addEventListener('pointermove', (event) => {
+      if (!pageVisible) return;
       const nx = event.clientX / Math.max(1, window.innerWidth) - .5;
       const ny = event.clientY / Math.max(1, window.innerHeight) - .5;
       targetDepthX = nx * 15;
       targetDepthY = ny * 11;
       if (!depthRaf) depthRaf = requestAnimationFrame(updateDepthVars);
-
       document.body.classList.add('has-pointer-energy');
       clearTimeout(pointerEnergyTimer);
       pointerEnergyTimer = window.setTimeout(() => document.body.classList.remove('has-pointer-energy'), 110);
@@ -122,44 +113,35 @@ if (!reduceMotion.matches) {
 
   const animateVelocityLens = () => {
     lensRaf = 0;
+    if (!pageVisible) return;
     currentBlur += (targetBlur - currentBlur) * .17;
     currentOffset += (targetOffset - currentOffset) * .18;
     currentOpacity += (targetOpacity - currentOpacity) * .2;
-
     const root = document.documentElement.style;
     root.setProperty('--velocity-blur', `${currentBlur.toFixed(2)}px`);
     root.setProperty('--velocity-offset', `${currentOffset.toFixed(2)}px`);
+    root.setProperty('--velocity-band-1-y', `${(currentOffset * -.58).toFixed(2)}px`);
+    root.setProperty('--velocity-band-2-y', `${(currentOffset * .32).toFixed(2)}px`);
+    root.setProperty('--velocity-band-3-y', `${(currentOffset * -.2).toFixed(2)}px`);
     root.setProperty('--velocity-opacity', currentOpacity.toFixed(3));
-
     const active = Math.abs(currentBlur - targetBlur) > .02 || Math.abs(currentOffset - targetOffset) > .08 || Math.abs(currentOpacity - targetOpacity) > .01;
     if (active) lensRaf = requestAnimationFrame(animateVelocityLens);
   };
-
-  const requestLens = () => {
-    if (!lensRaf) lensRaf = requestAnimationFrame(animateVelocityLens);
-  };
+  const requestLens = () => { if (pageVisible && !lensRaf) lensRaf = requestAnimationFrame(animateVelocityLens); };
 
   window.addEventListener('scroll', () => {
-    if (window.innerWidth <= 1000) return;
+    if (!pageVisible || window.innerWidth <= 1000) return;
     const now = performance.now();
     const y = window.scrollY;
     const dt = Math.max(16, now - lastScrollTime);
     const velocity = (y - lastScrollY) / dt * 16.67;
     const absVelocity = Math.abs(velocity);
-
     targetBlur = Math.min(3.2, Math.max(0, absVelocity - 4) * .07);
     targetOffset = Math.max(-26, Math.min(26, velocity * .72));
     targetOpacity = Math.min(.34, Math.max(0, absVelocity - 5) / 65);
     requestLens();
-
     clearTimeout(settleTimer);
-    settleTimer = window.setTimeout(() => {
-      targetBlur = 0;
-      targetOffset = 0;
-      targetOpacity = 0;
-      requestLens();
-    }, 80);
-
+    settleTimer = window.setTimeout(() => { targetBlur = 0; targetOffset = 0; targetOpacity = 0; requestLens(); }, 80);
     lastScrollY = y;
     lastScrollTime = now;
   }, { passive: true });
@@ -168,9 +150,7 @@ if (!reduceMotion.matches) {
   let lastBloomId = '';
   if ('IntersectionObserver' in window && majorScenes.length) {
     const bloomObserver = new IntersectionObserver((entries) => {
-      const active = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      const active = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
       if (!active || active.target.id === lastBloomId) return;
       lastBloomId = active.target.id;
       sceneBloom.classList.remove('is-active');
@@ -181,15 +161,7 @@ if (!reduceMotion.matches) {
     majorScenes.forEach((section) => bloomObserver.observe(section));
   }
 
-  const anchorLabels = new Map([
-    ['#top', 'Entrée'],
-    ['#story', 'La Maison'],
-    ['#storytelling', 'Matière'],
-    ['#universes', 'Collections'],
-    ['#craft', 'Savoir-faire'],
-    ['#madagascar', 'Madagascar'],
-    ['#closing', 'Transmission']
-  ]);
+  const anchorLabels = new Map([['#top','Entrée'],['#story','La Maison'],['#storytelling','Matière'],['#universes','Collections'],['#craft','Savoir-faire'],['#madagascar','Madagascar'],['#closing','Transmission']]);
   let wipeBusy = false;
 
   document.addEventListener('click', (event) => {
@@ -200,26 +172,19 @@ if (!reduceMotion.matches) {
     if (!href || href === '#') return;
     const target = document.querySelector(href);
     if (!target) return;
-
     event.preventDefault();
     wipeBusy = true;
     wipeLabel.textContent = anchorLabels.get(href) || 'La Maison';
     wipe.classList.remove('is-revealing');
     wipe.classList.add('is-active');
     requestAnimationFrame(() => wipe.classList.add('is-covering'));
-
     window.setTimeout(() => {
-      const y = target.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top: y, behavior: 'auto' });
+      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY, behavior: 'auto' });
       history.pushState(null, '', href);
       wipe.classList.remove('is-covering');
       wipe.classList.add('is-revealing');
     }, 430);
-
-    window.setTimeout(() => {
-      resetWipe();
-      wipeBusy = false;
-    }, 1040);
+    window.setTimeout(() => { resetWipe(); wipeBusy = false; }, 1040);
   });
 
   document.addEventListener('click',(event) => {
@@ -232,22 +197,29 @@ if (!reduceMotion.matches) {
     wipe.classList.remove('is-revealing');
     wipe.classList.add('is-active');
     requestAnimationFrame(() => wipe.classList.add('is-covering'));
-    try {
-      sessionStorage.setItem('lmm-entry-wipe',JSON.stringify({label:'La Boutique',href:'boutique/',time:Date.now()}));
-    } catch (_) {}
+    try { sessionStorage.setItem('lmm-entry-wipe',JSON.stringify({label:'La Boutique',href:'boutique/',time:Date.now()})); } catch (_) {}
     window.setTimeout(() => { location.href = anchor.getAttribute('href') || 'boutique/'; },430);
   },true);
+
+  document.addEventListener('visibilitychange', () => {
+    pageVisible = document.visibilityState !== 'hidden';
+    if (!pageVisible) {
+      if (lensRaf) cancelAnimationFrame(lensRaf);
+      lensRaf = 0;
+      targetBlur = targetOffset = targetOpacity = 0;
+    } else {
+      lastScrollY = window.scrollY;
+      lastScrollTime = performance.now();
+      requestLens();
+    }
+  });
 
   window.addEventListener('pageshow',(event) => {
     if (!event.persisted) return;
     resetWipe();
     wipeBusy = false;
-    targetBlur = 0;
-    targetOffset = 0;
-    targetOpacity = 0;
-    currentBlur = 0;
-    currentOffset = 0;
-    currentOpacity = 0;
+    targetBlur = targetOffset = targetOpacity = 0;
+    currentBlur = currentOffset = currentOpacity = 0;
     requestLens();
   });
 }
