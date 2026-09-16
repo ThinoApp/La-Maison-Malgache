@@ -12,25 +12,30 @@
   const filterCount = document.querySelector('#filter-count');
   const grid = document.querySelector('#product-grid');
   const jumpButtons = [...document.querySelectorAll('[data-jump-universe]')];
-  const cartTrigger = document.querySelector('.cart-trigger');
-  const cartPanel = document.querySelector('#cart-panel');
-  const closeCart = document.querySelector('[data-close-cart]');
 
-  function loadSignatureCursor(){
-    if (!document.querySelector('link[data-brand-cursor]')) {
-      const style = document.createElement('link');
-      style.rel = 'stylesheet';
-      style.href = 'shared-brand-cursor.css';
-      style.dataset.brandCursor = 'true';
-      document.head.appendChild(style);
-    }
-    if (!document.querySelector('script[data-brand-cursor]')) {
-      const script = document.createElement('script');
-      script.src = 'shared-brand-cursor.js';
-      script.defer = true;
-      script.dataset.brandCursor = 'true';
-      document.body.appendChild(script);
-    }
+  function loadStylesheetOnce(href, marker) {
+    if (document.querySelector(`link[${marker}]`)) return;
+    const style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.href = href;
+    style.setAttribute(marker, 'true');
+    document.head.appendChild(style);
+  }
+
+  function loadScriptOnce(src, marker) {
+    if (document.querySelector(`script[${marker}]`)) return;
+    const script = document.createElement('script');
+    script.src = src;
+    script.defer = true;
+    script.setAttribute(marker, 'true');
+    document.body.appendChild(script);
+  }
+
+  function loadSharedEnhancements(){
+    loadStylesheetOnce('shared-brand-cursor.css', 'data-brand-cursor');
+    loadScriptOnce('shared-brand-cursor.js', 'data-brand-cursor');
+    loadStylesheetOnce('shared-a11y.css', 'data-shared-a11y');
+    loadScriptOnce('shared-a11y.js', 'data-shared-a11y');
   }
 
   let activeUniverse = new URLSearchParams(location.search).get('univers') || 'all';
@@ -102,7 +107,10 @@
     render();
   }
 
-  universeButtons.forEach((button) => button.addEventListener('click', () => { activeUniverse = button.dataset.universe || 'all'; render(); }));
+  universeButtons.forEach((button) => button.addEventListener('click', () => {
+    activeUniverse = button.dataset.universe || 'all';
+    render();
+  }));
   filterInputs.forEach((input) => input.addEventListener('change', render));
   search?.addEventListener('input', render);
   sort?.addEventListener('change', render);
@@ -117,31 +125,8 @@
     document.querySelector('#catalogue')?.scrollIntoView({ behavior:'smooth', block:'start' });
   }));
 
-  cartTrigger?.addEventListener('click', () => { if (cartPanel) { cartPanel.showModal(); cartTrigger.setAttribute('aria-expanded','true'); } });
-  closeCart?.addEventListener('click', () => { cartPanel?.close(); cartTrigger?.setAttribute('aria-expanded','false'); });
-  cartPanel?.addEventListener('click', (event) => { if (event.target === cartPanel) { cartPanel.close(); cartTrigger?.setAttribute('aria-expanded','false'); } });
-  cartPanel?.addEventListener('close', () => cartTrigger?.setAttribute('aria-expanded','false'));
-
-  function syncCartCount() {
-    let items = [];
-    try { items = JSON.parse(localStorage.getItem('lmm-cart') || '[]'); } catch (_) {}
-    const count = items.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-    const countEl = cartTrigger?.querySelector('span');
-    if (countEl) countEl.textContent = String(count);
-  }
-
-  const linksStyle = document.createElement('link');
-  linksStyle.rel = 'stylesheet';
-  linksStyle.href = 'boutique-product-links.css';
-  document.head.appendChild(linksStyle);
-
   render();
-  syncCartCount();
-  loadSignatureCursor();
-  window.addEventListener('pageshow', syncCartCount);
+  loadSharedEnhancements();
 
-  const linksScript = document.createElement('script');
-  linksScript.src = 'boutique-product-links.js';
-  linksScript.defer = true;
-  document.body.appendChild(linksScript);
+  loadScriptOnce('boutique-product-links.js', 'data-boutique-product-links-script');
 })();
