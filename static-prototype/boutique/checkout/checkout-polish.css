@@ -42,7 +42,7 @@ body.checkout-polish-ready .checkout-step.is-active{opacity:1}
   transition:transform .7s var(--ease);
 }
 .checkout-header>p{position:relative;padding-left:1rem}
-.checkout-header>p::before{content:"";position:absolute;left:0;top:50%;width:5px;height:5px;translate:0 -50%;border:1px solid rgba(231,216,188,.64)}
+.checkout-header>p::before{content:"";position:absolute;left:0;top:50%;width:5px;height:5px;transform:translateY(-50%);border:1px solid rgba(231,216,188,.64)}
 .checkout-back{transition:border-color .25s ease,color .25s ease,transform .25s ease}
 .checkout-back:hover{color:#fff;border-color:#fff;transform:translate3d(-2px,0,0)}
 
@@ -223,6 +223,14 @@ body[data-checkout-direction="confirm"] .checkout-confirmation::before{animation
   body:not(.checkout-polish-ready) .checkout-step.is-active,
   body:not(.checkout-polish-ready) .checkout-summary__inner,
   body:not(.checkout-polish-ready) .checkout-summary-item{opacity:1!important;transform:none!important}
-  .checkout-step.is-active,.checkout-confirmation::before,.confirmation-order::before,.checkout-heading-rule{animation:none!important}
-  .checkout-summary__inner,.checkout-progress ol::after,.checkout-header::after,.checkout-primary::after{transition:none!important}
+  .checkout-step.is-active,
+  .checkout-confirmation::before,
+  .confirmation-order::before,
+  .checkout-field input[aria-invalid="true"],
+  .checkout-field select[aria-invalid="true"],
+  .checkout-summary.is-total-changing .checkout-totals__grand dd{animation:none!important}
+  .checkout-step h1::after,.checkout-step h2::after{animation:none!important;transform:scaleX(1)!important}
+  .checkout-summary__inner,.checkout-progress ol::after,.checkout-header::after,.checkout-primary::after,
+  .checkout-field,.checkout-field label,.checkout-field input,.checkout-field select,.shipping-option{transition:none!important}
+  .checkout-field:focus-within,.checkout-progress li.is-active,.shipping-option:hover,.shipping-option:has(input:checked){transform:none!important}
 }
