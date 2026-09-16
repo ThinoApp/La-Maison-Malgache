@@ -1,7 +1,7 @@
 /* Homepage-style cinematic wipe for Boutique navigation. */
 (() => {
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (reduceMotion.matches) return;
 
   const wipe = document.createElement('div');
   wipe.className = 'boutique-section-wipe';
@@ -11,13 +11,14 @@
 
   const label = wipe.querySelector('.boutique-section-wipe__label');
   let busy = false;
+  let cleanupTimer = 0;
 
   const destinations = new Map([
-    ['#catalogue', 'Catalogue'],
-    ['../#craft', 'Savoir-faire'],
-    ['../#madagascar', 'Madagascar'],
-    ['../', 'La Maison'],
-    ['#top', 'La Boutique']
+    ['#catalogue','Catalogue'],
+    ['../#craft','Savoir-faire'],
+    ['../#madagascar','Madagascar'],
+    ['../','La Maison'],
+    ['#top','La Boutique']
   ]);
 
   function closeVeil(name) {
@@ -31,31 +32,37 @@
     return true;
   }
 
+  function resetVeil() {
+    clearTimeout(cleanupTimer);
+    wipe.classList.remove('is-active','is-covering','is-revealing');
+    document.body.classList.remove('is-boutique-section-wiping');
+    busy = false;
+  }
+
   function revealVeil() {
     wipe.classList.remove('is-covering');
     wipe.classList.add('is-revealing');
-    window.setTimeout(() => {
-      wipe.classList.remove('is-active','is-revealing');
-      document.body.classList.remove('is-boutique-section-wiping');
-      busy = false;
-    }, 610);
+    cleanupTimer = window.setTimeout(resetVeil,610);
   }
 
-  function navigateLocal(href, target) {
+  function navigateLocal(href,target) {
     window.setTimeout(() => {
-      const headerOffset = 126;
-      const y = Math.max(0, target.getBoundingClientRect().top + window.scrollY - headerOffset);
+      const headerOffset = window.innerWidth <= 700 ? 86 : 126;
+      const y = Math.max(0,target.getBoundingClientRect().top + window.scrollY - headerOffset);
       window.scrollTo({top:y,behavior:'auto'});
       history.pushState(null,'',href);
       revealVeil();
-    }, 430);
+    },430);
   }
 
-  function navigateExternal(href) {
-    window.setTimeout(() => { location.href = href; }, 430);
+  function navigateExternal(href,name) {
+    try {
+      sessionStorage.setItem('lmm-entry-wipe',JSON.stringify({label:name || 'La Maison',href,time:Date.now()}));
+    } catch (_) {}
+    window.setTimeout(() => { location.href = href; },430);
   }
 
-  document.addEventListener('click', (event) => {
+  document.addEventListener('click',(event) => {
     if (busy || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const anchor = event.target instanceof Element ? event.target.closest('.shop-header a,.shop-hero .shop-link[href^="#"]') : null;
     if (!anchor) return;
@@ -72,6 +79,10 @@
     if (!closeVeil(name)) return;
 
     if (isLocal && target) navigateLocal(href,target);
-    else navigateExternal(href);
-  }, true);
+    else navigateExternal(href,name);
+  },true);
+
+  window.addEventListener('pageshow',(event) => {
+    if (event.persisted || busy) resetVeil();
+  });
 })();
