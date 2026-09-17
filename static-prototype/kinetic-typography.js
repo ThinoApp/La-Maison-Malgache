@@ -1,5 +1,6 @@
 /* Word-level kinetic typography. Runs once, then CSS scroll timelines do the motion. */
 (() => {
+  ensureMotionStylesheet('kinetic-typography.css', 'kinetic-typography');
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const patterns = [
