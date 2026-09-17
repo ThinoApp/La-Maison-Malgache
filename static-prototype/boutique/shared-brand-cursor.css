@@ -7,10 +7,27 @@
   inset:0 auto auto 0;
   width:0;
   height:0;
+  margin:0;
+  padding:0;
+  border:0;
+  overflow:visible;
   pointer-events:none;
   opacity:0;
+  background:transparent;
   transition:opacity .18s ease;
   mix-blend-mode:normal;
+}
+.brand-cursor:popover-open{
+  display:block;
+  position:fixed;
+  inset:0 auto auto 0;
+  width:0;
+  height:0;
+  margin:0;
+  padding:0;
+  border:0;
+  overflow:visible;
+  background:transparent;
 }
 .brand-cursor.is-visible{opacity:1}
 .brand-cursor.is-native{opacity:0!important}
@@ -113,7 +130,9 @@
 .has-brand-cursor summary,
 .has-brand-cursor .product-card,
 .has-brand-cursor .related-card,
-.has-brand-cursor .parallax-gallery__slide{cursor:none!important}
+.has-brand-cursor .parallax-gallery__slide,
+.has-brand-cursor .global-cart,
+.has-brand-cursor .global-cart *{cursor:none!important}
 
 /* Form controls keep their familiar native cursors. */
 .has-brand-cursor input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),
@@ -122,12 +141,19 @@
 .has-brand-cursor input[type="checkbox"],
 .has-brand-cursor input[type="radio"]{cursor:auto!important}
 
+/* Older browsers without Popover API cannot put a normal DOM node above a modal
+   dialog's top layer. Keep a usable native pointer in that narrow fallback. */
+.brand-cursor-native-dialog-fallback .global-cart,
+.brand-cursor-native-dialog-fallback .global-cart *{cursor:auto!important}
+.brand-cursor-native-dialog-fallback .global-cart a,
+.brand-cursor-native-dialog-fallback .global-cart button{cursor:pointer!important}
+
 @media(pointer:coarse),(hover:none){
   .brand-cursor{display:none!important}
-  .has-brand-cursor,.has-brand-cursor a,.has-brand-cursor button,.has-brand-cursor [role="button"],.has-brand-cursor summary,.has-brand-cursor .product-card,.has-brand-cursor .related-card,.has-brand-cursor .parallax-gallery__slide{cursor:auto!important}
+  .has-brand-cursor,.has-brand-cursor a,.has-brand-cursor button,.has-brand-cursor [role="button"],.has-brand-cursor summary,.has-brand-cursor .product-card,.has-brand-cursor .related-card,.has-brand-cursor .parallax-gallery__slide,.has-brand-cursor .global-cart,.has-brand-cursor .global-cart *{cursor:auto!important}
 }
 
 @media(prefers-reduced-motion:reduce){
   .brand-cursor{display:none!important}
-  .has-brand-cursor,.has-brand-cursor a,.has-brand-cursor button,.has-brand-cursor [role="button"],.has-brand-cursor summary,.has-brand-cursor .product-card,.has-brand-cursor .related-card,.has-brand-cursor .parallax-gallery__slide{cursor:auto!important}
+  .has-brand-cursor,.has-brand-cursor a,.has-brand-cursor button,.has-brand-cursor [role="button"],.has-brand-cursor summary,.has-brand-cursor .product-card,.has-brand-cursor .related-card,.has-brand-cursor .parallax-gallery__slide,.has-brand-cursor .global-cart,.has-brand-cursor .global-cart *{cursor:auto!important}
 }
