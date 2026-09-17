@@ -1,5 +1,6 @@
 /* Global motion director: one dominant attraction at a time, with adaptive quality. */
 (() => {
+  ensureMotionStylesheet('motion-director.css', 'motion-director');
   const body = document.body;
   if (!body) return;
 
