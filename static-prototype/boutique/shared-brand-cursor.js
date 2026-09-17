@@ -9,6 +9,8 @@
   let dot = null;
   let ring = null;
   let label = null;
+  let clientX = -120;
+  let clientY = -120;
   let pointerX = -120;
   let pointerY = -120;
   let previousX = pointerX;
@@ -21,13 +23,14 @@
   let visible = false;
   let raf = 0;
   let enabled = false;
+  let hostMotionUntil = 0;
 
   const nativeSelector = 'input:not([type="button"]):not([type="submit"]),textarea,select,option';
   const interactiveSelector = 'a,button,[role="button"],summary,label';
   const cardSelectors = ['.product-card','.related-card','.parallax-gallery__slide','.featured-piece__media'].join(',');
 
   function isLightSurface(target) {
-    return Boolean(target.closest('.catalogue,.featured-piece,.universe-tabs,.pdp-buy-panel,.pdp-detail-copy,.pdp-related,.pdp-assurance,.checkout-flow,.checkout-header,.checkout-empty'));
+    return Boolean(target.closest('.catalogue,.featured-piece,.universe-tabs,.pdp-buy-panel,.pdp-detail-copy,.pdp-related,.pdp-assurance,.checkout-flow,.checkout-header,.checkout-empty,.global-cart'));
   }
 
   function cardLabel(target) {
@@ -50,9 +53,55 @@
     label.textContent = card && !native ? cardLabel(target) : '';
   }
 
+  function activeDialogFor(target) {
+    if (target instanceof Element) {
+      const direct = target.closest('dialog[open]');
+      if (direct instanceof HTMLDialogElement) return direct;
+    }
+    const cart = document.querySelector('#global-cart[open]');
+    return cart instanceof HTMLDialogElement ? cart : null;
+  }
+
+  function updatePointerCoordinates() {
+    if (!cursor) return;
+    const host = cursor.parentElement;
+    if (host instanceof HTMLDialogElement) {
+      const rect = host.getBoundingClientRect();
+      pointerX = clientX - rect.left;
+      pointerY = clientY - rect.top;
+      return;
+    }
+    pointerX = clientX;
+    pointerY = clientY;
+  }
+
+  function hostCursor(host, { trackTransition = false } = {}) {
+    if (!cursor || !host || cursor.parentElement === host) {
+      if (trackTransition) hostMotionUntil = performance.now() + 620;
+      return;
+    }
+
+    host.appendChild(cursor);
+    cursor.classList.toggle('is-top-layer', host instanceof HTMLDialogElement);
+    if (trackTransition) hostMotionUntil = performance.now() + 620;
+    updatePointerCoordinates();
+    ringX = pointerX;
+    ringY = pointerY;
+    previousX = pointerX;
+    previousY = pointerY;
+    if (visible) request();
+  }
+
+  function syncCursorHost(target, options) {
+    const dialog = activeDialogFor(target);
+    hostCursor(dialog || body, options);
+  }
+
   function animate() {
     raf = 0;
     if (!enabled || !visible || !dot || !ring) return;
+
+    updatePointerCoordinates();
     ringX += (pointerX - ringX) * .16;
     ringY += (pointerY - ringY) * .16;
     const dx = pointerX - previousX;
@@ -72,10 +121,16 @@
       stretch += (1 - stretch) * .4;
       squash += (1 - squash) * .4;
     }
-    if (moving || Math.abs(stretch - 1) > .004 || Math.abs(squash - 1) > .004) raf = requestAnimationFrame(animate);
+
+    const trackingHostTransition = performance.now() < hostMotionUntil;
+    if (moving || trackingHostTransition || Math.abs(stretch - 1) > .004 || Math.abs(squash - 1) > .004) {
+      raf = requestAnimationFrame(animate);
+    }
   }
 
-  function request() { if (enabled && visible && !raf) raf = requestAnimationFrame(animate); }
+  function request() {
+    if (enabled && visible && !raf) raf = requestAnimationFrame(animate);
+  }
 
   function mount() {
     if (cursor) return;
@@ -92,19 +147,26 @@
   function syncCapability() {
     enabled = !reduce.matches && fine.matches;
     body.classList.toggle('has-brand-cursor',enabled);
-    if (enabled) mount();
+    if (enabled) {
+      mount();
+      syncCursorHost(document.activeElement, { trackTransition:false });
+    }
     if (!enabled && cursor) {
       visible = false;
-      cursor.classList.remove('is-visible','is-card','is-link','is-pressed','is-native','is-light-surface');
+      cursor.classList.remove('is-visible','is-card','is-link','is-pressed','is-native','is-light-surface','is-top-layer');
+      if (cursor.parentElement !== body) body.appendChild(cursor);
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
+      hostMotionUntil = 0;
     }
   }
 
   window.addEventListener('pointermove',(event) => {
     if (!enabled) return;
-    pointerX = event.clientX;
-    pointerY = event.clientY;
+    clientX = event.clientX;
+    clientY = event.clientY;
+    syncCursorHost(event.target);
+    updatePointerCoordinates();
     if (!visible) {
       visible = true;
       ringX = pointerX;
@@ -116,6 +178,7 @@
     setState(event.target);
     request();
   },{passive:true});
+
   window.addEventListener('pointerdown',() => { if (enabled) cursor?.classList.add('is-pressed'); },{passive:true});
   window.addEventListener('pointerup',() => cursor?.classList.remove('is-pressed'),{passive:true});
   document.addEventListener('pointerover',(event) => setState(event.target),{passive:true});
@@ -126,6 +189,26 @@
     if (raf) cancelAnimationFrame(raf);
     raf = 0;
   });
+
+  window.addEventListener('lmm:cart-dialog-open',(event) => {
+    if (!enabled || !cursor) return;
+    const dialog = event.detail?.dialog;
+    if (!(dialog instanceof HTMLDialogElement)) return;
+    hostCursor(dialog, { trackTransition:true });
+    cursor.classList.add('is-light-surface');
+  });
+
+  window.addEventListener('lmm:cart-dialog-close',() => {
+    if (!cursor) return;
+    hostCursor(body);
+    cursor.classList.remove('is-top-layer','is-light-surface','is-card','is-link','is-native','is-pressed');
+    hostMotionUntil = 0;
+    visible = false;
+    cursor.classList.remove('is-visible');
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+  });
+
   document.addEventListener('visibilitychange',() => {
     if (document.visibilityState === 'hidden') {
       visible = false;
@@ -134,6 +217,7 @@
       raf = 0;
     }
   });
+
   reduce.addEventListener?.('change',syncCapability);
   fine.addEventListener?.('change',syncCapability);
   syncCapability();
