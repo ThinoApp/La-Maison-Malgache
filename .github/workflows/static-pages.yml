@@ -25,41 +25,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Prepare cache-busted preview
+      - name: Validate modular homepage runtime
+        run: |
+          node --check static-prototype/motion.js
+          node --check static-prototype/preloader-boost.js
+          node --check static-prototype/cursor-motion.js
+          node --check static-prototype/cinematic-motion.js
+          node --check static-prototype/shared-transition.js
+          node --check static-prototype/kinetic-typography.js
+          node --check static-prototype/material-webgl.js
+          node --check static-prototype/motion-director.js
+          grep -q 'src="motion.js"' static-prototype/index.html
+          grep -q 'src="motion-director.js"' static-prototype/index.html
+
+      - name: Prepare modular preview
         run: |
           rm -rf static-prototype/preview-v2
           mkdir -p static-prototype/preview-v2
-          cp static-prototype/index.html static-prototype/preview-v2/index.html
-          cp static-prototype/base.css static-prototype/preview-v2/base.css
-          cp static-prototype/motion.css static-prototype/preview-v2/motion.css
-          cp static-prototype/hero-motion.css static-prototype/preview-v2/hero-motion.css
-          cp static-prototype/storytelling.css static-prototype/preview-v2/storytelling.css
-          cp static-prototype/madagascar-motion.css static-prototype/preview-v2/madagascar-motion.css
-          cp static-prototype/surface-motion.css static-prototype/preview-v2/surface-motion.css
-          cp static-prototype/bridge-motion.css static-prototype/preview-v2/bridge-motion.css
-          cp static-prototype/preloader.css static-prototype/preview-v2/preloader.css
-          cp static-prototype/global-motion.css static-prototype/preview-v2/global-motion.css
-          cp static-prototype/cursor-motion.css static-prototype/preview-v2/cursor-motion.css
-          cp static-prototype/cinematic-motion.css static-prototype/preview-v2/cinematic-motion.css
-          cp static-prototype/shared-transition.css static-prototype/preview-v2/shared-transition.css
-          cp static-prototype/camera-motion.css static-prototype/preview-v2/camera-motion.css
-          cp static-prototype/horizontal-gallery.css static-prototype/preview-v2/horizontal-gallery.css
-          cp static-prototype/kinetic-typography.css static-prototype/preview-v2/kinetic-typography.css
-          cp static-prototype/material-webgl.css static-prototype/preview-v2/material-webgl.css
-          cp static-prototype/motion-director.css static-prototype/preview-v2/motion-director.css
-          cp static-prototype/motion.js static-prototype/preview-v2/motion.js
-          cp -R static-prototype/boutique static-prototype/preview-v2/boutique
-          cat static-prototype/preloader-boost.js >> static-prototype/preview-v2/motion.js
-          cat static-prototype/cursor-motion.js >> static-prototype/preview-v2/motion.js
-          cat static-prototype/cinematic-motion.js >> static-prototype/preview-v2/motion.js
-          cat static-prototype/shared-transition.js >> static-prototype/preview-v2/motion.js
-          cat static-prototype/kinetic-typography.js >> static-prototype/preview-v2/motion.js
-          cat static-prototype/material-webgl.js >> static-prototype/preview-v2/motion.js
-          cat static-prototype/motion-director.js >> static-prototype/preview-v2/motion.js
-          printf '\nconst cameraMotionStyles=document.createElement("link");cameraMotionStyles.rel="stylesheet";cameraMotionStyles.href="camera-motion.css";document.head.appendChild(cameraMotionStyles);\n' >> static-prototype/preview-v2/motion.js
-          printf '\nconst horizontalGalleryStyles=document.createElement("link");horizontalGalleryStyles.rel="stylesheet";horizontalGalleryStyles.href="horizontal-gallery.css";document.head.appendChild(horizontalGalleryStyles);\n' >> static-prototype/preview-v2/motion.js
-          printf '\nconst kineticTypographyStyles=document.createElement("link");kineticTypographyStyles.rel="stylesheet";kineticTypographyStyles.href="kinetic-typography.css";document.head.appendChild(kineticTypographyStyles);\n' >> static-prototype/preview-v2/motion.js
-          printf '\nconst motionDirectorStyles=document.createElement("link");motionDirectorStyles.rel="stylesheet";motionDirectorStyles.href="motion-director.css";document.head.appendChild(motionDirectorStyles);\n' >> static-prototype/preview-v2/motion.js
+          rsync -a --exclude 'preview-v2/' static-prototype/ static-prototype/preview-v2/
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
