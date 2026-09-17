@@ -5,12 +5,12 @@
   const body = document.body;
   if (!body || body.classList.contains('has-brand-cursor')) return;
 
+  const supportsPopoverLayer = typeof HTMLElement.prototype.showPopover === 'function';
+
   let cursor = null;
   let dot = null;
   let ring = null;
   let label = null;
-  let clientX = -120;
-  let clientY = -120;
   let pointerX = -120;
   let pointerY = -120;
   let previousX = pointerX;
@@ -23,7 +23,6 @@
   let visible = false;
   let raf = 0;
   let enabled = false;
-  let hostMotionUntil = 0;
 
   const nativeSelector = 'input:not([type="button"]):not([type="submit"]),textarea,select,option';
   const interactiveSelector = 'a,button,[role="button"],summary,label';
@@ -53,55 +52,28 @@
     label.textContent = card && !native ? cardLabel(target) : '';
   }
 
-  function activeDialogFor(target) {
-    if (target instanceof Element) {
-      const direct = target.closest('dialog[open]');
-      if (direct instanceof HTMLDialogElement) return direct;
-    }
-    const cart = document.querySelector('#global-cart[open]');
-    return cart instanceof HTMLDialogElement ? cart : null;
+  function isCursorLayerOpen() {
+    if (!cursor || !supportsPopoverLayer) return false;
+    try { return cursor.matches(':popover-open'); }
+    catch (_) { return false; }
   }
 
-  function updatePointerCoordinates() {
-    if (!cursor) return;
-    const host = cursor.parentElement;
-    if (host instanceof HTMLDialogElement) {
-      const rect = host.getBoundingClientRect();
-      pointerX = clientX - rect.left;
-      pointerY = clientY - rect.top;
-      return;
-    }
-    pointerX = clientX;
-    pointerY = clientY;
+  function showCursorLayer({ bringToFront = false } = {}) {
+    if (!cursor || !supportsPopoverLayer) return;
+    try {
+      if (bringToFront && isCursorLayerOpen()) cursor.hidePopover();
+      if (!isCursorLayerOpen()) cursor.showPopover();
+    } catch (_) {}
   }
 
-  function hostCursor(host, { trackTransition = false } = {}) {
-    if (!cursor || !host || cursor.parentElement === host) {
-      if (trackTransition) hostMotionUntil = performance.now() + 620;
-      return;
-    }
-
-    host.appendChild(cursor);
-    cursor.classList.toggle('is-top-layer', host instanceof HTMLDialogElement);
-    if (trackTransition) hostMotionUntil = performance.now() + 620;
-    updatePointerCoordinates();
-    ringX = pointerX;
-    ringY = pointerY;
-    previousX = pointerX;
-    previousY = pointerY;
-    if (visible) request();
-  }
-
-  function syncCursorHost(target, options) {
-    const dialog = activeDialogFor(target);
-    hostCursor(dialog || body, options);
+  function hideCursorLayer() {
+    if (!cursor || !supportsPopoverLayer || !isCursorLayerOpen()) return;
+    try { cursor.hidePopover(); } catch (_) {}
   }
 
   function animate() {
     raf = 0;
     if (!enabled || !visible || !dot || !ring) return;
-
-    updatePointerCoordinates();
     ringX += (pointerX - ringX) * .16;
     ringY += (pointerY - ringY) * .16;
     const dx = pointerX - previousX;
@@ -121,11 +93,7 @@
       stretch += (1 - stretch) * .4;
       squash += (1 - squash) * .4;
     }
-
-    const trackingHostTransition = performance.now() < hostMotionUntil;
-    if (moving || trackingHostTransition || Math.abs(stretch - 1) > .004 || Math.abs(squash - 1) > .004) {
-      raf = requestAnimationFrame(animate);
-    }
+    if (moving || Math.abs(stretch - 1) > .004 || Math.abs(squash - 1) > .004) raf = requestAnimationFrame(animate);
   }
 
   function request() {
@@ -137,6 +105,7 @@
     cursor = document.createElement('div');
     cursor.className = 'brand-cursor';
     cursor.setAttribute('aria-hidden','true');
+    if (supportsPopoverLayer) cursor.setAttribute('popover','manual');
     cursor.innerHTML = '<span class="brand-cursor__dot"></span><span class="brand-cursor__ring"><span class="brand-cursor__label"></span></span>';
     body.appendChild(cursor);
     dot = cursor.querySelector('.brand-cursor__dot');
@@ -147,26 +116,26 @@
   function syncCapability() {
     enabled = !reduce.matches && fine.matches;
     body.classList.toggle('has-brand-cursor',enabled);
+    body.classList.toggle('brand-cursor-native-dialog-fallback',enabled && !supportsPopoverLayer);
+
     if (enabled) {
       mount();
-      syncCursorHost(document.activeElement, { trackTransition:false });
+      showCursorLayer();
+      return;
     }
-    if (!enabled && cursor) {
-      visible = false;
-      cursor.classList.remove('is-visible','is-card','is-link','is-pressed','is-native','is-light-surface','is-top-layer');
-      if (cursor.parentElement !== body) body.appendChild(cursor);
-      if (raf) cancelAnimationFrame(raf);
-      raf = 0;
-      hostMotionUntil = 0;
-    }
+
+    if (!cursor) return;
+    visible = false;
+    cursor.classList.remove('is-visible','is-card','is-link','is-pressed','is-native','is-light-surface','is-over-cart');
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    hideCursorLayer();
   }
 
   window.addEventListener('pointermove',(event) => {
     if (!enabled) return;
-    clientX = event.clientX;
-    clientY = event.clientY;
-    syncCursorHost(event.target);
-    updatePointerCoordinates();
+    pointerX = event.clientX;
+    pointerY = event.clientY;
     if (!visible) {
       visible = true;
       ringX = pointerX;
@@ -190,23 +159,18 @@
     raf = 0;
   });
 
-  window.addEventListener('lmm:cart-dialog-open',(event) => {
+  /* A modal <dialog> and its ::backdrop are rendered in the browser top layer.
+     Re-open the cursor popover after showModal() so it becomes the newest top-layer
+     entry and therefore paints above both the drawer and its backdrop blur. */
+  window.addEventListener('lmm:cart-dialog-open',() => {
     if (!enabled || !cursor) return;
-    const dialog = event.detail?.dialog;
-    if (!(dialog instanceof HTMLDialogElement)) return;
-    hostCursor(dialog, { trackTransition:true });
-    cursor.classList.add('is-light-surface');
+    cursor.classList.add('is-over-cart','is-light-surface');
+    showCursorLayer({ bringToFront:true });
   });
 
   window.addEventListener('lmm:cart-dialog-close',() => {
     if (!cursor) return;
-    hostCursor(body);
-    cursor.classList.remove('is-top-layer','is-light-surface','is-card','is-link','is-native','is-pressed');
-    hostMotionUntil = 0;
-    visible = false;
-    cursor.classList.remove('is-visible');
-    if (raf) cancelAnimationFrame(raf);
-    raf = 0;
+    cursor.classList.remove('is-over-cart','is-light-surface','is-card','is-link','is-native','is-pressed');
   });
 
   document.addEventListener('visibilitychange',() => {
