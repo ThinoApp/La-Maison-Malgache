@@ -55,13 +55,13 @@ jobs:
             --exclude '.DS_Store' \
             static-prototype/ .deploy-ovh/
 
-      - name: Install FTPS client
+      - name: Install FTP client
         shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y lftp
 
-      - name: Deploy to OVH over FTPS
+      - name: Deploy to OVH over FTP
         shell: bash
         env:
           OVH_FTP_HOST: ${{ secrets.OVH_FTP_HOST }}
@@ -80,11 +80,10 @@ jobs:
           set cmd:fail-exit yes
           set net:max-retries 2
           set net:timeout 20
-          set ftp:ssl-force true
-          set ftp:ssl-protect-data true
-          set ssl:verify-certificate yes
+          set ftp:passive-mode true
+          set ftp:ssl-allow false
           set ftp:list-options -a
-          open -u "$OVH_FTP_USER","$OVH_FTP_PASSWORD" "ftp://$OVH_FTP_HOST"
+          open -p 21 -u "$OVH_FTP_USER","$OVH_FTP_PASSWORD" "ftp://$OVH_FTP_HOST"
           cd "$OVH_FTP_REMOTE_DIR"
           mirror --reverse --delete --verbose --parallel=4 .deploy-ovh/ ./
           bye
