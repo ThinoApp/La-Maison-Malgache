@@ -1,17 +1,14 @@
 /* Shared-element geometry: story arch -> storytelling media. */
-if (!reduceMotion.matches && window.matchMedia('(min-width:1001px)').matches) {
-  const sharedStyles = document.createElement('link');
-  sharedStyles.rel = 'stylesheet';
-  sharedStyles.href = 'shared-transition.css';
-  document.head.appendChild(sharedStyles);
+ensureMotionStylesheet('shared-transition.css', 'shared-transition');
 
+if (!reduceMotion.matches && window.matchMedia('(min-width:1001px)').matches) {
   const sourceSection = document.querySelector('.story');
   const sourceCard = document.querySelector('.story .arch-card');
   const sourceImage = sourceCard?.querySelector('img');
   const destinationSection = document.querySelector('.storytelling');
   const destinationMedia = document.querySelector('.story-media');
 
-  if (sourceSection && sourceCard && sourceImage && destinationSection && destinationMedia) {
+  if (sourceSection && sourceCard && sourceImage && destinationSection && destinationMedia && !document.querySelector('.shared-story-zone')) {
     const zone = document.createElement('span');
     zone.className = 'shared-story-zone';
     destinationSection.prepend(zone);
@@ -35,12 +32,11 @@ if (!reduceMotion.matches && window.matchMedia('(min-width:1001px)').matches) {
     let raf = 0;
     let sourceRect = null;
     let sourceRadius = 44;
+    let pageVisible = document.visibilityState !== 'hidden';
 
     const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
     const lerp = (from, to, progress) => from + (to - from) * progress;
-    const ease = (value) => value < .5
-      ? 4 * value * value * value
-      : 1 - Math.pow(-2 * value + 2, 3) / 2;
+    const ease = (value) => value < .5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2;
 
     function readRadius() {
       const radius = Number.parseFloat(getComputedStyle(sourceCard).borderTopLeftRadius);
@@ -55,14 +51,12 @@ if (!reduceMotion.matches && window.matchMedia('(min-width:1001px)').matches) {
     function setTransitionState(progress) {
       destinationSection.style.setProperty('--shared-progress', progress.toFixed(4));
       sourceSection.style.setProperty('--shared-progress', progress.toFixed(4));
-
-      const seamDistance = Math.abs(progress - .5) * 2;
-      seam.style.setProperty('--seam-distance', seamDistance.toFixed(4));
+      seam.style.setProperty('--seam-distance', (Math.abs(progress - .5) * 2).toFixed(4));
     }
 
     function render() {
       raf = 0;
-      if (!active) return;
+      if (!active || !pageVisible) return;
 
       const destinationRect = destinationMedia.getBoundingClientRect();
       const destinationTop = destinationSection.getBoundingClientRect().top;
@@ -99,18 +93,15 @@ if (!reduceMotion.matches && window.matchMedia('(min-width:1001px)').matches) {
       const visible = rawProgress > .005 && rawProgress < .995;
       ghost.classList.toggle('is-active', visible);
       seam.classList.toggle('is-active', visible);
-
-      if (rawProgress >= .985) {
-        ghost.style.opacity = String(clamp((1 - rawProgress) / .015));
-      } else if (rawProgress <= .04) {
-        ghost.style.opacity = String(clamp(rawProgress / .04));
-      } else {
-        ghost.style.opacity = '1';
-      }
+      ghost.style.opacity = rawProgress >= .985
+        ? String(clamp((1 - rawProgress) / .015))
+        : rawProgress <= .04
+          ? String(clamp(rawProgress / .04))
+          : '1';
     }
 
     function requestRender() {
-      if (!active || raf) return;
+      if (!active || !pageVisible || raf) return;
       raf = requestAnimationFrame(render);
     }
 
@@ -133,13 +124,22 @@ if (!reduceMotion.matches && window.matchMedia('(min-width:1001px)').matches) {
         seam.classList.remove('is-active');
         setTransitionState(destinationSection.getBoundingClientRect().top <= window.innerHeight * .05 ? 1 : 0);
       }
-    }, { rootMargin: '95% 0px 5% 0px', threshold: 0 });
+    }, { rootMargin:'95% 0px 5% 0px', threshold:0 });
 
     zoneObserver.observe(zone);
-    window.addEventListener('scroll', requestRender, { passive: true });
+    window.addEventListener('scroll', requestRender, { passive:true });
     window.addEventListener('resize', () => {
       sourceRect = null;
       requestRender();
-    }, { passive: true });
+    }, { passive:true });
+    document.addEventListener('visibilitychange', () => {
+      pageVisible = document.visibilityState !== 'hidden';
+      if (!pageVisible) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      } else {
+        requestRender();
+      }
+    });
   }
 }
