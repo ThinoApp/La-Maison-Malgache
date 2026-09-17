@@ -1,30 +1,21 @@
-const storytellingStyles = document.createElement('link');
-storytellingStyles.rel = 'stylesheet';
-storytellingStyles.href = 'storytelling.css';
-document.head.appendChild(storytellingStyles);
+function ensureMotionStylesheet(href, marker) {
+  const absolute = new URL(href, document.baseURI).href;
+  const exists = [...document.querySelectorAll('link[rel="stylesheet"]')].some((link) => link.href === absolute);
+  if (exists) return;
+  const style = document.createElement('link');
+  style.rel = 'stylesheet';
+  style.href = href;
+  if (marker) style.dataset.motionStyle = marker;
+  document.head.appendChild(style);
+}
 
-const madagascarStyles = document.createElement('link');
-madagascarStyles.rel = 'stylesheet';
-madagascarStyles.href = 'madagascar-motion.css';
-document.head.appendChild(madagascarStyles);
-
-const surfaceStyles = document.createElement('link');
-surfaceStyles.rel = 'stylesheet';
-surfaceStyles.href = 'surface-motion.css';
-document.head.appendChild(surfaceStyles);
-
-const bridgeStyles = document.createElement('link');
-bridgeStyles.rel = 'stylesheet';
-bridgeStyles.href = 'bridge-motion.css';
-document.head.appendChild(bridgeStyles);
-
-const globalMotionStyles = document.createElement('link');
-globalMotionStyles.rel = 'stylesheet';
-globalMotionStyles.href = 'global-motion.css';
-document.head.appendChild(globalMotionStyles);
+ensureMotionStylesheet('madagascar-motion.css', 'madagascar');
+ensureMotionStylesheet('surface-motion.css', 'surface');
+ensureMotionStylesheet('bridge-motion.css', 'bridge');
+ensureMotionStylesheet('global-motion.css', 'global');
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const finePointer = window.matchMedia('(pointer:fine)');
+const finePointer = window.matchMedia('(pointer:fine) and (hover:hover)');
 
 const preloader = document.querySelector('.site-preloader');
 const heroImage = document.querySelector('.portal img');
@@ -34,10 +25,21 @@ const preloadMax = reduceMotion.matches ? 900 : 2800;
 let preloadFinished = false;
 let preloadProgress = 0.08;
 let preloadTicker = 0;
+let preloadDeadline = 0;
+let preloadReportedPercent = -1;
 
 function setPreloadProgress(value) {
   preloadProgress = Math.max(preloadProgress, Math.min(value, 1));
-  if (preloader) preloader.style.setProperty('--preload-progress', String(preloadProgress));
+  if (!preloader) return;
+  preloader.style.setProperty('--preload-progress', String(preloadProgress));
+  preloader.dataset.progressValue = preloadProgress.toFixed(4);
+
+  const percent = Math.round(preloadProgress * 100);
+  if (percent === preloadReportedPercent) return;
+  preloadReportedPercent = percent;
+  window.dispatchEvent(new CustomEvent('lmm:preload-progress', {
+    detail:{ progress:preloadProgress, percent }
+  }));
 }
 
 function animatePreloadProgress() {
@@ -52,6 +54,7 @@ function finishPreloader() {
   if (preloadFinished) return;
   preloadFinished = true;
   cancelAnimationFrame(preloadTicker);
+  clearTimeout(preloadDeadline);
   setPreloadProgress(1);
 
   const elapsed = performance.now() - preloadStart;
@@ -69,16 +72,17 @@ function finishPreloader() {
 
 if (preloader) {
   document.body.dataset.loading = 'true';
+  setPreloadProgress(preloadProgress);
   animatePreloadProgress();
 
   if (!heroImage || heroImage.complete) {
     finishPreloader();
   } else {
-    heroImage.addEventListener('load', finishPreloader, { once: true });
-    heroImage.addEventListener('error', finishPreloader, { once: true });
+    heroImage.addEventListener('load', finishPreloader, { once:true });
+    heroImage.addEventListener('error', finishPreloader, { once:true });
   }
 
-  window.setTimeout(finishPreloader, preloadMax);
+  preloadDeadline = window.setTimeout(finishPreloader, preloadMax);
 } else {
   document.body.classList.add('ready');
   document.body.dataset.loading = 'false';
@@ -97,7 +101,7 @@ if (reduceMotion.matches || !('IntersectionObserver' in window)) {
       entry.target.classList.add('is-visible');
       observer.unobserve(entry.target);
     });
-  }, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
+  }, { threshold:0.14, rootMargin:'0px 0px -8% 0px' });
 
   document.querySelectorAll('.reveal,.line-reveal,.mask-reveal,.craft .item,.closing').forEach((el) => revealObserver.observe(el));
 }
@@ -147,7 +151,7 @@ if (!reduceMotion.matches && 'IntersectionObserver' in window && storySentinels.
     if (!visible.length) return;
     const index = Number(visible[0].target.dataset.step || 0);
     setStoryStep(index);
-  }, { rootMargin: '-44% 0px -44% 0px', threshold: 0 });
+  }, { rootMargin:'-44% 0px -44% 0px', threshold:0 });
 
   storySentinels.forEach((sentinel) => storyObserver.observe(sentinel));
 }
@@ -193,11 +197,13 @@ if ('IntersectionObserver' in window && sceneSections.length) {
     if (!active) return;
     document.body.dataset.scene = active.target.dataset.scene || 'sage';
     updateSceneLabels(sceneNames.get(active.target.id) || 'La Maison');
-  }, { threshold: [0.15, 0.35, 0.6] });
+  }, { threshold:[0.15, 0.35, 0.6] });
   sceneSections.forEach((section) => sceneObserver.observe(section));
 }
 
 function installGlobalMotionUI() {
+  if (document.querySelector('.floating-nav')) return;
+
   const nav = document.createElement('div');
   nav.className = 'floating-nav';
   nav.innerHTML = `
@@ -236,8 +242,21 @@ if (!reduceMotion.matches) {
   let scrollRaf = 0;
   let fastTimer = 0;
 
+  const resetGlobalMotion = () => {
+    cancelAnimationFrame(scrollRaf);
+    scrollRaf = 0;
+    clearTimeout(fastTimer);
+    document.body.classList.remove('is-scrolling-fast');
+    const root = document.documentElement.style;
+    root.setProperty('--scroll-velocity', '0px');
+    root.setProperty('--motion-flare-y', '0px');
+    root.setProperty('--motion-heading-shadow-x', '0px');
+    root.setProperty('--speed-opacity', '0');
+  };
+
   const updateGlobalMotion = () => {
     scrollRaf = 0;
+    if (document.hidden) return;
     const now = performance.now();
     const y = window.scrollY;
     const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
@@ -246,10 +265,13 @@ if (!reduceMotion.matches) {
     const velocity = (y - lastY) / dt * 16.67;
     const clampedVelocity = Math.max(-42, Math.min(42, velocity));
     const intensity = Math.min(1, Math.abs(clampedVelocity) / 28);
+    const root = document.documentElement.style;
 
-    document.documentElement.style.setProperty('--page-progress', String(progress));
-    document.documentElement.style.setProperty('--scroll-velocity', `${clampedVelocity}px`);
-    document.documentElement.style.setProperty('--speed-opacity', String(Math.max(0, (intensity - .28) * .22)));
+    root.setProperty('--page-progress', String(progress));
+    root.setProperty('--scroll-velocity', `${clampedVelocity.toFixed(2)}px`);
+    root.setProperty('--motion-flare-y', `${(clampedVelocity * .45).toFixed(2)}px`);
+    root.setProperty('--motion-heading-shadow-x', `${(clampedVelocity * .08).toFixed(2)}px`);
+    root.setProperty('--speed-opacity', String(Math.max(0, (intensity - .28) * .22)));
 
     const hero = document.querySelector('.hero-stage');
     const heroEnd = hero ? hero.offsetTop + hero.offsetHeight * .62 : window.innerHeight;
@@ -259,8 +281,10 @@ if (!reduceMotion.matches) {
     clearTimeout(fastTimer);
     fastTimer = window.setTimeout(() => {
       document.body.classList.remove('is-scrolling-fast');
-      document.documentElement.style.setProperty('--scroll-velocity', '0px');
-      document.documentElement.style.setProperty('--speed-opacity', '0');
+      root.setProperty('--scroll-velocity', '0px');
+      root.setProperty('--motion-flare-y', '0px');
+      root.setProperty('--motion-heading-shadow-x', '0px');
+      root.setProperty('--speed-opacity', '0');
     }, 120);
 
     lastY = y;
@@ -268,11 +292,21 @@ if (!reduceMotion.matches) {
   };
 
   const requestGlobalMotion = () => {
-    if (!scrollRaf) scrollRaf = requestAnimationFrame(updateGlobalMotion);
+    if (document.hidden || scrollRaf) return;
+    scrollRaf = requestAnimationFrame(updateGlobalMotion);
   };
 
-  window.addEventListener('scroll', requestGlobalMotion, { passive: true });
-  window.addEventListener('resize', requestGlobalMotion);
+  window.addEventListener('scroll', requestGlobalMotion, { passive:true });
+  window.addEventListener('resize', requestGlobalMotion, { passive:true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      resetGlobalMotion();
+      return;
+    }
+    lastY = window.scrollY;
+    lastTime = performance.now();
+    requestGlobalMotion();
+  });
   updateGlobalMotion();
 }
 
@@ -282,6 +316,7 @@ if (!reduceMotion.matches && finePointer.matches) {
   let pointerY = window.innerHeight * .28;
 
   window.addEventListener('pointermove', (event) => {
+    if (document.hidden || reduceMotion.matches) return;
     pointerX = event.clientX;
     pointerY = event.clientY;
     if (pointerRaf) return;
@@ -290,81 +325,45 @@ if (!reduceMotion.matches && finePointer.matches) {
       document.documentElement.style.setProperty('--pointer-x', `${pointerX}px`);
       document.documentElement.style.setProperty('--pointer-y', `${pointerY}px`);
     });
-  }, { passive: true });
+  }, { passive:true });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) return;
+    cancelAnimationFrame(pointerRaf);
+    pointerRaf = 0;
+  });
 
   document.querySelectorAll('.magnetic').forEach((el) => {
     el.addEventListener('pointermove', (event) => {
+      if (reduceMotion.matches) return;
       const rect = el.getBoundingClientRect();
       const x = event.clientX - rect.left - rect.width / 2;
       const y = event.clientY - rect.top - rect.height / 2;
       el.style.transform = `translate3d(${x * 0.12}px,${y * 0.12}px,0)`;
-    });
+    }, { passive:true });
     el.addEventListener('pointerleave', () => {
       el.style.transform = 'translate3d(0,0,0)';
-    });
+    }, { passive:true });
   });
 
-  const contextualCards = [...document.querySelectorAll('.card[data-reactive]')];
-  if (contextualCards.length) {
-    document.body.classList.add('has-context-cursor');
-    const cursor = document.createElement('div');
-    cursor.className = 'context-cursor';
-    cursor.textContent = 'Explorer';
-    cursor.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(cursor);
-
-    let pointerX = -200;
-    let pointerY = -200;
-    let cursorX = -200;
-    let cursorY = -200;
-    let cursorRaf = 0;
-
-    const animateCursor = () => {
-      cursorRaf = 0;
-      cursorX += (pointerX - cursorX) * 0.18;
-      cursorY += (pointerY - cursorY) * 0.18;
-      cursor.style.left = `${cursorX}px`;
-      cursor.style.top = `${cursorY}px`;
-      if (Math.abs(pointerX - cursorX) > 0.2 || Math.abs(pointerY - cursorY) > 0.2) {
-        cursorRaf = requestAnimationFrame(animateCursor);
-      }
-    };
-
-    const requestCursor = () => {
-      if (!cursorRaf) cursorRaf = requestAnimationFrame(animateCursor);
-    };
-
-    contextualCards.forEach((card) => {
-      card.addEventListener('pointerenter', (event) => {
-        pointerX = event.clientX;
-        pointerY = event.clientY;
-        cursorX = event.clientX;
-        cursorY = event.clientY;
-        cursor.classList.add('is-visible');
-        requestCursor();
-      });
-      card.addEventListener('pointermove', (event) => {
-        pointerX = event.clientX;
-        pointerY = event.clientY;
-        requestCursor();
-
-        const rect = card.getBoundingClientRect();
-        const px = (event.clientX - rect.left) / rect.width;
-        const py = (event.clientY - rect.top) / rect.height;
-        const ry = (px - 0.5) * 8;
-        const rx = (0.5 - py) * 7;
-        card.style.setProperty('--rx', `${rx}deg`);
-        card.style.setProperty('--ry', `${ry}deg`);
-        card.style.setProperty('--px', `${px * 100}%`);
-        card.style.setProperty('--py', `${py * 100}%`);
-      });
-      card.addEventListener('pointerleave', () => {
-        cursor.classList.remove('is-visible');
-        card.style.setProperty('--rx', '0deg');
-        card.style.setProperty('--ry', '0deg');
-        card.style.setProperty('--px', '50%');
-        card.style.setProperty('--py', '50%');
-      });
-    });
-  }
+  document.querySelectorAll('.card[data-reactive]').forEach((card) => {
+    card.addEventListener('pointermove', (event) => {
+      if (reduceMotion.matches) return;
+      const rect = card.getBoundingClientRect();
+      const px = (event.clientX - rect.left) / Math.max(1, rect.width);
+      const py = (event.clientY - rect.top) / Math.max(1, rect.height);
+      const ry = (px - 0.5) * 8;
+      const rx = (0.5 - py) * 7;
+      card.style.setProperty('--rx', `${rx}deg`);
+      card.style.setProperty('--ry', `${ry}deg`);
+      card.style.setProperty('--px', `${px * 100}%`);
+      card.style.setProperty('--py', `${py * 100}%`);
+    }, { passive:true });
+    card.addEventListener('pointerleave', () => {
+      card.style.setProperty('--rx', '0deg');
+      card.style.setProperty('--ry', '0deg');
+      card.style.setProperty('--px', '50%');
+      card.style.setProperty('--py', '50%');
+    }, { passive:true });
+  });
 }
