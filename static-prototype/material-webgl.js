@@ -3,17 +3,29 @@
   const craft = document.querySelector('.craft');
   if (!craft) return;
 
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const desktop = window.matchMedia('(min-width:1001px)').matches;
-  if (reduce || !desktop) {
+  const ensureStylesheet = () => {
+    const href = new URL('material-webgl.css', document.baseURI).href;
+    const exists = [...document.querySelectorAll('link[rel="stylesheet"]')].some((link) => link.href === href);
+    if (exists) return;
+    const styles = document.createElement('link');
+    styles.rel = 'stylesheet';
+    styles.href = 'material-webgl.css';
+    styles.dataset.motionStyle = 'material-webgl';
+    document.head.appendChild(styles);
+  };
+  ensureStylesheet();
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const desktop = window.matchMedia('(min-width:1001px)');
+  const fine = window.matchMedia('(pointer:fine) and (hover:hover)');
+  const cores = navigator.hardwareConcurrency || 8;
+  const memory = navigator.deviceMemory || 8;
+  const balanced = cores <= 4 || memory <= 4;
+
+  if (reduce.matches || !desktop.matches) {
     craft.classList.add('material-webgl-fallback');
     return;
   }
-
-  const styles = document.createElement('link');
-  styles.rel = 'stylesheet';
-  styles.href = 'material-webgl.css';
-  document.head.appendChild(styles);
 
   const canvas = document.createElement('canvas');
   canvas.className = 'craft-material-canvas';
@@ -21,13 +33,19 @@
   craft.prepend(canvas);
 
   const gl = canvas.getContext('webgl', {
-    alpha: true,
-    antialias: false,
-    depth: false,
-    stencil: false,
-    premultipliedAlpha: true,
-    powerPreference: 'high-performance'
+    alpha:true,
+    antialias:false,
+    depth:false,
+    stencil:false,
+    premultipliedAlpha:true,
+    powerPreference:'high-performance'
   });
+
+  function useFallback() {
+    craft.classList.remove('has-material-webgl', 'is-material-active');
+    craft.classList.add('material-webgl-fallback');
+    canvas.hidden = true;
+  }
 
   if (!gl) {
     canvas.remove();
@@ -43,7 +61,7 @@
   `;
 
   const fragmentSource = `
-    precision highp float;
+    precision mediump float;
     uniform vec2 uResolution;
     uniform vec2 uPointer;
     uniform float uTime;
@@ -131,6 +149,7 @@
 
   const compile = (type, source) => {
     const shader = gl.createShader(type);
+    if (!shader) return null;
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -143,12 +162,19 @@
   const vertex = compile(gl.VERTEX_SHADER, vertexSource);
   const fragment = compile(gl.FRAGMENT_SHADER, fragmentSource);
   if (!vertex || !fragment) {
+    if (vertex) gl.deleteShader(vertex);
+    if (fragment) gl.deleteShader(fragment);
     canvas.remove();
     craft.classList.add('material-webgl-fallback');
     return;
   }
 
   const program = gl.createProgram();
+  if (!program) {
+    canvas.remove();
+    craft.classList.add('material-webgl-fallback');
+    return;
+  }
   gl.attachShader(program, vertex);
   gl.attachShader(program, fragment);
   gl.linkProgram(program);
@@ -156,6 +182,7 @@
   gl.deleteShader(fragment);
 
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    gl.deleteProgram(program);
     canvas.remove();
     craft.classList.add('material-webgl-fallback');
     return;
@@ -177,6 +204,8 @@
   const progressLoc = gl.getUniformLocation(program, 'uProgress');
 
   let active = false;
+  let inView = false;
+  let contextLost = false;
   let raf = 0;
   let start = performance.now();
   let targetX = .72;
@@ -187,8 +216,10 @@
   let height = 1;
 
   function resize(){
+    if (contextLost || !desktop.matches) return;
     const rect = craft.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const dprCap = balanced ? 1 : 1.35;
+    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
     width = Math.max(1, Math.round(rect.width * dpr));
     height = Math.max(1, Math.round(Math.max(rect.height, window.innerHeight) * dpr));
     if (canvas.width !== width || canvas.height !== height) {
@@ -206,7 +237,7 @@
 
   function render(now){
     raf = 0;
-    if (!active) return;
+    if (!active || contextLost || document.hidden) return;
 
     pointerX += (targetX - pointerX) * .055;
     pointerY += (targetY - pointerY) * .055;
@@ -221,29 +252,45 @@
   }
 
   function wake(){
-    if (active) return;
+    if (active || contextLost || document.hidden || reduce.matches || !desktop.matches || !inView) return;
     active = true;
+    canvas.hidden = false;
     resize();
-    craft.classList.add('is-material-active');
+    craft.classList.remove('material-webgl-fallback');
+    craft.classList.add('has-material-webgl', 'is-material-active');
     start = performance.now() - 900;
     raf = requestAnimationFrame(render);
   }
 
   function sleep(){
-    if (!active) return;
     active = false;
     craft.classList.remove('is-material-active');
     cancelAnimationFrame(raf);
     raf = 0;
   }
 
+  function syncCapability(){
+    if (reduce.matches || !desktop.matches || contextLost) {
+      sleep();
+      useFallback();
+      return;
+    }
+    canvas.hidden = false;
+    craft.classList.remove('material-webgl-fallback');
+    craft.classList.add('has-material-webgl');
+    if (inView) wake();
+  }
+
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => entry.isIntersecting ? wake() : sleep());
-  }, { rootMargin: '20% 0px 20% 0px', threshold: .01 });
+    inView = entries.some((entry) => entry.isIntersecting);
+    if (inView) wake();
+    else sleep();
+  }, { rootMargin:'20% 0px 20% 0px', threshold:.01 });
   observer.observe(craft);
 
-  if (window.matchMedia('(pointer:fine)').matches) {
+  if (fine.matches) {
     craft.addEventListener('pointermove', (event) => {
+      if (!active) return;
       const rect = craft.getBoundingClientRect();
       targetX = Math.min(1, Math.max(0, (event.clientX - rect.left) / Math.max(1, rect.width)));
       targetY = Math.min(1, Math.max(0, (event.clientY - rect.top) / Math.max(1, rect.height)));
@@ -259,14 +306,30 @@
     if (resizeRaf) return;
     resizeRaf = requestAnimationFrame(() => {
       resizeRaf = 0;
+      syncCapability();
       if (active) resize();
     });
   }, { passive:true });
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) sleep();
-    else if (craft.getBoundingClientRect().bottom > 0 && craft.getBoundingClientRect().top < innerHeight) wake();
+    else syncCapability();
   });
+
+  canvas.addEventListener('webglcontextlost', (event) => {
+    event.preventDefault();
+    contextLost = true;
+    sleep();
+    useFallback();
+  });
+  canvas.addEventListener('webglcontextrestored', () => {
+    /* Program state is not guaranteed after restore. Keep the static fallback instead of risking a broken frame. */
+    contextLost = true;
+    useFallback();
+  });
+
+  reduce.addEventListener?.('change', syncCapability);
+  desktop.addEventListener?.('change', syncCapability);
 
   craft.classList.add('has-material-webgl');
 })();
