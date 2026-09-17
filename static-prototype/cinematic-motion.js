@@ -1,10 +1,7 @@
-/* Extreme cinematic motion physics. Concatenated after the main motion layer. */
-if (!reduceMotion.matches) {
-  const cinematicStyle = document.createElement('link');
-  cinematicStyle.rel = 'stylesheet';
-  cinematicStyle.href = 'cinematic-motion.css';
-  document.head.appendChild(cinematicStyle);
+/* Extreme cinematic motion physics. Loaded after the main motion layer. */
+ensureMotionStylesheet('cinematic-motion.css', 'cinematic');
 
+if (!reduceMotion.matches) {
   const velocityLens = document.createElement('div');
   velocityLens.className = 'velocity-lens';
   velocityLens.setAttribute('aria-hidden', 'true');
@@ -90,7 +87,7 @@ if (!reduceMotion.matches) {
       document.body.classList.add('has-pointer-energy');
       clearTimeout(pointerEnergyTimer);
       pointerEnergyTimer = window.setTimeout(() => document.body.classList.remove('has-pointer-energy'), 110);
-    }, { passive: true });
+    }, { passive:true });
 
     document.addEventListener('pointerout', (event) => {
       if (event.relatedTarget) return;
@@ -144,7 +141,7 @@ if (!reduceMotion.matches) {
     settleTimer = window.setTimeout(() => { targetBlur = 0; targetOffset = 0; targetOpacity = 0; requestLens(); }, 80);
     lastScrollY = y;
     lastScrollTime = now;
-  }, { passive: true });
+  }, { passive:true });
 
   const majorScenes = [...document.querySelectorAll('#craft,#madagascar')];
   let lastBloomId = '';
@@ -157,7 +154,7 @@ if (!reduceMotion.matches) {
       void sceneBloom.offsetWidth;
       sceneBloom.classList.add('is-active');
       window.setTimeout(() => sceneBloom.classList.remove('is-active'), 920);
-    }, { threshold: [.28, .48] });
+    }, { threshold:[.28, .48] });
     majorScenes.forEach((section) => bloomObserver.observe(section));
   }
 
@@ -179,7 +176,7 @@ if (!reduceMotion.matches) {
     wipe.classList.add('is-active');
     requestAnimationFrame(() => wipe.classList.add('is-covering'));
     window.setTimeout(() => {
-      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY, behavior: 'auto' });
+      window.scrollTo({ top:target.getBoundingClientRect().top + window.scrollY, behavior:'auto' });
       history.pushState(null, '', href);
       wipe.classList.remove('is-covering');
       wipe.classList.add('is-revealing');
