@@ -93,16 +93,26 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          response_file="$(mktemp)"
+          trap 'rm -f "$response_file"' EXIT
+
           for attempt in 1 2 3 4 5; do
+            echo "Production check attempt ${attempt}/5"
+
             if curl --fail --silent --show-error --location \
               --connect-timeout 10 \
               --max-time 20 \
-              https://lamaisonmalgache.com/ \
-              | grep -q 'La Maison Malgache'; then
-              echo 'Production verification succeeded.'
-              exit 0
+              --output "$response_file" \
+              https://lamaisonmalgache.com/; then
+              if grep -q 'La Maison Malgache' "$response_file"; then
+                echo 'Production verification succeeded.'
+                exit 0
+              fi
+              echo 'Homepage responded but expected marker was not found.' >&2
             fi
+
             sleep 8
           done
+
           echo 'Production verification failed.' >&2
           exit 1
