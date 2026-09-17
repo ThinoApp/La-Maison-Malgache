@@ -106,6 +106,7 @@
     dialog.addEventListener('close', () => {
       body.classList.remove('global-cart-open');
       document.querySelectorAll('.cart-trigger,.pdp-cart-trigger').forEach((trigger) => trigger.setAttribute('aria-expanded','false'));
+      window.dispatchEvent(new CustomEvent('lmm:cart-dialog-close', { detail:{ dialog } }));
     });
     dialog.addEventListener('cancel', (event) => {
       event.preventDefault();
@@ -238,6 +239,7 @@
     if (!dialog.open) dialog.showModal();
     body.classList.add('global-cart-open');
     document.querySelectorAll('.cart-trigger,.pdp-cart-trigger').forEach((trigger) => trigger.setAttribute('aria-expanded','true'));
+    window.dispatchEvent(new CustomEvent('lmm:cart-dialog-open', { detail:{ dialog } }));
     requestAnimationFrame(() => dialog.querySelector('[data-global-cart-close]')?.focus());
   }
 
