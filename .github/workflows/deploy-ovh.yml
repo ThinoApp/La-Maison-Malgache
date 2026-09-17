@@ -1,0 +1,109 @@
+name: Deploy production to OVH
+
+on:
+  push:
+    branches:
+      - prototype/static-html
+    paths:
+      - 'static-prototype/**'
+      - '.github/workflows/deploy-ovh.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ovh-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Publish lamaisonmalgache.com
+    runs-on: ubuntu-latest
+    environment:
+      name: production-ovh
+      url: https://lamaisonmalgache.com
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate production files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f static-prototype/index.html
+          test -f static-prototype/.htaccess
+          test -d static-prototype/boutique
+          node --check static-prototype/motion.js
+          node --check static-prototype/preloader-boost.js
+          node --check static-prototype/cursor-motion.js
+          node --check static-prototype/cinematic-motion.js
+          node --check static-prototype/shared-transition.js
+          node --check static-prototype/kinetic-typography.js
+          node --check static-prototype/material-webgl.js
+          node --check static-prototype/motion-director.js
+
+      - name: Prepare production payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .deploy-ovh
+          mkdir -p .deploy-ovh
+          rsync -a \
+            --delete \
+            --exclude 'preview-v2/' \
+            --exclude '.DS_Store' \
+            static-prototype/ .deploy-ovh/
+
+      - name: Install FTPS client
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lftp
+
+      - name: Deploy to OVH over FTPS
+        shell: bash
+        env:
+          OVH_FTP_HOST: ${{ secrets.OVH_FTP_HOST }}
+          OVH_FTP_USER: ${{ secrets.OVH_FTP_USER }}
+          OVH_FTP_PASSWORD: ${{ secrets.OVH_FTP_PASSWORD }}
+          OVH_FTP_REMOTE_DIR: ${{ secrets.OVH_FTP_REMOTE_DIR }}
+        run: |
+          set -euo pipefail
+
+          : "${OVH_FTP_HOST:?Missing OVH_FTP_HOST secret}"
+          : "${OVH_FTP_USER:?Missing OVH_FTP_USER secret}"
+          : "${OVH_FTP_PASSWORD:?Missing OVH_FTP_PASSWORD secret}"
+          : "${OVH_FTP_REMOTE_DIR:?Missing OVH_FTP_REMOTE_DIR secret}"
+
+          lftp <<LFTP
+          set cmd:fail-exit yes
+          set net:max-retries 2
+          set net:timeout 20
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ssl:verify-certificate yes
+          set ftp:list-options -a
+          open -u "$OVH_FTP_USER","$OVH_FTP_PASSWORD" "ftp://$OVH_FTP_HOST"
+          cd "$OVH_FTP_REMOTE_DIR"
+          mirror --reverse --delete --verbose --parallel=4 .deploy-ovh/ ./
+          bye
+          LFTP
+
+      - name: Verify production homepage
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            if curl --fail --silent --show-error --location \
+              --connect-timeout 10 \
+              --max-time 20 \
+              https://lamaisonmalgache.com/ \
+              | grep -q 'La Maison Malgache'; then
+              echo 'Production verification succeeded.'
+              exit 0
+            fi
+            sleep 8
+          done
+          echo 'Production verification failed.' >&2
+          exit 1
