@@ -1,10 +1,7 @@
-/* Signature cursor physics. This file is concatenated after motion.js for the preview build. */
-if (!reduceMotion.matches && finePointer.matches) {
-  const cursorStyle = document.createElement('link');
-  cursorStyle.rel = 'stylesheet';
-  cursorStyle.href = 'cursor-motion.css';
-  document.head.appendChild(cursorStyle);
+/* Signature cursor physics for the homepage runtime. */
+ensureMotionStylesheet('cursor-motion.css', 'cursor');
 
+if (!reduceMotion.matches && finePointer.matches && !document.querySelector('.brand-cursor')) {
   document.body.classList.add('has-brand-cursor');
 
   const brandCursor = document.createElement('div');
@@ -35,6 +32,7 @@ if (!reduceMotion.matches && finePointer.matches) {
   const cardSelector = '.card[data-reactive]';
 
   function setCursorState(target) {
+    if (!(target instanceof Element)) return;
     const card = target.closest(cardSelector);
     const interactive = target.closest(interactiveSelector);
 
@@ -45,6 +43,7 @@ if (!reduceMotion.matches && finePointer.matches) {
 
   function animateBrandCursor() {
     cursorRaf = 0;
+    if (document.hidden || !visible) return;
 
     ringX += (pointerX - ringX) * 0.16;
     ringY += (pointerY - ringY) * 0.16;
@@ -77,7 +76,7 @@ if (!reduceMotion.matches && finePointer.matches) {
   }
 
   function requestBrandCursor() {
-    if (!cursorRaf) cursorRaf = requestAnimationFrame(animateBrandCursor);
+    if (!document.hidden && !cursorRaf) cursorRaf = requestAnimationFrame(animateBrandCursor);
   }
 
   window.addEventListener('pointermove', (event) => {
@@ -95,10 +94,10 @@ if (!reduceMotion.matches && finePointer.matches) {
 
     setCursorState(event.target);
     requestBrandCursor();
-  }, { passive: true });
+  }, { passive:true });
 
-  window.addEventListener('pointerdown', () => brandCursor.classList.add('is-pressed'), { passive: true });
-  window.addEventListener('pointerup', () => brandCursor.classList.remove('is-pressed'), { passive: true });
+  window.addEventListener('pointerdown', () => brandCursor.classList.add('is-pressed'), { passive:true });
+  window.addEventListener('pointerup', () => brandCursor.classList.remove('is-pressed'), { passive:true });
 
   document.addEventListener('pointerout', (event) => {
     if (event.relatedTarget) return;
@@ -106,5 +105,12 @@ if (!reduceMotion.matches && finePointer.matches) {
     brandCursor.classList.remove('is-visible');
   });
 
-  document.addEventListener('pointerover', (event) => setCursorState(event.target), { passive: true });
+  document.addEventListener('pointerover', (event) => setCursorState(event.target), { passive:true });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) return;
+    cancelAnimationFrame(cursorRaf);
+    cursorRaf = 0;
+    visible = false;
+    brandCursor.classList.remove('is-visible','is-pressed');
+  });
 }
